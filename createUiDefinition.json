@@ -3521,4 +3521,4 @@
             "kind": "Tenant",
             "location": "[steps('basics').resourceScope.location.name]"
         }
-    }
+    }}
