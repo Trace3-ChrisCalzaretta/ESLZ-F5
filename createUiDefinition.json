@@ -3384,352 +3384,353 @@
                                 "min": 1,
                                 "max": 20
                             }
-                        },
-                        {
-                            "name": "appScalingMinSize",
-                            "type": "Microsoft.Common.Slider",
-                            "label": "Appscalingminsize",
-                            "defaultValue": 1,
-                            "constraints": {
-                                "min": 1,
-                                "max": 20
-                            }
-                        },
-                        {
-                            "name": "artifactLocation",
-                            "type": "Microsoft.Common.TextBox",
-                            "label": "Artifactlocation",
-                            "defaultValue": "f5-azure-arm-templates-v2/v2.8.0.0/examples/",
-                            "constraints": {
-                                "required": true
-                            }
-                        },
-                        {
-                            "name": "bigIpImage",
-                            "type": "Microsoft.Common.TextBox",
-                            "label": "Bigipimage",
-                            "defaultValue": "f5-networks:f5-big-ip-best:f5-big-best-plus-hourly-25mbps:16.1.303000",
-                            "constraints": {
-                                "required": true
-                            }
-                        },
-                        {
-                            "name": "bigIpInstanceType",
-                            "type": "Microsoft.Common.TextBox",
-                            "label": "Bigipinstancetype",
-                            "defaultValue": "Standard_D2s_v4",
-                            "constraints": {
-                                "required": true
-                            }
-                        },
-                        {
-                            "name": "bigIpMaxBatchInstancePercent",
-                            "type": "Microsoft.Common.Slider",
-                            "label": "Bigipmaxbatchinstancepercent",
-                            "defaultValue": 20,
-                            "constraints": {
-                                "min": 0,
-                                "max": 100
-                            }
-                        },
-                        {
-                            "name": "bigIpMaxUnhealthyInstancePercent",
-                            "type": "Microsoft.Common.Slider",
-                            "label": "Bigipmaxunhealthyinstancepercent",
-                            "defaultValue": 20,
-                            "constraints": {
-                                "min": 0,
-                                "max": 100
-                            }
-                        },
-                        {
-                            "name": "bigIpMaxUnhealthyUpgradedInstancePercent",
-                            "type": "Microsoft.Common.Slider",
-                            "label": "Bigipmaxunhealthyupgradedinstancepercent",
-                            "defaultValue": 20,
-                            "constraints": {
-                                "min": 0,
-                                "max": 100
-                            }
-                        },
-                        {
-                            "name": "bigIpPauseTimeBetweenBatches",
-                            "type": "Microsoft.Common.Slider",
-                            "label": "Bigippausetimebetweenbatches",
-                            "defaultValue": 0,
-                            "constraints": {
-                                "min": 0,
-                                "max": 100
-                            }
-                        },
-                        {
-                            "name": "bigIpRuntimeInitConfig",
-                            "type": "Microsoft.Common.TextBox",
-                            "label": "Bigipruntimeinitconfig",
-                            "defaultValue": "https://raw.githubusercontent.com/F5Networks/f5-azure-arm-templates-v2/v2.8.0.0/examples/autoscale/bigip-configurations/runtime-init-conf-payg-with-app.yaml",
-                            "constraints": {
-                                "required": true
-                            }
-                        },
-                        {
-                            "name": "bigIpRuntimeInitPackageUrl",
-                            "type": "Microsoft.Common.TextBox",
-                            "label": "Bigipruntimeinitpackageurl",
-                            "defaultValue": "https://cdn.f5.com/product/cloudsolutions/f5-bigip-runtime-init/v1.6.1/dist/f5-bigip-runtime-init-1.6.1-1.gz.run",
-                            "constraints": {
-                                "required": true
-                            }
-                        },
-                        {
-                            "name": "bigIpScaleInCpuThreshold",
-                            "type": "Microsoft.Common.Slider",
-                            "label": "Bigipscaleincputhreshold",
-                            "defaultValue": 20,
-                            "constraints": {
-                                "min": 0,
-                                "max": 100
-                            }
-                        },
-                        {
-                            "name": "bigIpScaleInThroughputThreshold",
-                            "type": "Microsoft.Common.Slider",
-                            "label": "Bigipscaleinthroughputthreshold",
-                            "defaultValue": 10000000,
-                            "constraints": {
-                                "min": 0,
-                                "max": 100000000
-                            }
-                        },
-                        {
-                            "name": "bigIpScaleInTimeWindow",
-                            "type": "Microsoft.Common.Slider",
-                            "label": "Bigipscaleintimewindow",
-                            "defaultValue": 10,
-                            "constraints": {
-                                "min": 0,
-                                "max": 100
-                            }
-                        },
-                        {
-                            "name": "bigIpScaleOutCpuThreshold",
-                            "type": "Microsoft.Common.Slider",
-                            "label": "Bigipscaleoutcputhreshold",
-                            "defaultValue": 80,
-                            "constraints": {
-                                "min": 0,
-                                "max": 100
-                            }
-                        },
-                        {
-                            "name": "bigIpScaleOutThroughputThreshold",
-                            "type": "Microsoft.Common.Slider",
-                            "label": "Bigipscaleoutthroughputthreshold",
-                            "defaultValue": 20000000,
-                            "constraints": {
-                                "min": 0,
-                                "max": 100000000
-                            }
-                        },
-                        {
-                            "name": "bigIpScaleOutTimeWindow",
-                            "type": "Microsoft.Common.Slider",
-                            "label": "Bigipscaleouttimewindow",
-                            "defaultValue": 10,
-                            "constraints": {
-                                "min": 0,
-                                "max": 100
-                            }
-                        },
-                        {
-                            "name": "bigIpScalingMaxSize",
-                            "type": "Microsoft.Common.Slider",
-                            "label": "Bigipscalingmaxsize",
-                            "defaultValue": 10,
-                            "constraints": {
-                                "min": 0,
-                                "max": 20
-                            }
-                        },
-                        {
-                            "name": "bigIpScalingMinSize",
-                            "type": "Microsoft.Common.Slider",
-                            "label": "Bigipscalingminsize",
-                            "defaultValue": 1,
-                            "constraints": {
-                                "min": 0,
-                                "max": 20
-                            }
-                        },
-                        {
-                            "name": "bigIpUserAssignManagedIdentity",
-                            "type": "Microsoft.Common.TextBox",
-                            "label": "Bigipuserassignmanagedidentity",
-                            "defaultValue": "",
-                            "constraints": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "name": "createWorkspace",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Createworkspace",
-                            "defaultValue": true,
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes",
-                                        "value": true
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": false
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "name": "provisionExternalBigIpLoadBalancer",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Provisionexternalbigiploadbalancer",
-                            "defaultValue": true,
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes",
-                                        "value": true
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": false
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "name": "provisionInternalBigIpLoadBalancer",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Provisioninternalbigiploadbalancer",
-                            "defaultValue": false,
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes",
-                                        "value": true
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": false
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "name": "provisionPublicIp",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Provisionpublicip",
-                            "defaultValue": true,
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes",
-                                        "value": true
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": false
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "name": "restrictedSrcAddressApp",
-                            "type": "Microsoft.Common.TextBox",
-                            "label": "Restrictedsrcaddressapp",
-                            "defaultValue": "",
-                            "constraints": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "name": "restrictedSrcAddressMgmt",
-                            "type": "Microsoft.Common.TextBox",
-                            "label": "Restrictedsrcaddressmgmt",
-                            "defaultValue": "",
-                            "constraints": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "name": "sshKey",
-                            "type": "Microsoft.Common.TextBox",
-                            "label": "Sshkey",
-                            "defaultValue": "",
-                            "constraints": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "name": "tagValues",
-                            "type": "Microsoft.Common.TextBox",
-                            "label": "Tagvalues",
-                            "defaultValue": {
-                                "application": "f5demoapp",
-                                "cost": "f5cost",
-                                "environment": "f5env",
-                                "group": "f5group",
-                                "owner": "f5owner"
-                            },
-                            "constraints": {
-                                "required": true
-                            }
-                        },
-                        {
-                            "name": "templateBaseUrl",
-                            "type": "Microsoft.Common.TextBox",
-                            "label": "Templatebaseurl",
-                            "defaultValue": "https://cdn.f5.com/product/cloudsolutions/",
-                            "constraints": {
-                                "required": true
-                            }
-                        },
-                        {
-                            "name": "uniqueString",
-                            "type": "Microsoft.Common.TextBox",
-                            "label": "Uniquestring",
-                            "defaultValue": "",
-                            "constraints": {
-                                "required": false
-                            }
-                        },
-                        {
-                            "name": "useAvailabilityZones",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Useavailabilityzones",
-                            "defaultValue": false,
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes",
-                                        "value": true
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": false
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "name": "workspaceId",
-                            "type": "Microsoft.Common.TextBox",
-                            "label": "Workspaceid",
-                            "defaultValue": "WORKSPACE_ID",
-                            "constraints": {
-                                "required": true
-                            }
                         }
-                    ]
-                }
+                //         },
+                //         {
+                //             "name": "appScalingMinSize",
+                //             "type": "Microsoft.Common.Slider",
+                //             "label": "Appscalingminsize",
+                //             "defaultValue": 1,
+                //             "constraints": {
+                //                 "min": 1,
+                //                 "max": 20
+                //             }
+                //         },
+                //         {
+                //             "name": "artifactLocation",
+                //             "type": "Microsoft.Common.TextBox",
+                //             "label": "Artifactlocation",
+                //             "defaultValue": "f5-azure-arm-templates-v2/v2.8.0.0/examples/",
+                //             "constraints": {
+                //                 "required": true
+                //             }
+                //         },
+                //         {
+                //             "name": "bigIpImage",
+                //             "type": "Microsoft.Common.TextBox",
+                //             "label": "Bigipimage",
+                //             "defaultValue": "f5-networks:f5-big-ip-best:f5-big-best-plus-hourly-25mbps:16.1.303000",
+                //             "constraints": {
+                //                 "required": true
+                //             }
+                //         },
+                //         {
+                //             "name": "bigIpInstanceType",
+                //             "type": "Microsoft.Common.TextBox",
+                //             "label": "Bigipinstancetype",
+                //             "defaultValue": "Standard_D2s_v4",
+                //             "constraints": {
+                //                 "required": true
+                //             }
+                //         },
+                //         {
+                //             "name": "bigIpMaxBatchInstancePercent",
+                //             "type": "Microsoft.Common.Slider",
+                //             "label": "Bigipmaxbatchinstancepercent",
+                //             "defaultValue": 20,
+                //             "constraints": {
+                //                 "min": 0,
+                //                 "max": 100
+                //             }
+                //         },
+                //         {
+                //             "name": "bigIpMaxUnhealthyInstancePercent",
+                //             "type": "Microsoft.Common.Slider",
+                //             "label": "Bigipmaxunhealthyinstancepercent",
+                //             "defaultValue": 20,
+                //             "constraints": {
+                //                 "min": 0,
+                //                 "max": 100
+                //             }
+                //         },
+                //         {
+                //             "name": "bigIpMaxUnhealthyUpgradedInstancePercent",
+                //             "type": "Microsoft.Common.Slider",
+                //             "label": "Bigipmaxunhealthyupgradedinstancepercent",
+                //             "defaultValue": 20,
+                //             "constraints": {
+                //                 "min": 0,
+                //                 "max": 100
+                //             }
+                //         },
+                //         {
+                //             "name": "bigIpPauseTimeBetweenBatches",
+                //             "type": "Microsoft.Common.Slider",
+                //             "label": "Bigippausetimebetweenbatches",
+                //             "defaultValue": 0,
+                //             "constraints": {
+                //                 "min": 0,
+                //                 "max": 100
+                //             }
+                //         },
+                //         {
+                //             "name": "bigIpRuntimeInitConfig",
+                //             "type": "Microsoft.Common.TextBox",
+                //             "label": "Bigipruntimeinitconfig",
+                //             "defaultValue": "https://raw.githubusercontent.com/F5Networks/f5-azure-arm-templates-v2/v2.8.0.0/examples/autoscale/bigip-configurations/runtime-init-conf-payg-with-app.yaml",
+                //             "constraints": {
+                //                 "required": true
+                //             }
+                //         },
+                //         {
+                //             "name": "bigIpRuntimeInitPackageUrl",
+                //             "type": "Microsoft.Common.TextBox",
+                //             "label": "Bigipruntimeinitpackageurl",
+                //             "defaultValue": "https://cdn.f5.com/product/cloudsolutions/f5-bigip-runtime-init/v1.6.1/dist/f5-bigip-runtime-init-1.6.1-1.gz.run",
+                //             "constraints": {
+                //                 "required": true
+                //             }
+                //         },
+                //         {
+                //             "name": "bigIpScaleInCpuThreshold",
+                //             "type": "Microsoft.Common.Slider",
+                //             "label": "Bigipscaleincputhreshold",
+                //             "defaultValue": 20,
+                //             "constraints": {
+                //                 "min": 0,
+                //                 "max": 100
+                //             }
+                //         },
+                //         {
+                //             "name": "bigIpScaleInThroughputThreshold",
+                //             "type": "Microsoft.Common.Slider",
+                //             "label": "Bigipscaleinthroughputthreshold",
+                //             "defaultValue": 10000000,
+                //             "constraints": {
+                //                 "min": 0,
+                //                 "max": 100000000
+                //             }
+                //         },
+                //         {
+                //             "name": "bigIpScaleInTimeWindow",
+                //             "type": "Microsoft.Common.Slider",
+                //             "label": "Bigipscaleintimewindow",
+                //             "defaultValue": 10,
+                //             "constraints": {
+                //                 "min": 0,
+                //                 "max": 100
+                //             }
+                //         },
+                //         {
+                //             "name": "bigIpScaleOutCpuThreshold",
+                //             "type": "Microsoft.Common.Slider",
+                //             "label": "Bigipscaleoutcputhreshold",
+                //             "defaultValue": 80,
+                //             "constraints": {
+                //                 "min": 0,
+                //                 "max": 100
+                //             }
+                //         },
+                //         {
+                //             "name": "bigIpScaleOutThroughputThreshold",
+                //             "type": "Microsoft.Common.Slider",
+                //             "label": "Bigipscaleoutthroughputthreshold",
+                //             "defaultValue": 20000000,
+                //             "constraints": {
+                //                 "min": 0,
+                //                 "max": 100000000
+                //             }
+                //         },
+                //         {
+                //             "name": "bigIpScaleOutTimeWindow",
+                //             "type": "Microsoft.Common.Slider",
+                //             "label": "Bigipscaleouttimewindow",
+                //             "defaultValue": 10,
+                //             "constraints": {
+                //                 "min": 0,
+                //                 "max": 100
+                //             }
+                //         },
+                //         {
+                //             "name": "bigIpScalingMaxSize",
+                //             "type": "Microsoft.Common.Slider",
+                //             "label": "Bigipscalingmaxsize",
+                //             "defaultValue": 10,
+                //             "constraints": {
+                //                 "min": 0,
+                //                 "max": 20
+                //             }
+                //         },
+                //         {
+                //             "name": "bigIpScalingMinSize",
+                //             "type": "Microsoft.Common.Slider",
+                //             "label": "Bigipscalingminsize",
+                //             "defaultValue": 1,
+                //             "constraints": {
+                //                 "min": 0,
+                //                 "max": 20
+                //             }
+                //         },
+                //         {
+                //             "name": "bigIpUserAssignManagedIdentity",
+                //             "type": "Microsoft.Common.TextBox",
+                //             "label": "Bigipuserassignmanagedidentity",
+                //             "defaultValue": "",
+                //             "constraints": {
+                //                 "required": false
+                //             }
+                //         },
+                //         {
+                //             "name": "createWorkspace",
+                //             "type": "Microsoft.Common.OptionsGroup",
+                //             "label": "Createworkspace",
+                //             "defaultValue": true,
+                //             "constraints": {
+                //                 "allowedValues": [
+                //                     {
+                //                         "label": "Yes",
+                //                         "value": true
+                //                     },
+                //                     {
+                //                         "label": "No",
+                //                         "value": false
+                //                     }
+                //                 ]
+                //             }
+                //         },
+                //         {
+                //             "name": "provisionExternalBigIpLoadBalancer",
+                //             "type": "Microsoft.Common.OptionsGroup",
+                //             "label": "Provisionexternalbigiploadbalancer",
+                //             "defaultValue": true,
+                //             "constraints": {
+                //                 "allowedValues": [
+                //                     {
+                //                         "label": "Yes",
+                //                         "value": true
+                //                     },
+                //                     {
+                //                         "label": "No",
+                //                         "value": false
+                //                     }
+                //                 ]
+                //             }
+                //         },
+                //         {
+                //             "name": "provisionInternalBigIpLoadBalancer",
+                //             "type": "Microsoft.Common.OptionsGroup",
+                //             "label": "Provisioninternalbigiploadbalancer",
+                //             "defaultValue": false,
+                //             "constraints": {
+                //                 "allowedValues": [
+                //                     {
+                //                         "label": "Yes",
+                //                         "value": true
+                //                     },
+                //                     {
+                //                         "label": "No",
+                //                         "value": false
+                //                     }
+                //                 ]
+                //             }
+                //         },
+                //         {
+                //             "name": "provisionPublicIp",
+                //             "type": "Microsoft.Common.OptionsGroup",
+                //             "label": "Provisionpublicip",
+                //             "defaultValue": true,
+                //             "constraints": {
+                //                 "allowedValues": [
+                //                     {
+                //                         "label": "Yes",
+                //                         "value": true
+                //                     },
+                //                     {
+                //                         "label": "No",
+                //                         "value": false
+                //                     }
+                //                 ]
+                //             }
+                //         },
+                //         {
+                //             "name": "restrictedSrcAddressApp",
+                //             "type": "Microsoft.Common.TextBox",
+                //             "label": "Restrictedsrcaddressapp",
+                //             "defaultValue": "",
+                //             "constraints": {
+                //                 "required": false
+                //             }
+                //         },
+                //         {
+                //             "name": "restrictedSrcAddressMgmt",
+                //             "type": "Microsoft.Common.TextBox",
+                //             "label": "Restrictedsrcaddressmgmt",
+                //             "defaultValue": "",
+                //             "constraints": {
+                //                 "required": false
+                //             }
+                //         },
+                //         {
+                //             "name": "sshKey",
+                //             "type": "Microsoft.Common.TextBox",
+                //             "label": "Sshkey",
+                //             "defaultValue": "",
+                //             "constraints": {
+                //                 "required": false
+                //             }
+                //         },
+                //         {
+                //             "name": "tagValues",
+                //             "type": "Microsoft.Common.TextBox",
+                //             "label": "Tagvalues",
+                //             "defaultValue": {
+                //                 "application": "f5demoapp",
+                //                 "cost": "f5cost",
+                //                 "environment": "f5env",
+                //                 "group": "f5group",
+                //                 "owner": "f5owner"
+                //             },
+                //             "constraints": {
+                //                 "required": true
+                //             }
+                //         },
+                //         {
+                //             "name": "templateBaseUrl",
+                //             "type": "Microsoft.Common.TextBox",
+                //             "label": "Templatebaseurl",
+                //             "defaultValue": "https://cdn.f5.com/product/cloudsolutions/",
+                //             "constraints": {
+                //                 "required": true
+                //             }
+                //         },
+                //         {
+                //             "name": "uniqueString",
+                //             "type": "Microsoft.Common.TextBox",
+                //             "label": "Uniquestring",
+                //             "defaultValue": "",
+                //             "constraints": {
+                //                 "required": false
+                //             }
+                //         },
+                //         {
+                //             "name": "useAvailabilityZones",
+                //             "type": "Microsoft.Common.OptionsGroup",
+                //             "label": "Useavailabilityzones",
+                //             "defaultValue": false,
+                //             "constraints": {
+                //                 "allowedValues": [
+                //                     {
+                //                         "label": "Yes",
+                //                         "value": true
+                //                     },
+                //                     {
+                //                         "label": "No",
+                //                         "value": false
+                //                     }
+                //                 ]
+                //             }
+                //         },
+                //         {
+                //             "name": "workspaceId",
+                //             "type": "Microsoft.Common.TextBox",
+                //             "label": "Workspaceid",
+                //             "defaultValue": "WORKSPACE_ID",
+                //             "constraints": {
+                //                 "required": true
+                //             }
+                //         }
+                //     ]
+                // }
                 
                 
             ]
