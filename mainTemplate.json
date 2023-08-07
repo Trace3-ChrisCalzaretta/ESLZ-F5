@@ -1,5 +1,6 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+    //    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "enterpriseScaleCompanyPrefix": {
@@ -1367,7 +1368,201 @@
             "networkContributor": "4d97b98b-1d4f-4787-a291-c67834d212e7"
         },
         "cuaid": "35c42e79-00b3-42eb-a9ac-e542953efb3c",
-        "ztnPhase1CuaId": "f09f64b8-5cb3-4b16-900d-6ba1df8a597e"
+        "ztnPhase1CuaId": "f09f64b8-5cb3-4b16-900d-6ba1df8a597e",
+          "f5DeploymentNames":{
+            "contentVersion": "[deployment().properties.template.contentVersion]",
+            "uniqueString": "[toLower( variables('deploymentSuffix'))]",
+            "adminUsername": "[string('azureuser')]",
+            "createManagedIdentity": "[empty(parameters('bigIpUserAssignManagedIdentity'))]",
+            "solutionType": "standard",
+            "customAssignableScopes": [],
+            "customRolePermissions": [],
+            "roleDescription": "Role created by autoscale deployment",
+            "roleName": "[concat(variables('f5DeploymentNames').uniqueString, '-bigip-autoscale-role')]",
+            "keyVaultPermissionsKeys": [],
+            "keyVaultPermissionsSecrets": [],
+            "userAssignedIdentityName": "[concat(variables('f5DeploymentNames').uniqueString, '-bigip-identity')]",
+            "createNatGateway": "[and(not(parameters('provisionPublicIp')), not(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer))]",
+            "numSubnets": 2,
+            "vnetAddressPrefix": "10.0",
+            "vnetName": "[concat(variables('f5DeploymentNames').uniqueString, '-vnet')]",
+            "provisionExternalBigIpLoadBalancer": "[parameters('provisionExternalBigIpLoadBalancer')]",
+            "provisionInternalBigIpLoadBalancer": "[parameters('provisionInternalBigIpLoadBalancer')]",
+            "externalLoadBalancerName": "[if(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer, concat(variables('f5DeploymentNames').uniqueString, '-external-lb'), '')]",
+            "internalLoadBalancerName": "[if(variables('f5DeploymentNames').provisionInternalBigIpLoadBalancer, concat(variables('f5DeploymentNames').uniqueString, '-internal-lb'), '')]",
+            "loadBalancerRulePorts": [
+            "80",
+            "443"
+            ],
+            "mgmtSecurityGroup": [
+            {
+                "destinationPortRanges": [
+                "22",
+                "8443"
+                ],
+                "sourceAddressPrefix": "[parameters('restrictedSrcAddressMgmt')]",
+                "protocol": "Tcp"
+            },
+            {
+                "destinationPortRanges": [
+                "80",
+                "443"
+                ],
+                "sourceAddressPrefix": "*",
+                "protocol": "Tcp"
+            }
+            ],
+            "appSecurityGroup": [
+            {
+                "destinationPortRanges": [
+                "80",
+                "443"
+                ],
+                "sourceAddressPrefix": "[parameters('restrictedSrcAddressApp')]",
+                "protocol": "Tcp"
+            },
+            {
+                "destinationPortRanges": [
+                "80",
+                "443"
+                ],
+                "sourceAddressPrefix": "10.0.0.0/8",
+                "protocol": "Tcp"
+            }
+            ],
+            "bastionSecurityGroup": [
+            {
+                "destinationPortRanges": [
+                "22"
+                ],
+                "sourceAddressPrefix": "[parameters('restrictedSrcAddressMgmt')]",
+                "protocol": "Tcp"
+            }
+            ],
+            "numberPublicExternalIpAddresses": "[if(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer, 1, 0)]",
+            "numberPublicMgmtIpAddresses": 0,
+            "bastionInstanceName": "[variables('f5DeploymentNames').uniqueString]",
+            "bastionInstanceType": "Standard_D2_v4",
+            "appInstanceName": "[variables('f5DeploymentNames').uniqueString]",
+            "appInstanceType": "Standard_D2_v4",
+            "appVmScaleSetMaxCount": "[parameters('appScalingMaxSize')]",
+            "appVmScaleSetMinCount": "[parameters('appScalingMinSize')]",
+            "cloudInitUrl": "",
+            "createAutoscaleGroup": true,
+            "provisionApp": "[not(empty(parameters('appContainerName')))]",
+            "appInsights": "[concat(variables('f5DeploymentNames').uniqueString, '-app-insights')]",
+            "appInsightsId": "[resourceId('Microsoft.Insights/components', variables('f5DeploymentNames').appInsights)]",
+            "bigIpImage": "[parameters('bigIpImage')]",
+            "bigIpInstanceType": "[parameters('bigIpInstanceType')]",
+            "bigIpVmScaleSetMaxCount": "[parameters('bigIpScalingMaxSize')]",
+            "bigIpVmScaleSetMinCount": "[parameters('bigIpScalingMinSize')]",
+            "cpuMetricName": "Percentage CPU",
+            "customAutoscaleRules": [
+            {
+                "scaleAction": {
+                "direction": "Increase",
+                "type": "ChangeCount",
+                "value": "1",
+                "cooldown": "PT1M"
+                },
+                "metricTrigger": {
+                "metricName": "F5_system_cpu",
+                "metricNamespace": "azure.applicationinsights",
+                "metricResourceUri": "[variables('f5DeploymentNames').appInsightsId]",
+                "operator": "GreaterThan",
+                "statistic": "Average",
+                "threshold": "[variables('f5DeploymentNames').scaleOutCpuThreshold]",
+                "timeAggregation": "Average",
+                "timeGrain": "PT1M",
+                "timeWindow": "[concat('PT', parameters('bigIpScaleOutTimeWindow'), 'M')]",
+                "Dimensions": [],
+                "dividePerInstance": false
+                }
+            },
+            {
+                "scaleAction": {
+                "direction": "Decrease",
+                "type": "ChangeCount",
+                "value": "1",
+                "cooldown": "PT1M"
+                },
+                "metricTrigger": {
+                "metricName": "F5_system_cpu",
+                "metricNamespace": "azure.applicationinsights",
+                "metricResourceUri": "[variables('f5DeploymentNames').appInsightsId]",
+                "operator": "LessThan",
+                "statistic": "Average",
+                "threshold": "[variables('f5DeploymentNames').scaleInCpuThreshold]",
+                "timeAggregation": "Average",
+                "timeGrain": "PT1M",
+                "timeWindow": "[concat('PT', parameters('bigIpScaleInTimeWindow'), 'M')]",
+                "Dimensions": [],
+                "dividePerInstance": false
+                }
+            },
+            {
+                "scaleAction": {
+                "direction": "Increase",
+                "type": "ChangeCount",
+                "value": "1",
+                "cooldown": "PT1M"
+                },
+                "metricTrigger": {
+                "metricName": "F5_throughputIn_sys/performance/throughput/In_Current",
+                "metricNamespace": "azure.applicationinsights",
+                "metricResourceUri": "[variables('f5DeploymentNames').appInsightsId]",
+                "operator": "GreaterThan",
+                "statistic": "Average",
+                "threshold": "[variables('f5DeploymentNames').scaleOutThroughputThreshold]",
+                "timeAggregation": "Average",
+                "timeGrain": "PT1M",
+                "timeWindow": "[concat('PT', parameters('bigIpScaleOutTimeWindow'), 'M')]",
+                "Dimensions": [],
+                "dividePerInstance": false
+                }
+            },
+            {
+                "scaleAction": {
+                "direction": "Decrease",
+                "type": "ChangeCount",
+                "value": "1",
+                "cooldown": "PT1M"
+                },
+                "metricTrigger": {
+                "metricName": "F5_throughputIn_sys/performance/throughput/In_Current",
+                "metricNamespace": "azure.applicationinsights",
+                "metricResourceUri": "[variables('f5DeploymentNames').appInsightsId]",
+                "operator": "LessThan",
+                "statistic": "Average",
+                "threshold": "[variables('f5DeploymentNames').scaleInThroughputThreshold]",
+                "timeAggregation": "Average",
+                "timeGrain": "PT1M",
+                "timeWindow": "[concat('PT', parameters('bigIpScaleInTimeWindow'), 'M')]",
+                "Dimensions": [],
+                "dividePerInstance": false
+                }
+            }
+            ],
+            "customEmail": [],
+            "maxBatchInstancePercent": "[parameters('bigIpMaxBatchInstancePercent')]",
+            "maxUnhealthyInstancePercent": "[parameters('bigIpMaxUnhealthyInstancePercent')]",
+            "maxUnhealthyUpgradedInstancePercent": "[parameters('bigIpMaxUnhealthyUpgradedInstancePercent')]",
+            "pauseTimeBetweenBatches": "[parameters('bigIpPauseTimeBetweenBatches')]",
+            "publicIpConfig": {
+            "name": "[concat(variables('f5DeploymentNames').uniqueString, '-bigip-vmss-pip')]",
+            "properties": {
+                "idleTimeoutInMinutes": 15
+            }
+            },
+            "scaleInCpuThreshold": "[parameters('bigIpScaleInCpuThreshold')]",
+            "scaleInThroughputThreshold": "[parameters('bigIpScaleInThroughputThreshold')]",
+            "scaleInTimeWindow": "[parameters('bigIpScaleInTimeWindow')]",
+            "scaleOutCpuThreshold": "[parameters('bigIpScaleOutCpuThreshold')]",
+            "scaleOutThroughputThreshold": "[parameters('bigIpScaleOutThroughputThreshold')]",
+            "scaleOutTimeWindow": "[parameters('bigIpScaleOutTimeWindow')]",
+            "throughputMetricName": "Network In",
+            "vmssName": "[concat(variables('f5DeploymentNames').uniqueString, '-bigip-vmss')]"
+        }
     },
     "resources": [
         /*
