@@ -3338,55 +3338,7 @@
 							"visible": true
 						}
 					]
-				},
-                {
-                    "name": "f5Parameters",
-                    "label": "F5 Configuration Settings",
-                    "subLabel": {
-                        "preValidation": "Provide F5 settings.",
-                        "postValidation": "Done"
-                    },
-                    "bladeTitle": "F5 Settings",
-                    "elements": [
-                        {
-                            "name": "allowUsageAnalytics",
-                            "type": "Microsoft.Common.OptionsGroup",
-                            "label": "Allowusageanalytics",
-                            "defaultValue": true,
-                            "constraints": {
-                                "allowedValues": [
-                                    {
-                                        "label": "Yes",
-                                        "value": true
-                                    },
-                                    {
-                                        "label": "No",
-                                        "value": false
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            "name": "appContainerName",
-                            "type": "Microsoft.Common.TextBox",
-                            "label": "Appcontainername",
-                            "defaultValue": "f5devcentral/f5-demo-app:latest",
-                            "constraints": {
-                                "required": true
-                            }
-                        },
-                        {
-                            "name": "appScalingMaxSize",
-                            "type": "Microsoft.Common.Slider",
-                            "label": "Appscalingmaxsize",
-                            "defaultValue": 10,
-                            "constraints": {
-                                "min": 1,
-                                "max": 20
-                            }
-                        }
-                    ]
-                }
+				}
             ]
                         
                         
