@@ -752,12 +752,6 @@
             },
             "type": "string"
         },
-        "uniqueString": {
-            "metadata": {
-                "description": "REQUIRED - A prefix that will be used to name template resources. Because some resources require globally unique names, we recommend using a unique value."
-            },
-            "type": "string"
-        },
         "sshKey": {
             "metadata": {
                 "description": "REQUIRED - Supply the public key that will be used for SSH authentication to the BIG-IP and application virtual machines."
