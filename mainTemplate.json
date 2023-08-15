@@ -732,7 +732,8 @@
             }
         },
         "templateBaseUrl": {
-            "defaultValue": "https://cdn.f5.com/product/cloudsolutions/",
+           // "defaultValue": "https://cdn.f5.com/product/cloudsolutions/",
+            "defaultValue": "https://github.com/Trace3-ChrisCalzaretta/ESLZ-F5/tree/main/Template/modules",
             "metadata": {
                 "description": "The publicly accessible URL where the linked ARM templates are located."
             },
