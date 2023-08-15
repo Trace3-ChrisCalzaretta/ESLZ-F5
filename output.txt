@@ -1,0 +1,105 @@
+
+Validating ESLZ-F5\createUiDefinition.json
+  AllFiles
+    [+] AllFiles (0 ms)
+Validating resourceGroupTemplates\azureFirewall.json
+  deploymentTemplate
+    [+] deploymentTemplate (0 ms)
+  createUIDefinition
+    [+] createUIDefinition (0 ms)
+  deploymentParameters
+    [+] deploymentParameters (0 ms)
+Validating policyDefinitions\Deploy-Diagnostics-Firewall.json
+  deploymentTemplate
+    [+] deploymentTemplate (0 ms)
+  createUIDefinition
+    [+] createUIDefinition (0 ms)
+  deploymentParameters
+    [+] deploymentParameters (0 ms)
+Validating policyDefinitions\Deploy-FirewallPolicy.json
+  deploymentTemplate
+    [+] deploymentTemplate (0 ms)
+  createUIDefinition
+    [+] createUIDefinition (0 ms)
+  deploymentParameters
+    [+] deploymentParameters (0 ms)
+Validating resourceGroupTemplates\azureFirewall.json
+  deploymentTemplate
+    [+] deploymentTemplate (0 ms)
+  createUIDefinition
+    [+] createUIDefinition (0 ms)
+  deploymentParameters
+    [+] deploymentParameters (0 ms)
+Validating policyDefinitions\Deploy-Diagnostics-Firewall.json
+  deploymentTemplate
+    [+] deploymentTemplate (0 ms)
+  createUIDefinition
+    [+] createUIDefinition (0 ms)
+  deploymentParameters
+    [+] deploymentParameters (0 ms)
+Validating policyDefinitions\Deploy-FirewallPolicy.json
+  deploymentTemplate
+    [+] deploymentTemplate (0 ms)
+  createUIDefinition
+    [+] createUIDefinition (0 ms)
+  deploymentParameters
+    [+] deploymentParameters (0 ms)
+
+
+Validating ESLZ-F5\createUiDefinition.json
+  AllFiles
+    [+] AllFiles (0 ms)
+Validating resourceGroupTemplates\azureFirewall.json
+  deploymentTemplate
+    [+] deploymentTemplate (0 ms)
+  createUIDefinition
+    [+] createUIDefinition (0 ms)
+  deploymentParameters
+    [+] deploymentParameters (0 ms)
+Validating policyDefinitions\Deploy-Diagnostics-Firewall.json
+  deploymentTemplate
+    [+] deploymentTemplate (0 ms)
+  createUIDefinition
+    [+] createUIDefinition (0 ms)
+  deploymentParameters
+    [+] deploymentParameters (0 ms)
+Validating policyDefinitions\Deploy-FirewallPolicy.json
+  deploymentTemplate
+    [+] deploymentTemplate (0 ms)
+  createUIDefinition
+    [+] createUIDefinition (0 ms)
+  deploymentParameters
+    [+] deploymentParameters (0 ms)
+Validating resourceGroupTemplates\azureFirewall.json
+  deploymentTemplate
+    [+] deploymentTemplate (0 ms)
+  createUIDefinition
+    [+] createUIDefinition (0 ms)
+  deploymentParameters
+    [+] deploymentParameters (0 ms)
+Validating policyDefinitions\Deploy-Diagnostics-Firewall.json
+  deploymentTemplate
+    [+] deploymentTemplate (0 ms)
+  createUIDefinition
+    [+] createUIDefinition (0 ms)
+  deploymentParameters
+    [+] deploymentParameters (0 ms)
+Validating policyDefinitions\Deploy-FirewallPolicy.json
+  deploymentTemplate
+    [+] deploymentTemplate (0 ms)
+  createUIDefinition
+    [+] createUIDefinition (0 ms)
+  deploymentParameters
+    [+] deploymentParameters (0 ms)
+
+
+Validating ESLZ-F5\mainTemplate.json
+  AllFiles
+    [+] AllFiles (0 ms)
+Fail  : 0
+Total : 1
+Pass  : 1
+
+
+
+
