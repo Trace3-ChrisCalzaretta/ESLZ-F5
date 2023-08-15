@@ -730,6 +730,264 @@
             "metadata": {
                 "description": "The current date and time using the utcNow function. Used for deployment name uniqueness"
             }
+        },
+        "templateBaseUrl": {
+            "defaultValue": "https://cdn.f5.com/product/cloudsolutions/",
+            "metadata": {
+                "description": "The publicly accessible URL where the linked ARM templates are located."
+            },
+            "type": "string"
+        },
+        "allowUsageAnalytics": {
+            "defaultValue": true,
+            "metadata": {
+                "description": "This deployment can send anonymous statistics to F5 to help us determine how to improve our solutions. If you select **false** statistics are not sent."
+            },
+            "type": "bool"
+        },
+        "artifactLocation": {
+            "defaultValue": "[concat('f5-azure-arm-templates-v2/v', deployment().properties.template.contentVersion, '/examples/')]",
+            "metadata": {
+                "description": "The directory, relative to the templateBaseUrl, where the modules folder is located."
+            },
+            "type": "string"
+        },
+        "sshKey": {
+            "metadata": {
+                "description": "REQUIRED - Supply the public key that will be used for SSH authentication to the BIG-IP and application virtual machines."
+            },
+            "type": "string"
+        },
+        "restrictedSrcAddressMgmt": {
+            "metadata": {
+                "description": "REQUIRED - When creating management security group, this field restricts management access to a specific network or address. Enter an IP address or address range in CIDR notation, or asterisk for all sources."
+            },
+            "type": "string"
+        },
+        "restrictedSrcAddressApp": {
+            "metadata": {
+                "description": "REQUIRED - When creating application security group, this field restricts application access to a specific network or address. Enter an IP address or address range in CIDR notation, or asterisk for all sources."
+            },
+            "type": "string"
+        },
+        "bigIpImage": {
+            "defaultValue": "f5-networks:f5-big-ip-best:f5-big-best-plus-hourly-25mbps:16.1.303000",
+            "metadata": {
+                "description": "2 formats accepted. URN of the image to use in Azure marketplace or id of custom image. Example URN value: f5-networks:f5-big-ip-byol:f5-big-all-2slot-byol:16.1.303000. You can find the URNs of F5 marketplace images in the README for this template or by running the command: az vm image list --output yaml --publisher f5-networks --all. See https://clouddocs.f5.com/cloud/public/v1/azure/Azure_download.html for information on creating custom BIG-IP image."
+            },
+            "type": "string"
+        },
+        "bigIpInstanceType": {
+            "defaultValue": "Standard_D2s_v4",
+            "metadata": {
+                "description": "Enter valid instance type."
+            },
+            "type": "string"
+        },
+        "bigIpRuntimeInitConfig": {
+            "defaultValue": "https://raw.githubusercontent.com/F5Networks/f5-azure-arm-templates-v2/v2.8.0.0/examples/autoscale/bigip-configurations/runtime-init-conf-payg-with-app.yaml",
+            "metadata": {
+                "description": "Supply a URL to the bigip-runtime-init configuration file in YAML or JSON format, or an escaped JSON string to use for f5-bigip-runtime-init configuration."
+            },
+            "type": "string"
+        },
+        "bigIpRuntimeInitPackageUrl": {
+            "defaultValue": "https://cdn.f5.com/product/cloudsolutions/f5-bigip-runtime-init/v1.6.1/dist/f5-bigip-runtime-init-1.6.1-1.gz.run",
+            "metadata": {
+                "description": "URL for BIG-IP Runtime Init package"
+            },
+            "type": "string"
+        },
+        "bigIpMaxBatchInstancePercent": {
+            "defaultValue": 20,
+            "maxValue": 100,
+            "metadata": {
+                "description": "The maximum percentage of total virtual machine instances that will be upgraded simultaneously by the rolling upgrade in one batch."
+            },
+            "minValue": 1,
+            "type": "int"
+        },
+        "bigIpMaxUnhealthyInstancePercent": {
+            "defaultValue": 20,
+            "maxValue": 100,
+            "metadata": {
+                "description": "The maximum percentage of the total virtual machine instances in the scale set that can be simultaneously unhealthy."
+            },
+            "minValue": 1,
+            "type": "int"
+        },
+        "bigIpMaxUnhealthyUpgradedInstancePercent": {
+            "defaultValue": 20,
+            "maxValue": 100,
+            "metadata": {
+                "description": "The maximum percentage of upgraded virtual machine instances that can be found to be in an unhealthy state."
+            },
+            "minValue": 1,
+            "type": "int"
+        },
+        "bigIpPauseTimeBetweenBatches": {
+            "defaultValue": 0,
+            "maxValue": 120,
+            "metadata": {
+                "description": "The wait time between completing the update for all virtual machines in one batch and starting the next batch."
+            },
+            "minValue": 0,
+            "type": "int"
+        },
+        "bigIpScalingMinSize": {
+            "defaultValue": 1,
+            "metadata": {
+                "description": "Minimum number of BIG-IP instances (1-99) you want available in the Auto Scale Group."
+            },
+            "minValue": 1,
+            "maxValue": 99,
+            "type": "int"
+        },
+        "bigIpScalingMaxSize": {
+            "defaultValue": 10,
+            "metadata": {
+                "description": "Maximum number of BIG-IP instances (2-100) that can be created in the Auto Scale Group."
+            },
+            "minValue": 2,
+            "maxValue": 100,
+            "type": "int"
+        },
+        "bigIpScaleInCpuThreshold": {
+            "defaultValue": 20,
+            "maxValue": 100,
+            "metadata": {
+                "description": "The percentage of CPU utilization that should trigger a scale in event."
+            },
+            "minValue": 1,
+            "type": "int"
+        },
+        "bigIpScaleInThroughputThreshold": {
+            "defaultValue": 10000000,
+            "metadata": {
+                "description": "The amount of throughput (**bytes**) that should trigger a scale in event. Note: The default value is equal to 10 MB."
+            },
+            "type": "int"
+        },
+        "bigIpScaleInTimeWindow": {
+            "defaultValue": 10,
+            "metadata": {
+                "description": "The time window required to trigger a scale in event. This is used to determine the amount of time needed for a threshold to be breached, as well as to prevent excessive scaling events (flapping). **Note:** Allowed values are 1-60 (minutes)."
+            },
+            "minValue": 1,
+            "maxValue": 60,
+            "type": "int"
+        },
+        "bigIpScaleOutCpuThreshold": {
+            "defaultValue": 80,
+            "maxValue": 100,
+            "metadata": {
+                "description": "The percentage of CPU utilization that should trigger a scale out event."
+            },
+            "minValue": 1,
+            "type": "int"
+        },
+        "bigIpScaleOutThroughputThreshold": {
+            "defaultValue": 20000000,
+            "metadata": {
+                "description": "The amount of throughput (**bytes**) that should trigger a scale out event. Note: The default value is equal to 20 MB."
+            },
+            "type": "int"
+        },
+        "bigIpScaleOutTimeWindow": {
+            "defaultValue": 10,
+            "metadata": {
+                "description": "The time window required to trigger a scale out event. This is used to determine the amount of time needed for a threshold to be breached, as well as to prevent excessive scaling events (flapping). **Note:** Allowed values are 1-60 (minutes)."
+            },
+            "minValue": 1,
+            "maxValue": 60,
+            "type": "int"
+        },
+        "provisionExternalBigIpLoadBalancer": {
+            "defaultValue": true,
+            "metadata": {
+                "description": "Select true if you would like to provision an external Azure load balancer."
+            },
+            "type": "bool"
+        },
+        "provisionInternalBigIpLoadBalancer": {
+            "defaultValue": false,
+            "metadata": {
+                "description": "Select true if you would like to provision an internal Azure load balancer."
+            },
+            "type": "bool"
+        },
+        "provisionPublicIp": {
+            "defaultValue": true,
+            "metadata": {
+                "description": "Select true if you would like to provision a public IP address for accessing the BIG-IP instance(s)."
+            },
+            "type": "bool"
+        },
+        "useAvailabilityZones": {
+            "defaultValue": false,
+            "metadata": {
+                "description": "This deployment can deploy resources into Azure Availability Zones (if the region supports it).  If that is not desired the input should be set false. If the region does not support availability zones the input should be set to false."
+            },
+            "type": "bool"
+        },
+        "bigIpUserAssignManagedIdentity": {
+            "defaultValue": "",
+            "metadata": {
+                "description": "Enter user assigned management identity ID to be associated to vmss. Leave default if not used."
+            },
+            "type": "string"
+        },
+        "createWorkspace": {
+            "defaultValue": true,
+            "metadata": {
+                "description": "This deployment will create a workspace and workbook as part of the Telemetry module, intended for enabling Remote Logging using Azure Log Workspace."
+            },
+            "type": "bool"
+        },
+        "workspaceId": {
+            "metadata": {
+                "description": "Log Analytics workspace ID used by Telemetry Streaming for sending logs"
+            },
+            "type": "string",
+            "defaultValue": "WORKSPACE_ID"
+        },
+        "appContainerName": {
+            "defaultValue": "f5devcentral/f5-demo-app:latest",
+            "metadata": {
+                "description": "The docker container to use when deploying the example application."
+            },
+            "type": "string"
+        },
+        "appScalingMinSize": {
+            "defaultValue": 1,
+            "metadata": {
+                "description": "Minimum number of Application instances (1-99) you want available in the Auto Scale Group."
+            },
+            "minValue": 1,
+            "maxValue": 99,
+            "type": "int"
+        },
+        "appScalingMaxSize": {
+            "defaultValue": 10,
+            "metadata": {
+                "description": "Maximum number of Application instances (2-100) that can be created in the Auto Scale Group."
+            },
+            "minValue": 2,
+            "maxValue": 100,
+            "type": "int"
+        },
+        "tagValues": {
+            "defaultValue": {
+                "application": "f5demoapp",
+                "cost": "f5cost",
+                "environment": "f5env",
+                "group": "f5group",
+                "owner": "f5owner"
+            },
+            "metadata": {
+                "description": "Default key/value resource tags will be added to the resources in this deployment, if you would like the values to be unique adjust them as needed for each key."
+            },
+            "type": "object"
         }
     },
     "variables": {
@@ -923,6 +1181,200 @@
             "ddosHubLitePolicyDeploymentName": "[take(concat('alz-DDoSHubPolicyLite', variables('deploymentSuffix')), 64)]",
             "privateDnsZoneRgLiteDeploymentName": "[take(concat('alz-PrivDNSRGLite', variables('deploymentSuffix')), 64)]",
             "privateDnsZonesLiteDeploymentName": "[take(concat('alz-PrivDNSLite', variables('deploymentSuffix')), 35)]"
+        },
+        "f5DeploymentNames":{
+            "contentVersion": "[deployment().properties.template.contentVersion]",
+            "uniqueString": "[toLower( variables('deploymentSuffix'))]",
+            "adminUsername": "[string('azureuser')]",
+            "createManagedIdentity": "[empty(parameters('bigIpUserAssignManagedIdentity'))]",
+            "solutionType": "standard",
+            "customAssignableScopes": [],
+            "customRolePermissions": [],
+            "roleDescription": "Role created by autoscale deployment",
+            "roleName": "[concat(variables('f5DeploymentNames').uniqueString, '-bigip-autoscale-role')]",
+            "keyVaultPermissionsKeys": [],
+            "keyVaultPermissionsSecrets": [],
+            "userAssignedIdentityName": "[concat(variables('f5DeploymentNames').uniqueString, '-bigip-identity')]",
+            "createNatGateway": "[and(not(parameters('provisionPublicIp')), not(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer))]",
+            "numSubnets": 2,
+            "vnetAddressPrefix": "10.0",
+            "vnetName": "[concat(variables('f5DeploymentNames').uniqueString, '-vnet')]",
+            "provisionExternalBigIpLoadBalancer": "[parameters('provisionExternalBigIpLoadBalancer')]",
+            "provisionInternalBigIpLoadBalancer": "[parameters('provisionInternalBigIpLoadBalancer')]",
+            "externalLoadBalancerName": "[if(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer, concat(variables('f5DeploymentNames').uniqueString, '-external-lb'), '')]",
+            "internalLoadBalancerName": "[if(variables('f5DeploymentNames').provisionInternalBigIpLoadBalancer, concat(variables('f5DeploymentNames').uniqueString, '-internal-lb'), '')]",
+            "loadBalancerRulePorts": [
+            "80",
+            "443"
+            ],
+            "mgmtSecurityGroup": [
+            {
+                "destinationPortRanges": [
+                "22",
+                "8443"
+                ],
+                "sourceAddressPrefix": "[parameters('restrictedSrcAddressMgmt')]",
+                "protocol": "Tcp"
+            },
+            {
+                "destinationPortRanges": [
+                "80",
+                "443"
+                ],
+                "sourceAddressPrefix": "*",
+                "protocol": "Tcp"
+            }
+            ],
+            "appSecurityGroup": [
+            {
+                "destinationPortRanges": [
+                "80",
+                "443"
+                ],
+                "sourceAddressPrefix": "[parameters('restrictedSrcAddressApp')]",
+                "protocol": "Tcp"
+            },
+            {
+                "destinationPortRanges": [
+                "80",
+                "443"
+                ],
+                "sourceAddressPrefix": "10.0.0.0/8",
+                "protocol": "Tcp"
+            }
+            ],
+            "bastionSecurityGroup": [
+            {
+                "destinationPortRanges": [
+                "22"
+                ],
+                "sourceAddressPrefix": "[parameters('restrictedSrcAddressMgmt')]",
+                "protocol": "Tcp"
+            }
+            ],
+            "numberPublicExternalIpAddresses": "[if(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer, 1, 0)]",
+            "numberPublicMgmtIpAddresses": 0,
+            "bastionInstanceName": "[variables('f5DeploymentNames').uniqueString]",
+            "bastionInstanceType": "Standard_D2_v4",
+            "appInstanceName": "[variables('f5DeploymentNames').uniqueString]",
+            "appInstanceType": "Standard_D2_v4",
+            "appVmScaleSetMaxCount": "[parameters('appScalingMaxSize')]",
+            "appVmScaleSetMinCount": "[parameters('appScalingMinSize')]",
+            "cloudInitUrl": "",
+            "createAutoscaleGroup": true,
+            "provisionApp": "[not(empty(parameters('appContainerName')))]",
+            "appInsights": "[concat(variables('f5DeploymentNames').uniqueString, '-app-insights')]",
+            "appInsightsId": "[resourceId('Microsoft.Insights/components', variables('f5DeploymentNames').appInsights)]",
+            "bigIpImage": "[parameters('bigIpImage')]",
+            "bigIpInstanceType": "[parameters('bigIpInstanceType')]",
+            "bigIpVmScaleSetMaxCount": "[parameters('bigIpScalingMaxSize')]",
+            "bigIpVmScaleSetMinCount": "[parameters('bigIpScalingMinSize')]",
+            "cpuMetricName": "Percentage CPU",
+            "customAutoscaleRules": [
+            {
+                "scaleAction": {
+                "direction": "Increase",
+                "type": "ChangeCount",
+                "value": "1",
+                "cooldown": "PT1M"
+                },
+                "metricTrigger": {
+                "metricName": "F5_system_cpu",
+                "metricNamespace": "azure.applicationinsights",
+                "metricResourceUri": "[variables('f5DeploymentNames').appInsightsId]",
+                "operator": "GreaterThan",
+                "statistic": "Average",
+                "threshold": "[variables('f5DeploymentNames').scaleOutCpuThreshold]",
+                "timeAggregation": "Average",
+                "timeGrain": "PT1M",
+                "timeWindow": "[concat('PT', parameters('bigIpScaleOutTimeWindow'), 'M')]",
+                "Dimensions": [],
+                "dividePerInstance": false
+                }
+            },
+            {
+                "scaleAction": {
+                "direction": "Decrease",
+                "type": "ChangeCount",
+                "value": "1",
+                "cooldown": "PT1M"
+                },
+                "metricTrigger": {
+                "metricName": "F5_system_cpu",
+                "metricNamespace": "azure.applicationinsights",
+                "metricResourceUri": "[variables('f5DeploymentNames').appInsightsId]",
+                "operator": "LessThan",
+                "statistic": "Average",
+                "threshold": "[variables('f5DeploymentNames').scaleInCpuThreshold]",
+                "timeAggregation": "Average",
+                "timeGrain": "PT1M",
+                "timeWindow": "[concat('PT', parameters('bigIpScaleInTimeWindow'), 'M')]",
+                "Dimensions": [],
+                "dividePerInstance": false
+                }
+            },
+            {
+                "scaleAction": {
+                "direction": "Increase",
+                "type": "ChangeCount",
+                "value": "1",
+                "cooldown": "PT1M"
+                },
+                "metricTrigger": {
+                "metricName": "F5_throughputIn_sys/performance/throughput/In_Current",
+                "metricNamespace": "azure.applicationinsights",
+                "metricResourceUri": "[variables('f5DeploymentNames').appInsightsId]",
+                "operator": "GreaterThan",
+                "statistic": "Average",
+                "threshold": "[variables('f5DeploymentNames').scaleOutThroughputThreshold]",
+                "timeAggregation": "Average",
+                "timeGrain": "PT1M",
+                "timeWindow": "[concat('PT', parameters('bigIpScaleOutTimeWindow'), 'M')]",
+                "Dimensions": [],
+                "dividePerInstance": false
+                }
+            },
+            {
+                "scaleAction": {
+                "direction": "Decrease",
+                "type": "ChangeCount",
+                "value": "1",
+                "cooldown": "PT1M"
+                },
+                "metricTrigger": {
+                "metricName": "F5_throughputIn_sys/performance/throughput/In_Current",
+                "metricNamespace": "azure.applicationinsights",
+                "metricResourceUri": "[variables('f5DeploymentNames').appInsightsId]",
+                "operator": "LessThan",
+                "statistic": "Average",
+                "threshold": "[variables('f5DeploymentNames').scaleInThroughputThreshold]",
+                "timeAggregation": "Average",
+                "timeGrain": "PT1M",
+                "timeWindow": "[concat('PT', parameters('bigIpScaleInTimeWindow'), 'M')]",
+                "Dimensions": [],
+                "dividePerInstance": false
+                }
+            }
+            ],
+            "customEmail": [],
+            "maxBatchInstancePercent": "[parameters('bigIpMaxBatchInstancePercent')]",
+            "maxUnhealthyInstancePercent": "[parameters('bigIpMaxUnhealthyInstancePercent')]",
+            "maxUnhealthyUpgradedInstancePercent": "[parameters('bigIpMaxUnhealthyUpgradedInstancePercent')]",
+            "pauseTimeBetweenBatches": "[parameters('bigIpPauseTimeBetweenBatches')]",
+            "publicIpConfig": {
+            "name": "[concat(variables('f5DeploymentNames').uniqueString, '-bigip-vmss-pip')]",
+            "properties": {
+                "idleTimeoutInMinutes": 15
+            }
+            },
+            "scaleInCpuThreshold": "[parameters('bigIpScaleInCpuThreshold')]",
+            "scaleInThroughputThreshold": "[parameters('bigIpScaleInThroughputThreshold')]",
+            "scaleInTimeWindow": "[parameters('bigIpScaleInTimeWindow')]",
+            "scaleOutCpuThreshold": "[parameters('bigIpScaleOutCpuThreshold')]",
+            "scaleOutThroughputThreshold": "[parameters('bigIpScaleOutThroughputThreshold')]",
+            "scaleOutTimeWindow": "[parameters('bigIpScaleOutTimeWindow')]",
+            "throughputMetricName": "Network In",
+            "vmssName": "[concat(variables('f5DeploymentNames').uniqueString, '-bigip-vmss')]"
         },
         // Declaring deterministic names for Resource Groups that will be created for platform resources
         "platformRgNames": {
@@ -1438,7 +1890,7 @@
             "condition": "[and(or(not(empty(parameters('singlePlatformSubscriptionId'))), not(empty(parameters('managementSubscriptionId')))), equals(parameters('enableLogAnalytics'), 'Yes'))]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-10-01",
-            "name": "[take(concat(variables('mgmtGroupsArray')[copyIndex()], variables('deploymentNames').diagnosticSettingsforMGsDeploymentName), 64)]",
+            "name": "[take(concat(variables('deploymentNames').diagnosticSettingsforMGsDeploymentName, variables('mgmtGroupsArray')[copyIndex()]), 64)]",
             "scope": "[concat('Microsoft.Management/managementGroups/', variables('mgmtGroupsArray')[copyIndex()])]",
             "location": "[deployment().location]",
             "dependsOn": [
@@ -1861,8 +2313,7 @@
                     }
                 }
             }
-        },
-        {
+        },{
             // Creating DDoS protection plan into the connectivity subscription
             "condition": "[and(equals(parameters('enableDdoS'), 'Yes'), not(empty(parameters('connectivitySubscriptionId'))))]",
             "type": "Microsoft.Resources/deployments",
@@ -4185,7 +4636,38 @@
                     "resources": []
                 }
             }
-        }
+        },
+         /*
+            Note: F5 Deployment
+        */
+        {
+            // Assigning deny management ports from internet policy landing zones management group if condition is true
+            "condition": "[and(equals(parameters('denyMgmtPortsForIdentity'), 'Yes'), not(empty(parameters('singlePlatformSubscriptionId'))))]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "[variables('esLitedeploymentNames').mgmtFromInternetIdentityLitePolicyDeploymentName]",
+            "scope": "[variables('scopes').platformManagementGroup]",
+            "location": "[deployment().location]",
+            "dependsOn": [
+                "policyCompletion",
+                "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').platformLiteSubscriptionPlacement)]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "contentVersion": "1.0.0.0",
+                    "uri": "[variables('deploymentUris').mgmtFromInternetPolicyAssignment]"
+                },
+                "parameters": {
+                    "topLevelManagementGroupPrefix": {
+                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
+                    },
+                    "enforcementMode": {
+                        "value": "Default"
+                    }
+                }
+            }
+        },
     ],
     "outputs": {
         "deployment": {
