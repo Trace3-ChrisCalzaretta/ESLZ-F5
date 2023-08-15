@@ -993,6 +993,7 @@
     "variables": {
         // Declaring the prescriptive management group structure that will be used in the scope construction
         "f5DeploymentNames":{
+            "appContainerName": "F5Container",
             "contentVersion": "[deployment().properties.template.contentVersion]",
             "uniqueString": "[toLower( variables('deploymentSuffix'))]",
             "adminUsername": "[string('azureuser')]",
@@ -1565,34 +1566,384 @@
     },
     "resources": [
         //F5 DEPLOYMENT
-             {
-            // Assigning deny management ports from internet policy landing zones management group if condition is true
-            "condition": "[and(equals(parameters('denyMgmtPortsForIdentity'), 'Yes'), not(empty(parameters('singlePlatformSubscriptionId'))))]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2020-10-01",
-            "name": "[variables('esLitedeploymentNames').mgmtFromInternetIdentityLitePolicyDeploymentName]",
-            "scope": "[variables('scopes').platformManagementGroup]",
-            "location": "[deployment().location]",
-            "dependsOn": [
-                "policyCompletion",
-                "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').platformLiteSubscriptionPlacement)]"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "contentVersion": "1.0.0.0",
-                    "uri": "[variables('deploymentUris').mgmtFromInternetPolicyAssignment]"
-                },
-                "parameters": {
-                    "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
-                    },
-                    "enforcementMode": {
-                        "value": "Default"
-                    }
-                }
-            }
+         {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2021-04-01",
+      "condition": "[parameters('createWorkspace')]",
+      "name": "telemetryTemplate",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/telemetry/telemetry.json')]",
+          "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
         },
+        "parameters": {
+          "uniqueString": {
+            "value": "[variables('f5DeploymentNames').uniqueString]"
+          },
+          "tagValues": {
+            "value": "[parameters('tagValues')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2021-04-01",
+      "condition": "[variables('f5DeploymentNames').createManagedIdentity]",
+      "name": "accessTemplate",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/access/access.json')]",
+          "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+        },
+        "parameters": {
+          "uniqueString": {
+            "value": "[variables('f5DeploymentNames').uniqueString]"
+          },
+          "solutionType": {
+            "value": "[variables('f5DeploymentNames').solutionType]"
+          },
+          "customAssignableScopes": {
+            "value": "[variables('f5DeploymentNames').customAssignableScopes]"
+          },
+          "roleDescription": {
+            "value": "[variables('f5DeploymentNames').roleDescription]"
+          },
+          "roleName": {
+            "value": "[variables('f5DeploymentNames').roleName]"
+          },
+          "customRolePermissions": {
+            "value": "[variables('f5DeploymentNames').customRolePermissions]"
+          },
+          "keyVaultPermissionsKeys": {
+            "value": "[variables('f5DeploymentNames').keyVaultPermissionsKeys]"
+          },
+          "keyVaultPermissionsSecrets": {
+            "value": "[variables('f5DeploymentNames').keyVaultPermissionsSecrets]"
+          },
+          "userAssignedIdentityName": {
+            "value": "[variables('f5DeploymentNames').userAssignedIdentityName]"
+          },
+          "tagValues": {
+            "value": "[parameters('tagValues')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2021-04-01",
+      "name": "networkTemplate",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/network/network.json')]",
+          "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+        },
+        "parameters": {
+          "createNatGateway": {
+            "value": "[variables('f5DeploymentNames').createNatGateway]"
+          },
+          "numSubnets": {
+            "value": "[variables('f5DeploymentNames').numSubnets]"
+          },
+          "vnetName": {
+            "value": "[variables('f5DeploymentNames').vnetName]"
+          },
+          "vnetAddressPrefix": {
+            "value": "[variables('f5DeploymentNames').vnetAddressPrefix]"
+          },
+          "tagValues": {
+            "value": "[parameters('tagValues')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2021-04-01",
+      "name": "dagTemplate",
+      "dependsOn": [
+        "networkTemplate"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/dag/dag.json')]",
+          "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+        },
+        "parameters": {
+          "uniqueString": {
+            "value": "[variables('f5DeploymentNames').uniqueString]"
+          },
+          "externalLoadBalancerName": {
+            "value": "[if(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer,variables('f5DeploymentNames').externalLoadBalancerName, 'None')]"
+          },
+          "internalLoadBalancerName": {
+            "value": "[if(variables('f5DeploymentNames').provisionInternalBigIpLoadBalancer, variables('f5DeploymentNames').internalLoadBalancerName, 'None')]"
+          },
+          "internalSubnetId": {
+            "value": "[reference('networkTemplate').outputs.subnets.value[1]]"
+          },
+          "loadBalancerRulePorts": {
+            "value": "[variables('f5DeploymentNames').loadBalancerRulePorts]"
+          },
+          "nsg0": {
+            "value": "[variables('f5DeploymentNames').mgmtSecurityGroup]"
+          },
+          "nsg1": {
+            "value": "[variables('f5DeploymentNames').appSecurityGroup]"
+          },
+          "nsg2": {
+            "value": "[if(parameters('provisionPublicIp'), createArray(), variables('f5DeploymentNames').bastionSecurityGroup)]"
+          },
+          "numberPublicExternalIpAddresses": {
+            "value": "[variables('f5DeploymentNames').numberPublicExternalIpAddresses]"
+          },
+          "numberPublicMgmtIpAddresses": {
+            "value": "[variables('f5DeploymentNames').numberPublicMgmtIpAddresses]"
+          },
+          "tagValues": {
+            "value": "[parameters('tagValues')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2021-04-01",
+      "condition": "[not(parameters('provisionPublicIp'))]",
+      "name": "bastionTemplate",
+      "dependsOn": [
+        "bigIpTemplate"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/bastion/bastion.json')]",
+          "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+        },
+        "parameters": {
+          "adminUsername": {
+            "value": "[variables('f5DeploymentNames').adminUsername]"
+          },
+          "createAutoscaleGroup": {
+            "value": "[variables('f5DeploymentNames').createAutoscaleGroup]"
+          },
+          "instanceName": {
+            "value": "[variables('f5DeploymentNames').bastionInstanceName]"
+          },
+          "instanceType": {
+            "value": "[variables('f5DeploymentNames').bastionInstanceType]"
+          },
+          "nsgId": {
+            "value": "[reference('dagTemplate').outputs.nsg2Id.value]"
+          },
+          "sshKey": {
+            "value": "[parameters('sshKey')]"
+          },
+          "subnetId": {
+            "value": "[reference('networkTemplate').outputs.subnets.value[1]]"
+          },
+          "tagValues": {
+            "value": "[parameters('tagValues')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "condition": "[variables('f5DeploymentNames').provisionApp]",
+      "apiVersion": "2021-04-01",
+      "name": "appTemplate",
+      "dependsOn": [
+        "networkTemplate",
+        "dagTemplate"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/application/application.json')]",
+          "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+        },
+        "parameters": {
+          "adminUsername": {
+            "value": "[variables('f5DeploymentNames').adminUsername]"
+          },
+          "appContainerName": {
+            "value": "[variables('f5DeploymentNames').appContainerName]"
+          },
+          "cloudInitUrl": {
+            "value": "[variables('f5DeploymentNames').cloudInitUrl]"
+          },
+          "createAutoscaleGroup": {
+            "value": "[variables('f5DeploymentNames').createAutoscaleGroup]"
+          },
+          "instanceName": {
+            "value": "[variables('f5DeploymentNames').appInstanceName]"
+          },
+          "instanceType": {
+            "value": "[variables('f5DeploymentNames').appInstanceType]"
+          },
+          "nsgId": {
+            "value": "[reference('dagTemplate').outputs.nsg1Id.value]"
+          },
+
+          "sshKey": {
+            "value": "[parameters('sshKey')]"
+          },
+          "subnetId": {
+            "value": "[reference('networkTemplate').outputs.subnets.value[1]]"
+          },
+          "tagValues": {
+            "value": "[parameters('tagValues')]"
+          },
+          "vmScaleSetMaxCount": {
+            "value": "[variables('f5DeploymentNames').appVmScaleSetMaxCount]"
+          },
+          "vmScaleSetMinCount": {
+            "value": "[variables('f5DeploymentNames').appVmScaleSetMinCount]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2021-04-01",
+      "name": "bigIpTemplate",
+      "dependsOn": [
+        "accessTemplate",
+        "networkTemplate",
+        "dagTemplate",
+        "telemetryTemplate"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/bigip-autoscale/bigip.json')]",
+          "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+        },
+        "parameters": {
+          "adminUsername": {
+            "value": "[variables('f5DeploymentNames').adminUsername]"
+          },
+          "allowUsageAnalytics": {
+            "value": "[parameters('allowUsageAnalytics')]"
+          },
+          "appInsights": {
+            "value": "[variables('f5DeploymentNames').appInsights]"
+          },
+          "cpuMetricName": {
+            "value": "[variables('f5DeploymentNames').cpuMetricName]"
+          },
+          "customAutoscaleRules": {
+            "value": "[variables('f5DeploymentNames').customAutoscaleRules]"
+          },
+          "customEmail": {
+            "value": "[variables('f5DeploymentNames').customEmail]"
+          },
+          "uniqueString": {
+            "value": "[variables('f5DeploymentNames').uniqueString]"
+          },
+          "image": {
+            "value": "[variables('f5DeploymentNames').bigIpImage]"
+          },
+          "inboundMgmtNatPoolId": {
+            "value": "[if(and(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer, greater(variables('f5DeploymentNames').numberPublicMgmtIpAddresses, 0)), reference('dagTemplate').outputs.inboundMgmtNatPool.value, '')]"
+          },
+          "inboundSshNatPoolId": {
+            "value": "[if(and(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer, greater(variables('f5DeploymentNames').numberPublicMgmtIpAddresses, 0)), reference('dagTemplate').outputs.inboundSshNatPool.value, '')]"
+          },
+          "instanceHealthProbeId": {
+            "value": "[if(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer, reference('dagTemplate').outputs.externalLoadBalancerProbesId.value[0], if(variables('f5DeploymentNames').provisionInternalBigIpLoadBalancer, reference('dagTemplate').outputs.internalLoadBalancerProbesId.value[0], ''))]"
+          },
+          "instanceType": {
+            "value": "[variables('f5DeploymentNames').bigIpInstanceType]"
+          },
+          "loadBalancerBackendAddressPoolsArray": {
+            "value": "[if(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer, if(variables('f5DeploymentNames').provisionInternalBigIpLoadBalancer, createArray(createObject('id', reference('dagTemplate').outputs.externalBackEndLoadBalancerId.value), createObject('id', reference('dagTemplate').outputs.internalBackEndLoadBalancerId.value)), createArray(createObject('id', reference('dagTemplate').outputs.externalBackEndLoadBalancerId.value))), if(variables('f5DeploymentNames').provisionInternalBigIpLoadBalancer, createArray(createObject('id', reference('dagTemplate').outputs.internalBackEndLoadBalancerId.value)), createArray()))]"
+          },
+          "nsgId": {
+            "value": "[reference('dagTemplate').outputs.nsg0Id.value]"
+          },
+          "provisionPublicIp": {
+            "value": "[if(parameters('provisionPublicIp'), variables('f5DeploymentNames').publicIpConfig, createObject())]"
+          },
+          "roleDefinitionId": {
+            "value": ""
+          },
+          "bigIpRuntimeInitConfig": {
+            "value": "[parameters('bigIpRuntimeInitConfig')]"
+          },
+          "bigIpRuntimeInitPackageUrl": {
+            "value": "[parameters('bigIpRuntimeInitPackageUrl')]"
+          },
+          "maxBatchInstancePercent": {
+            "value": "[variables('f5DeploymentNames').maxBatchInstancePercent]"
+          },
+          "maxUnhealthyInstancePercent": {
+            "value": "[variables('f5DeploymentNames').maxUnhealthyInstancePercent]"
+          },
+          "maxUnhealthyUpgradedInstancePercent": {
+            "value": "[variables('f5DeploymentNames').maxUnhealthyUpgradedInstancePercent]"
+          },
+          "pauseTimeBetweenBatches": {
+            "value": "[variables('f5DeploymentNames').pauseTimeBetweenBatches]"
+          },
+          "scaleInCpuThreshold": {
+            "value": "[variables('f5DeploymentNames').scaleInCpuThreshold]"
+          },
+          "scaleInThroughputThreshold": {
+            "value": "[variables('f5DeploymentNames').scaleInThroughputThreshold]"
+          },
+          "scaleInTimeWindow": {
+            "value": "[variables('f5DeploymentNames').scaleInTimeWindow]"
+          },
+          "scaleOutCpuThreshold": {
+            "value": "[variables('f5DeploymentNames').scaleOutCpuThreshold]"
+          },
+          "scaleOutThroughputThreshold": {
+            "value": "[variables('f5DeploymentNames').scaleOutThroughputThreshold]"
+          },
+          "scaleOutTimeWindow": {
+            "value": "[variables('f5DeploymentNames').scaleOutTimeWindow]"
+          },
+          "sshKey": {
+            "value": "[parameters('sshKey')]"
+          },
+          "subnetId": {
+            "value": "[reference('networkTemplate').outputs.subnets.value[0]]"
+          },
+          "tagValues": {
+            "value": "[parameters('tagValues')]"
+          },
+          "throughputMetricName": {
+            "value": "[variables('f5DeploymentNames').throughputMetricName]"
+          },
+          "useAvailabilityZones": {
+            "value": "[parameters('useAvailabilityZones')]"
+          },
+          "userAssignManagedIdentity": {
+            "value": "[if(not(variables('f5DeploymentNames').createManagedIdentity), parameters('bigIpUserAssignManagedIdentity'), reference('accessTemplate').outputs.userAssignedIdentityId.value)]"
+          },
+          "vmScaleSetMaxCount": {
+            "value": "[variables('f5DeploymentNames').bigIpVmScaleSetMaxCount]"
+          },
+          "vmScaleSetMinCount": {
+            "value": "[variables('f5DeploymentNames').bigIpVmScaleSetMinCount]"
+          },
+          "vmssName": {
+            "value": "[variables('f5DeploymentNames').vmssName]"
+          },
+          "workspaceId": {
+            "value": "[if(parameters('createWorkspace'), reference('telemetryTemplate').outputs.workspaceId.value, parameters('workspaceId'))]"
+          }
+        }
+      }
+    },
+    //END F5 Deployemnt
         /*
             The following deployment will create the management group structure for ESLZ and ensure the sustainable, scalable architecture
         */
