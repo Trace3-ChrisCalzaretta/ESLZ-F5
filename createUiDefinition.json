@@ -109,7 +109,7 @@
                                 "type": "Microsoft.Common.DropDown",
                                 "label": "Platform subscription",
                                 "defaultValue": "[parse('[]')]",
-                                "toolTip": "",
+                                "toolTip": "Select the existing subscription that will host all platform resources. This subscription must have owner permissions granted to the Azure AD tenant.",
                                 "multiselect": false,
                                 "selectAll": false,
                                 "filter": true,
@@ -211,10 +211,6 @@
             {
                 "name": "management",
                 "label": "Platform management, security, and governance",
-                "subLabel": {
-                    "preValidation": "",
-                    "postValidation": ""
-                },
                 "bladeTitle": "ALZ - Management Settings",
                 "elements": [
                     {
@@ -301,7 +297,7 @@
                                 "type": "Microsoft.Common.DropDown",
                                 "label": "Management subscription",
                                 "defaultValue": "[parse('[]')]",
-                                "toolTip": "",
+                                "toolTip": "Select the subscription that will be used to deploy management resources like Log Analytics workspace, Azure Policy, etc.",
                                 "multiselect": false,
                                 "selectAll": false,
                                 "filter": true,
@@ -858,10 +854,6 @@
             {
                 "name": "connectivity",
                 "label": "Network topology and connectivity",
-                "subLabel": {
-                    "preValidation": "",
-                    "postValidation": ""
-                },
                 "bladeTitle": "ALZ - Connectivity Settings",
                 "elements": [
                     {
@@ -932,7 +924,7 @@
                                 "type": "Microsoft.Common.DropDown",
                                 "label": "Connectivity subscription",
                                 "defaultValue": "[parse('[]')]",
-                                "toolTip": "",
+                                "toolTip": "Select the subscription dedicated for Networking and Connectivity resources. This should be a unique subscription and not used for Management or Identity.",
                                 "multiselect": false,
                                 "selectAll": false,
                                 "filter": true,
@@ -1709,10 +1701,6 @@
             {
                 "name": "identity",
                 "label": "Identity",
-                "subLabel": {
-                    "preValidation": "",
-                    "postValidation": ""
-                },
                 "bladeTitle": "ALZ - Identity Settings",
                 "elements": [
                     {
@@ -1775,7 +1763,7 @@
                                 "type": "Microsoft.Common.DropDown",
                                 "label": "Identity subscription",
                                 "defaultValue": "[parse('[]')]",
-                                "toolTip": "",
+                                "toolTip": "Select the subscription that will host your identity resources like Active Directory domain controllers. This subscription will be moved to the identity Management Group.",
                                 "multiselect": false,
                                 "selectAll": false,
                                 "filter": true,
@@ -1906,7 +1894,7 @@
                         "name": "identityAddressPrefix",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Virtual network address space",
-                        "placeholder": "",
+                        "placeholder": "10.110.0.0/24",
                         "defaultValue": "10.110.0.0/24",
                         "toolTip": "The virtual network's address space, specified as one address prefixes in CIDR notation (e.g. 192.168.1.0/24)",
                         "constraints": {
@@ -1925,10 +1913,6 @@
             {
                 "name": "landingZones",
                 "label": "Landing zones configuration",
-                "subLabel": {
-                    "preValidation": "",
-                    "postValidation": ""
-                },
                 "bladeTitle": "ALZ - Landing Zones Settings",
                 "elements": [
                     {
@@ -2493,7 +2477,7 @@
                                 "type": "Microsoft.Common.DropDown",
                                 "label": "Corp landing zone subscriptions (optional)",
                                 "defaultValue": "[parse('[]')]",
-                                "toolTip": "",
+                                "toolTip": "Select the Azure subscriptions you want to move to the corp management group. The subscriptions will be peered to the connectivity hub virtual network if 'Yes' was selected above for connectivity.",
                                 "multiselect": true,
                                 "selectAll": true,
                                 "filter": true,
@@ -2529,7 +2513,7 @@
                                                 "type": "Microsoft.Common.DropDown",
                                                 "label": "Landing zone subscription",
                                                 "defaultValue": "[parse('[]')]",
-                                                "toolTip": "",
+                                                "toolTip": "Select the Azure subscriptions you want to connect to the connectivity hub virtual network.",
                                                 "multiselect": false,
                                                 "selectAll": false,
                                                 "filter": true,
@@ -2679,7 +2663,7 @@
                                 "type": "Microsoft.Common.DropDown",
                                 "label": "Online landing zone subscriptions (optional)",
                                 "defaultValue": "[parse('[]')]",
-                                "toolTip": "",
+                                "toolTip": "Select the subscriptions you want to move to online management group.",
                                 "multiselect": true,
                                 "selectAll": true,
                                 "filter": true,
@@ -2708,10 +2692,6 @@
             {
                 "name": "decommissionedSandboxZones",
                 "label": "Decommissioned/Sandbox",
-                "subLabel": {
-                    "preValidation": "",
-                    "postValidation": ""
-                },
                 "bladeTitle": "ALZ - Decommissioned and Sandbox Landing Zones Settings",
                 "elements": [
                     {
@@ -2813,10 +2793,6 @@
             {
                 "name": "f5Parameters",
                 "label": "F5 Configuration Settings",
-                "subLabel": {
-                    "preValidation": "Provide F5 settings.",
-                    "postValidation": "Done"
-                },
                 "bladeTitle": "F5 Settings",
                 "elements": [
                     {
@@ -2896,7 +2872,7 @@
                             "regex": "^[a-zA-Z0-9-_]+$",
                             "validationMessage": "The big IP instance type must only contain alphanumeric characters, hyphens, and underscores."
                         }
-                    },                    
+                    },
                     {
                         "name": "bigIpMaxBatchInstancePercent",
                         "type": "Microsoft.Common.Slider",
@@ -2950,7 +2926,7 @@
                             "regex": "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$",
                             "validationMessage": "The big IP runtime init package URL must be a valid URL."
                         }
-                    },                    
+                    },
                     {
                         "name": "bigIpScaleInCpuThreshold",
                         "type": "Microsoft.Common.Slider",
@@ -3157,7 +3133,7 @@
                         "name": "f5AddressPrefix",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Virtual network address space prefix",
-                        "placeholder": "",
+                        "placeholder": "10.0",
                         "defaultValue": "10.0",
                         "toolTip": "The F5 virtual network's address space prefix, specified as two octets (ex. 10.0). The last two octets will be appended based on the number of subnets provisioned.",
                         "constraints": {
@@ -3175,7 +3151,7 @@
                         "name": "f5CidrNotation",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Virtual network address space prefix",
-                        "placeholder": "",
+                        "placeholder": "16",
                         "defaultValue": "16",
                         "toolTip": "Enter the value for the CIDR notation (ex. 16 for /16, 29 for /29) that will be applied to the subnets created within the virtual network. The smallest supported value is /29, and the largest is /2.",
                         "constraints": {
