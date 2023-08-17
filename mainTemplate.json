@@ -977,18 +977,20 @@
             "maxValue": 100,
             "type": "int"
         },
-        "tagValues": {
-            "defaultValue": {
-                "application": "f5demoapp",
-                "cost": "f5cost",
-                "environment": "f5env",
-                "group": "f5group",
-                "owner": "f5owner"
-            },
+        "f5AddressPrefix": {
+            "type": "string",
+            "defaultValue": "10.0"
+        },
+        "f5CidrNotation": {
+            "defaultValue": "16",
+            "type": "string",
             "metadata": {
-                "description": "Default key/value resource tags will be added to the resources in this deployment, if you would like the values to be unique adjust them as needed for each key."
-            },
-            "type": "object"
+                "description": "Enter the the value for the CIDR notation (ex. 16 for /16, 24 for /24) that will be applied to the subnets created within the virtual network."
+        }
+        },
+        "tagsByResource": { 
+            "type": "object", 
+            "defaultValue": {} 
         }
     },
     "variables": {
@@ -1009,7 +1011,6 @@
             "userAssignedIdentityName": "[concat(variables('f5DeploymentNames').uniqueString, '-bigip-identity')]",
             "createNatGateway": "[and(not(parameters('provisionPublicIp')), not(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer))]",
             "numSubnets": 2,
-            "vnetAddressPrefix": "10.0",
             "vnetName": "[concat(variables('f5DeploymentNames').uniqueString, '-vnet')]",
             "provisionExternalBigIpLoadBalancer": "[parameters('provisionExternalBigIpLoadBalancer')]",
             "provisionInternalBigIpLoadBalancer": "[parameters('provisionInternalBigIpLoadBalancer')]",
@@ -1583,7 +1584,7 @@
             "value": "[variables('f5DeploymentNames').uniqueString]"
           },
           "tagValues": {
-            "value": "[parameters('tagValues')]"
+            "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], json('{}')) ]"
           }
         }
       }
@@ -1628,7 +1629,7 @@
             "value": "[variables('f5DeploymentNames').userAssignedIdentityName]"
           },
           "tagValues": {
-            "value": "[parameters('tagValues')]"
+            "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), parameters('tagsByResource')['Microsoft.ManagedIdentity/userAssignedIdentities'], json('{}')) ]"
           }
         }
       }
@@ -1654,10 +1655,13 @@
             "value": "[variables('f5DeploymentNames').vnetName]"
           },
           "vnetAddressPrefix": {
-            "value": "[variables('f5DeploymentNames').vnetAddressPrefix]"
+            "value": "[parameters('f5AddressPrefix')]"
           },
+          "cidrNotation": {
+            "value": "[parameters('f5CidrNotation')]"
+          }
           "tagValues": {
-            "value": "[parameters('tagValues')]"
+            "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualNetwork'), parameters('tagsByResource')['Microsoft.Network/virtualNetwork'], json('{}')) ]"
           }
         }
       }
@@ -1707,7 +1711,7 @@
             "value": "[variables('f5DeploymentNames').numberPublicMgmtIpAddresses]"
           },
           "tagValues": {
-            "value": "[parameters('tagValues')]"
+            "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualNetwork'), parameters('tagsByResource')['Microsoft.Network/virtualNetwork'], json('{}')) ]"
           }
         }
       }
@@ -1749,7 +1753,7 @@
             "value": "[reference('networkTemplate').outputs.subnets.value[1]]"
           },
           "tagValues": {
-            "value": "[parameters('tagValues')]"
+            "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualNetwork'), parameters('tagsByResource')['Microsoft.Network/virtualNetwork'], json('{}')) ]"
           }
         }
       }
@@ -1799,7 +1803,7 @@
             "value": "[reference('networkTemplate').outputs.subnets.value[1]]"
           },
           "tagValues": {
-            "value": "[parameters('tagValues')]"
+            "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], json('{}')) ]"
           },
           "vmScaleSetMaxCount": {
             "value": "[variables('f5DeploymentNames').appVmScaleSetMaxCount]"
@@ -1918,7 +1922,7 @@
             "value": "[reference('networkTemplate').outputs.subnets.value[0]]"
           },
           "tagValues": {
-            "value": "[parameters('tagValues')]"
+            "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], json('{}')) ]"
           },
           "throughputMetricName": {
             "value": "[variables('f5DeploymentNames').throughputMetricName]"
