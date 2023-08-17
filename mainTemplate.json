@@ -1114,7 +1114,6 @@
                         "timeAggregation": "Average",
                         "timeGrain": "PT1M",
                         "timeWindow": "[concat('PT', parameters('bigIpScaleOutTimeWindow'), 'M')]",
-                        "Dimensions": [],
                         "dividePerInstance": false
                     }
                 },
@@ -1135,7 +1134,6 @@
                         "timeAggregation": "Average",
                         "timeGrain": "PT1M",
                         "timeWindow": "[concat('PT', parameters('bigIpScaleInTimeWindow'), 'M')]",
-                        "Dimensions": [],
                         "dividePerInstance": false
                     }
                 },
@@ -1156,7 +1154,6 @@
                         "timeAggregation": "Average",
                         "timeGrain": "PT1M",
                         "timeWindow": "[concat('PT', parameters('bigIpScaleOutTimeWindow'), 'M')]",
-                        "Dimensions": [],
                         "dividePerInstance": false
                     }
                 },
@@ -1177,12 +1174,10 @@
                         "timeAggregation": "Average",
                         "timeGrain": "PT1M",
                         "timeWindow": "[concat('PT', parameters('bigIpScaleInTimeWindow'), 'M')]",
-                        "Dimensions": [],
                         "dividePerInstance": false
                     }
                 }
             ],
-            "customEmail": [],
             "maxBatchInstancePercent": "[parameters('bigIpMaxBatchInstancePercent')]",
             "maxUnhealthyInstancePercent": "[parameters('bigIpMaxUnhealthyInstancePercent')]",
             "maxUnhealthyUpgradedInstancePercent": "[parameters('bigIpMaxUnhealthyUpgradedInstancePercent')]",

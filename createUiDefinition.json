@@ -6,7 +6,6 @@
         "basics": [
             {}
         ],
-        "title": "Azure F5 Landing Zone",
         "steps": [
             {
                 "name": "core",
