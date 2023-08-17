@@ -2,6 +2,13 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "location": {
+            "type": "string",
+            "defaultValue": "[deployment().location]",
+            "metadata": {
+                "description": "Location for all resources."
+            }
+        },
         "enterpriseScaleCompanyPrefix": {
             "type": "string",
             "maxLength": 10,
@@ -732,7 +739,7 @@
             }
         },
         "templateBaseUrl": {
-           // "defaultValue": "https://cdn.f5.com/product/cloudsolutions/",
+            // "defaultValue": "https://cdn.f5.com/product/cloudsolutions/",
             "defaultValue": "https://github.com/Trace3-ChrisCalzaretta/ESLZ-F5/tree/main/Template/modules",
             "metadata": {
                 "description": "The publicly accessible URL where the linked ARM templates are located."
@@ -750,6 +757,12 @@
             "defaultValue": "[concat('f5-azure-arm-templates-v2/v', deployment().properties.template.contentVersion, '/examples/')]",
             "metadata": {
                 "description": "The directory, relative to the templateBaseUrl, where the modules folder is located."
+            },
+            "type": "string"
+        },
+        "uniqueString": {
+            "metadata": {
+                "description": "REQUIRED - A prefix that will be used to name template resources. Because some resources require globally unique names, we recommend using a unique value."
             },
             "type": "string"
         },
@@ -986,19 +999,19 @@
             "type": "string",
             "metadata": {
                 "description": "Enter the the value for the CIDR notation (ex. 16 for /16, 24 for /24) that will be applied to the subnets created within the virtual network."
-        }
+            }
         },
-        "tagsByResource": { 
-            "type": "object", 
-            "defaultValue": {} 
+        "tagsByResource": {
+            "type": "object",
+            "defaultValue": {}
         }
     },
     "variables": {
         // Declaring the prescriptive management group structure that will be used in the scope construction
-        "f5DeploymentNames":{
+        "f5DeploymentNames": {
             "appContainerName": "F5Container",
             "contentVersion": "[deployment().properties.template.contentVersion]",
-            "uniqueString": "[toLower( variables('deploymentSuffix'))]",
+            "uniqueString": "[toLower( parameters('uniqueString'))]",
             "adminUsername": "[string('azureuser')]",
             "createManagedIdentity": "[empty(parameters('bigIpUserAssignManagedIdentity'))]",
             "solutionType": "standard",
@@ -1017,53 +1030,53 @@
             "externalLoadBalancerName": "[if(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer, concat(variables('f5DeploymentNames').uniqueString, '-external-lb'), '')]",
             "internalLoadBalancerName": "[if(variables('f5DeploymentNames').provisionInternalBigIpLoadBalancer, concat(variables('f5DeploymentNames').uniqueString, '-internal-lb'), '')]",
             "loadBalancerRulePorts": [
-            "80",
-            "443"
+                "80",
+                "443"
             ],
             "mgmtSecurityGroup": [
-            {
-                "destinationPortRanges": [
-                "22",
-                "8443"
-                ],
-                "sourceAddressPrefix": "[parameters('restrictedSrcAddressMgmt')]",
-                "protocol": "Tcp"
-            },
-            {
-                "destinationPortRanges": [
-                "80",
-                "443"
-                ],
-                "sourceAddressPrefix": "*",
-                "protocol": "Tcp"
-            }
+                {
+                    "destinationPortRanges": [
+                        "22",
+                        "8443"
+                    ],
+                    "sourceAddressPrefix": "[parameters('restrictedSrcAddressMgmt')]",
+                    "protocol": "Tcp"
+                },
+                {
+                    "destinationPortRanges": [
+                        "80",
+                        "443"
+                    ],
+                    "sourceAddressPrefix": "*",
+                    "protocol": "Tcp"
+                }
             ],
             "appSecurityGroup": [
-            {
-                "destinationPortRanges": [
-                "80",
-                "443"
-                ],
-                "sourceAddressPrefix": "[parameters('restrictedSrcAddressApp')]",
-                "protocol": "Tcp"
-            },
-            {
-                "destinationPortRanges": [
-                "80",
-                "443"
-                ],
-                "sourceAddressPrefix": "10.0.0.0/8",
-                "protocol": "Tcp"
-            }
+                {
+                    "destinationPortRanges": [
+                        "80",
+                        "443"
+                    ],
+                    "sourceAddressPrefix": "[parameters('restrictedSrcAddressApp')]",
+                    "protocol": "Tcp"
+                },
+                {
+                    "destinationPortRanges": [
+                        "80",
+                        "443"
+                    ],
+                    "sourceAddressPrefix": "10.0.0.0/8",
+                    "protocol": "Tcp"
+                }
             ],
             "bastionSecurityGroup": [
-            {
-                "destinationPortRanges": [
-                "22"
-                ],
-                "sourceAddressPrefix": "[parameters('restrictedSrcAddressMgmt')]",
-                "protocol": "Tcp"
-            }
+                {
+                    "destinationPortRanges": [
+                        "22"
+                    ],
+                    "sourceAddressPrefix": "[parameters('restrictedSrcAddressMgmt')]",
+                    "protocol": "Tcp"
+                }
             ],
             "numberPublicExternalIpAddresses": "[if(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer, 1, 0)]",
             "numberPublicMgmtIpAddresses": 0,
@@ -1084,90 +1097,90 @@
             "bigIpVmScaleSetMinCount": "[parameters('bigIpScalingMinSize')]",
             "cpuMetricName": "Percentage CPU",
             "customAutoscaleRules": [
-            {
-                "scaleAction": {
-                "direction": "Increase",
-                "type": "ChangeCount",
-                "value": "1",
-                "cooldown": "PT1M"
+                {
+                    "scaleAction": {
+                        "direction": "Increase",
+                        "type": "ChangeCount",
+                        "value": "1",
+                        "cooldown": "PT1M"
+                    },
+                    "metricTrigger": {
+                        "metricName": "F5_system_cpu",
+                        "metricNamespace": "azure.applicationinsights",
+                        "metricResourceUri": "[variables('f5DeploymentNames').appInsightsId]",
+                        "operator": "GreaterThan",
+                        "statistic": "Average",
+                        "threshold": "[variables('f5DeploymentNames').scaleOutCpuThreshold]",
+                        "timeAggregation": "Average",
+                        "timeGrain": "PT1M",
+                        "timeWindow": "[concat('PT', parameters('bigIpScaleOutTimeWindow'), 'M')]",
+                        "Dimensions": [],
+                        "dividePerInstance": false
+                    }
                 },
-                "metricTrigger": {
-                "metricName": "F5_system_cpu",
-                "metricNamespace": "azure.applicationinsights",
-                "metricResourceUri": "[variables('f5DeploymentNames').appInsightsId]",
-                "operator": "GreaterThan",
-                "statistic": "Average",
-                "threshold": "[variables('f5DeploymentNames').scaleOutCpuThreshold]",
-                "timeAggregation": "Average",
-                "timeGrain": "PT1M",
-                "timeWindow": "[concat('PT', parameters('bigIpScaleOutTimeWindow'), 'M')]",
-                "Dimensions": [],
-                "dividePerInstance": false
-                }
-            },
-            {
-                "scaleAction": {
-                "direction": "Decrease",
-                "type": "ChangeCount",
-                "value": "1",
-                "cooldown": "PT1M"
+                {
+                    "scaleAction": {
+                        "direction": "Decrease",
+                        "type": "ChangeCount",
+                        "value": "1",
+                        "cooldown": "PT1M"
+                    },
+                    "metricTrigger": {
+                        "metricName": "F5_system_cpu",
+                        "metricNamespace": "azure.applicationinsights",
+                        "metricResourceUri": "[variables('f5DeploymentNames').appInsightsId]",
+                        "operator": "LessThan",
+                        "statistic": "Average",
+                        "threshold": "[variables('f5DeploymentNames').scaleInCpuThreshold]",
+                        "timeAggregation": "Average",
+                        "timeGrain": "PT1M",
+                        "timeWindow": "[concat('PT', parameters('bigIpScaleInTimeWindow'), 'M')]",
+                        "Dimensions": [],
+                        "dividePerInstance": false
+                    }
                 },
-                "metricTrigger": {
-                "metricName": "F5_system_cpu",
-                "metricNamespace": "azure.applicationinsights",
-                "metricResourceUri": "[variables('f5DeploymentNames').appInsightsId]",
-                "operator": "LessThan",
-                "statistic": "Average",
-                "threshold": "[variables('f5DeploymentNames').scaleInCpuThreshold]",
-                "timeAggregation": "Average",
-                "timeGrain": "PT1M",
-                "timeWindow": "[concat('PT', parameters('bigIpScaleInTimeWindow'), 'M')]",
-                "Dimensions": [],
-                "dividePerInstance": false
-                }
-            },
-            {
-                "scaleAction": {
-                "direction": "Increase",
-                "type": "ChangeCount",
-                "value": "1",
-                "cooldown": "PT1M"
+                {
+                    "scaleAction": {
+                        "direction": "Increase",
+                        "type": "ChangeCount",
+                        "value": "1",
+                        "cooldown": "PT1M"
+                    },
+                    "metricTrigger": {
+                        "metricName": "F5_throughputIn_sys/performance/throughput/In_Current",
+                        "metricNamespace": "azure.applicationinsights",
+                        "metricResourceUri": "[variables('f5DeploymentNames').appInsightsId]",
+                        "operator": "GreaterThan",
+                        "statistic": "Average",
+                        "threshold": "[variables('f5DeploymentNames').scaleOutThroughputThreshold]",
+                        "timeAggregation": "Average",
+                        "timeGrain": "PT1M",
+                        "timeWindow": "[concat('PT', parameters('bigIpScaleOutTimeWindow'), 'M')]",
+                        "Dimensions": [],
+                        "dividePerInstance": false
+                    }
                 },
-                "metricTrigger": {
-                "metricName": "F5_throughputIn_sys/performance/throughput/In_Current",
-                "metricNamespace": "azure.applicationinsights",
-                "metricResourceUri": "[variables('f5DeploymentNames').appInsightsId]",
-                "operator": "GreaterThan",
-                "statistic": "Average",
-                "threshold": "[variables('f5DeploymentNames').scaleOutThroughputThreshold]",
-                "timeAggregation": "Average",
-                "timeGrain": "PT1M",
-                "timeWindow": "[concat('PT', parameters('bigIpScaleOutTimeWindow'), 'M')]",
-                "Dimensions": [],
-                "dividePerInstance": false
+                {
+                    "scaleAction": {
+                        "direction": "Decrease",
+                        "type": "ChangeCount",
+                        "value": "1",
+                        "cooldown": "PT1M"
+                    },
+                    "metricTrigger": {
+                        "metricName": "F5_throughputIn_sys/performance/throughput/In_Current",
+                        "metricNamespace": "azure.applicationinsights",
+                        "metricResourceUri": "[variables('f5DeploymentNames').appInsightsId]",
+                        "operator": "LessThan",
+                        "statistic": "Average",
+                        "threshold": "[variables('f5DeploymentNames').scaleInThroughputThreshold]",
+                        "timeAggregation": "Average",
+                        "timeGrain": "PT1M",
+                        "timeWindow": "[concat('PT', parameters('bigIpScaleInTimeWindow'), 'M')]",
+                        "Dimensions": [],
+                        "dividePerInstance": false
+                    }
                 }
-            },
-            {
-                "scaleAction": {
-                "direction": "Decrease",
-                "type": "ChangeCount",
-                "value": "1",
-                "cooldown": "PT1M"
-                },
-                "metricTrigger": {
-                "metricName": "F5_throughputIn_sys/performance/throughput/In_Current",
-                "metricNamespace": "azure.applicationinsights",
-                "metricResourceUri": "[variables('f5DeploymentNames').appInsightsId]",
-                "operator": "LessThan",
-                "statistic": "Average",
-                "threshold": "[variables('f5DeploymentNames').scaleInThroughputThreshold]",
-                "timeAggregation": "Average",
-                "timeGrain": "PT1M",
-                "timeWindow": "[concat('PT', parameters('bigIpScaleInTimeWindow'), 'M')]",
-                "Dimensions": [],
-                "dividePerInstance": false
-                }
-            }
             ],
             "customEmail": [],
             "maxBatchInstancePercent": "[parameters('bigIpMaxBatchInstancePercent')]",
@@ -1175,10 +1188,10 @@
             "maxUnhealthyUpgradedInstancePercent": "[parameters('bigIpMaxUnhealthyUpgradedInstancePercent')]",
             "pauseTimeBetweenBatches": "[parameters('bigIpPauseTimeBetweenBatches')]",
             "publicIpConfig": {
-            "name": "[concat(variables('f5DeploymentNames').uniqueString, '-bigip-vmss-pip')]",
-            "properties": {
-                "idleTimeoutInMinutes": 15
-            }
+                "name": "[concat(variables('f5DeploymentNames').uniqueString, '-bigip-vmss-pip')]",
+                "properties": {
+                    "idleTimeoutInMinutes": 15
+                }
             },
             "scaleInCpuThreshold": "[parameters('bigIpScaleInCpuThreshold')]",
             "scaleInThroughputThreshold": "[parameters('bigIpScaleInThroughputThreshold')]",
@@ -1286,7 +1299,7 @@
             "diagnosticSettingsforManagementGroups": "[uri(deployment().properties.templateLink.uri, 'managementGroupTemplates/diagSettingsMGs/diagSettingsMGs.json')]"
         },
         // Declaring deterministic deployment names
-        "deploymentSuffix": "[concat('-', deployment().location, '-', guid(parameters('enterpriseScaleCompanyPrefix'), parameters('currentDateTimeUtcNow')))]",
+        "deploymentSuffix": "[concat('-', parameters('location'), '-', guid(parameters('enterpriseScaleCompanyPrefix'), parameters('currentDateTimeUtcNow')))]",
         "deploymentNames": {
             "mgmtGroupDeploymentName": "[take(concat('alz-Mgs', variables('deploymentSuffix')), 64)]",
             "mgmtSubscriptionPlacement": "[take(concat('alz-MgmtSub', variables('deploymentSuffix')), 64)]",
@@ -1354,11 +1367,11 @@
             "identityVwanPeeringDeploymentName": "[take(concat('alz-IDVwanPeering', variables('deploymentSuffix')), 64)]",
             "mdEndpointsDeploymentName": "[take(concat('alz-MDEndpoints', variables('deploymentSuffix')), 64)]",
             "corpConnectedLzVwanSubs": "[take(concat('alz-CorpConnLzsVwan', variables('deploymentSuffix')), 50)]",
-            "pidCuaDeploymentName": "[take(concat('pid-', variables('cuaid'), '-' , uniqueString(deployment().location, parameters('enterpriseScaleCompanyPrefix'), parameters('currentDateTimeUtcNow'))), 64)]",
+            "pidCuaDeploymentName": "[take(concat('pid-', variables('cuaid'), '-' , uniqueString(parameters('location'), parameters('enterpriseScaleCompanyPrefix'), parameters('currentDateTimeUtcNow'))), 64)]",
             "denyClassicResourcePolicyDeploymentName": "[take(concat('alz-NoClassicResource', variables('deploymentSuffix')), 64)]",
             "costOptimizationDeploymentName": "[take(concat('alz-CostOptimization', variables('deploymentSuffix')), 64)]",
             "denyVMUnmanagedDiskPolicyDeploymentName": "[take(concat('alz-NoUnmanagedDiskResource', variables('deploymentSuffix')), 64)]",
-            "ztnPhase1PidCuaDeploymentName": "[take(concat('pid-', variables('ztnPhase1CuaId'), '-' , uniqueString(deployment().location, parameters('enterpriseScaleCompanyPrefix'), parameters('currentDateTimeUtcNow'), coalesce(parameters('connectivitySubscriptionId'), parameters('singlePlatformSubscriptionId'))), '-ztnp1'), 64)]",
+            "ztnPhase1PidCuaDeploymentName": "[take(concat('pid-', variables('ztnPhase1CuaId'), '-' , uniqueString(parameters('location'), parameters('enterpriseScaleCompanyPrefix'), parameters('currentDateTimeUtcNow'), coalesce(parameters('connectivitySubscriptionId'), parameters('singlePlatformSubscriptionId'))), '-ztnp1'), 64)]",
             "diagnosticSettingsforMGsDeploymentName": "[take(concat('alz-DiagSettingsMGs', variables('deploymentSuffix')), 64)]"
         },
         "esLiteDeploymentNames": {
@@ -1568,387 +1581,387 @@
     },
     "resources": [
         //F5 DEPLOYMENT
-         {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
-      "condition": "[parameters('createWorkspace')]",
-      "name": "telemetryTemplate",
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/telemetry/telemetry.json')]",
-          "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2021-04-01",
+            "condition": "[parameters('createWorkspace')]",
+            "name": "telemetryTemplate",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/telemetry/telemetry.json')]",
+                    "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+                },
+                "parameters": {
+                    "uniqueString": {
+                        "value": "[variables('f5DeploymentNames').uniqueString]"
+                    },
+                    "tagValues": {
+                        "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], json('{}')) ]"
+                    }
+                }
+            }
         },
-        "parameters": {
-          "uniqueString": {
-            "value": "[variables('f5DeploymentNames').uniqueString]"
-          },
-          "tagValues": {
-            "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], json('{}')) ]"
-          }
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
-      "condition": "[variables('f5DeploymentNames').createManagedIdentity]",
-      "name": "accessTemplate",
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/access/access.json')]",
-          "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2021-04-01",
+            "condition": "[variables('f5DeploymentNames').createManagedIdentity]",
+            "name": "accessTemplate",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/access/access.json')]",
+                    "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+                },
+                "parameters": {
+                    "uniqueString": {
+                        "value": "[variables('f5DeploymentNames').uniqueString]"
+                    },
+                    "solutionType": {
+                        "value": "[variables('f5DeploymentNames').solutionType]"
+                    },
+                    "customAssignableScopes": {
+                        "value": "[variables('f5DeploymentNames').customAssignableScopes]"
+                    },
+                    "roleDescription": {
+                        "value": "[variables('f5DeploymentNames').roleDescription]"
+                    },
+                    "roleName": {
+                        "value": "[variables('f5DeploymentNames').roleName]"
+                    },
+                    "customRolePermissions": {
+                        "value": "[variables('f5DeploymentNames').customRolePermissions]"
+                    },
+                    "keyVaultPermissionsKeys": {
+                        "value": "[variables('f5DeploymentNames').keyVaultPermissionsKeys]"
+                    },
+                    "keyVaultPermissionsSecrets": {
+                        "value": "[variables('f5DeploymentNames').keyVaultPermissionsSecrets]"
+                    },
+                    "userAssignedIdentityName": {
+                        "value": "[variables('f5DeploymentNames').userAssignedIdentityName]"
+                    },
+                    "tagValues": {
+                        "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), parameters('tagsByResource')['Microsoft.ManagedIdentity/userAssignedIdentities'], json('{}')) ]"
+                    }
+                }
+            }
         },
-        "parameters": {
-          "uniqueString": {
-            "value": "[variables('f5DeploymentNames').uniqueString]"
-          },
-          "solutionType": {
-            "value": "[variables('f5DeploymentNames').solutionType]"
-          },
-          "customAssignableScopes": {
-            "value": "[variables('f5DeploymentNames').customAssignableScopes]"
-          },
-          "roleDescription": {
-            "value": "[variables('f5DeploymentNames').roleDescription]"
-          },
-          "roleName": {
-            "value": "[variables('f5DeploymentNames').roleName]"
-          },
-          "customRolePermissions": {
-            "value": "[variables('f5DeploymentNames').customRolePermissions]"
-          },
-          "keyVaultPermissionsKeys": {
-            "value": "[variables('f5DeploymentNames').keyVaultPermissionsKeys]"
-          },
-          "keyVaultPermissionsSecrets": {
-            "value": "[variables('f5DeploymentNames').keyVaultPermissionsSecrets]"
-          },
-          "userAssignedIdentityName": {
-            "value": "[variables('f5DeploymentNames').userAssignedIdentityName]"
-          },
-          "tagValues": {
-            "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), parameters('tagsByResource')['Microsoft.ManagedIdentity/userAssignedIdentities'], json('{}')) ]"
-          }
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
-      "name": "networkTemplate",
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/network/network.json')]",
-          "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2021-04-01",
+            "name": "networkTemplate",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/network/network.json')]",
+                    "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+                },
+                "parameters": {
+                    "createNatGateway": {
+                        "value": "[variables('f5DeploymentNames').createNatGateway]"
+                    },
+                    "numSubnets": {
+                        "value": "[variables('f5DeploymentNames').numSubnets]"
+                    },
+                    "vnetName": {
+                        "value": "[variables('f5DeploymentNames').vnetName]"
+                    },
+                    "vnetAddressPrefix": {
+                        "value": "[parameters('f5AddressPrefix')]"
+                    },
+                    "cidrNotation": {
+                        "value": "[parameters('f5CidrNotation')]"
+                    },
+                    "tagValues": {
+                        "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualNetwork'), parameters('tagsByResource')['Microsoft.Network/virtualNetwork'], json('{}')) ]"
+                    }
+                }
+            }
         },
-        "parameters": {
-          "createNatGateway": {
-            "value": "[variables('f5DeploymentNames').createNatGateway]"
-          },
-          "numSubnets": {
-            "value": "[variables('f5DeploymentNames').numSubnets]"
-          },
-          "vnetName": {
-            "value": "[variables('f5DeploymentNames').vnetName]"
-          },
-          "vnetAddressPrefix": {
-            "value": "[parameters('f5AddressPrefix')]"
-          },
-          "cidrNotation": {
-            "value": "[parameters('f5CidrNotation')]"
-          },
-          "tagValues": {
-            "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualNetwork'), parameters('tagsByResource')['Microsoft.Network/virtualNetwork'], json('{}')) ]"
-          }
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
-      "name": "dagTemplate",
-      "dependsOn": [
-        "networkTemplate"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/dag/dag.json')]",
-          "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2021-04-01",
+            "name": "dagTemplate",
+            "dependsOn": [
+                "networkTemplate"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/dag/dag.json')]",
+                    "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+                },
+                "parameters": {
+                    "uniqueString": {
+                        "value": "[variables('f5DeploymentNames').uniqueString]"
+                    },
+                    "externalLoadBalancerName": {
+                        "value": "[if(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer,variables('f5DeploymentNames').externalLoadBalancerName, 'None')]"
+                    },
+                    "internalLoadBalancerName": {
+                        "value": "[if(variables('f5DeploymentNames').provisionInternalBigIpLoadBalancer, variables('f5DeploymentNames').internalLoadBalancerName, 'None')]"
+                    },
+                    "internalSubnetId": {
+                        "value": "[reference('networkTemplate').outputs.subnets.value[1]]"
+                    },
+                    "loadBalancerRulePorts": {
+                        "value": "[variables('f5DeploymentNames').loadBalancerRulePorts]"
+                    },
+                    "nsg0": {
+                        "value": "[variables('f5DeploymentNames').mgmtSecurityGroup]"
+                    },
+                    "nsg1": {
+                        "value": "[variables('f5DeploymentNames').appSecurityGroup]"
+                    },
+                    "nsg2": {
+                        "value": "[if(parameters('provisionPublicIp'), createArray(), variables('f5DeploymentNames').bastionSecurityGroup)]"
+                    },
+                    "numberPublicExternalIpAddresses": {
+                        "value": "[variables('f5DeploymentNames').numberPublicExternalIpAddresses]"
+                    },
+                    "numberPublicMgmtIpAddresses": {
+                        "value": "[variables('f5DeploymentNames').numberPublicMgmtIpAddresses]"
+                    },
+                    "tagValues": {
+                        "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualNetwork'), parameters('tagsByResource')['Microsoft.Network/virtualNetwork'], json('{}')) ]"
+                    }
+                }
+            }
         },
-        "parameters": {
-          "uniqueString": {
-            "value": "[variables('f5DeploymentNames').uniqueString]"
-          },
-          "externalLoadBalancerName": {
-            "value": "[if(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer,variables('f5DeploymentNames').externalLoadBalancerName, 'None')]"
-          },
-          "internalLoadBalancerName": {
-            "value": "[if(variables('f5DeploymentNames').provisionInternalBigIpLoadBalancer, variables('f5DeploymentNames').internalLoadBalancerName, 'None')]"
-          },
-          "internalSubnetId": {
-            "value": "[reference('networkTemplate').outputs.subnets.value[1]]"
-          },
-          "loadBalancerRulePorts": {
-            "value": "[variables('f5DeploymentNames').loadBalancerRulePorts]"
-          },
-          "nsg0": {
-            "value": "[variables('f5DeploymentNames').mgmtSecurityGroup]"
-          },
-          "nsg1": {
-            "value": "[variables('f5DeploymentNames').appSecurityGroup]"
-          },
-          "nsg2": {
-            "value": "[if(parameters('provisionPublicIp'), createArray(), variables('f5DeploymentNames').bastionSecurityGroup)]"
-          },
-          "numberPublicExternalIpAddresses": {
-            "value": "[variables('f5DeploymentNames').numberPublicExternalIpAddresses]"
-          },
-          "numberPublicMgmtIpAddresses": {
-            "value": "[variables('f5DeploymentNames').numberPublicMgmtIpAddresses]"
-          },
-          "tagValues": {
-            "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualNetwork'), parameters('tagsByResource')['Microsoft.Network/virtualNetwork'], json('{}')) ]"
-          }
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
-      "condition": "[not(parameters('provisionPublicIp'))]",
-      "name": "bastionTemplate",
-      "dependsOn": [
-        "bigIpTemplate"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/bastion/bastion.json')]",
-          "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2021-04-01",
+            "condition": "[not(parameters('provisionPublicIp'))]",
+            "name": "bastionTemplate",
+            "dependsOn": [
+                "bigIpTemplate"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/bastion/bastion.json')]",
+                    "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+                },
+                "parameters": {
+                    "adminUsername": {
+                        "value": "[variables('f5DeploymentNames').adminUsername]"
+                    },
+                    "createAutoscaleGroup": {
+                        "value": "[variables('f5DeploymentNames').createAutoscaleGroup]"
+                    },
+                    "instanceName": {
+                        "value": "[variables('f5DeploymentNames').bastionInstanceName]"
+                    },
+                    "instanceType": {
+                        "value": "[variables('f5DeploymentNames').bastionInstanceType]"
+                    },
+                    "nsgId": {
+                        "value": "[reference('dagTemplate').outputs.nsg2Id.value]"
+                    },
+                    "sshKey": {
+                        "value": "[parameters('sshKey')]"
+                    },
+                    "subnetId": {
+                        "value": "[reference('networkTemplate').outputs.subnets.value[1]]"
+                    },
+                    "tagValues": {
+                        "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualNetwork'), parameters('tagsByResource')['Microsoft.Network/virtualNetwork'], json('{}')) ]"
+                    }
+                }
+            }
         },
-        "parameters": {
-          "adminUsername": {
-            "value": "[variables('f5DeploymentNames').adminUsername]"
-          },
-          "createAutoscaleGroup": {
-            "value": "[variables('f5DeploymentNames').createAutoscaleGroup]"
-          },
-          "instanceName": {
-            "value": "[variables('f5DeploymentNames').bastionInstanceName]"
-          },
-          "instanceType": {
-            "value": "[variables('f5DeploymentNames').bastionInstanceType]"
-          },
-          "nsgId": {
-            "value": "[reference('dagTemplate').outputs.nsg2Id.value]"
-          },
-          "sshKey": {
-            "value": "[parameters('sshKey')]"
-          },
-          "subnetId": {
-            "value": "[reference('networkTemplate').outputs.subnets.value[1]]"
-          },
-          "tagValues": {
-            "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualNetwork'), parameters('tagsByResource')['Microsoft.Network/virtualNetwork'], json('{}')) ]"
-          }
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "condition": "[variables('f5DeploymentNames').provisionApp]",
-      "apiVersion": "2021-04-01",
-      "name": "appTemplate",
-      "dependsOn": [
-        "networkTemplate",
-        "dagTemplate"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/application/application.json')]",
-          "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
-        },
-        "parameters": {
-          "adminUsername": {
-            "value": "[variables('f5DeploymentNames').adminUsername]"
-          },
-          "appContainerName": {
-            "value": "[variables('f5DeploymentNames').appContainerName]"
-          },
-          "cloudInitUrl": {
-            "value": "[variables('f5DeploymentNames').cloudInitUrl]"
-          },
-          "createAutoscaleGroup": {
-            "value": "[variables('f5DeploymentNames').createAutoscaleGroup]"
-          },
-          "instanceName": {
-            "value": "[variables('f5DeploymentNames').appInstanceName]"
-          },
-          "instanceType": {
-            "value": "[variables('f5DeploymentNames').appInstanceType]"
-          },
-          "nsgId": {
-            "value": "[reference('dagTemplate').outputs.nsg1Id.value]"
-          },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "condition": "[variables('f5DeploymentNames').provisionApp]",
+            "apiVersion": "2021-04-01",
+            "name": "appTemplate",
+            "dependsOn": [
+                "networkTemplate",
+                "dagTemplate"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/application/application.json')]",
+                    "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+                },
+                "parameters": {
+                    "adminUsername": {
+                        "value": "[variables('f5DeploymentNames').adminUsername]"
+                    },
+                    "appContainerName": {
+                        "value": "[variables('f5DeploymentNames').appContainerName]"
+                    },
+                    "cloudInitUrl": {
+                        "value": "[variables('f5DeploymentNames').cloudInitUrl]"
+                    },
+                    "createAutoscaleGroup": {
+                        "value": "[variables('f5DeploymentNames').createAutoscaleGroup]"
+                    },
+                    "instanceName": {
+                        "value": "[variables('f5DeploymentNames').appInstanceName]"
+                    },
+                    "instanceType": {
+                        "value": "[variables('f5DeploymentNames').appInstanceType]"
+                    },
+                    "nsgId": {
+                        "value": "[reference('dagTemplate').outputs.nsg1Id.value]"
+                    },
 
-          "sshKey": {
-            "value": "[parameters('sshKey')]"
-          },
-          "subnetId": {
-            "value": "[reference('networkTemplate').outputs.subnets.value[1]]"
-          },
-          "tagValues": {
-            "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], json('{}')) ]"
-          },
-          "vmScaleSetMaxCount": {
-            "value": "[variables('f5DeploymentNames').appVmScaleSetMaxCount]"
-          },
-          "vmScaleSetMinCount": {
-            "value": "[variables('f5DeploymentNames').appVmScaleSetMinCount]"
-          }
-        }
-      }
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
-      "name": "bigIpTemplate",
-      "dependsOn": [
-        "accessTemplate",
-        "networkTemplate",
-        "dagTemplate",
-        "telemetryTemplate"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/bigip-autoscale/bigip.json')]",
-          "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+                    "sshKey": {
+                        "value": "[parameters('sshKey')]"
+                    },
+                    "subnetId": {
+                        "value": "[reference('networkTemplate').outputs.subnets.value[1]]"
+                    },
+                    "tagValues": {
+                        "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], json('{}')) ]"
+                    },
+                    "vmScaleSetMaxCount": {
+                        "value": "[variables('f5DeploymentNames').appVmScaleSetMaxCount]"
+                    },
+                    "vmScaleSetMinCount": {
+                        "value": "[variables('f5DeploymentNames').appVmScaleSetMinCount]"
+                    }
+                }
+            }
         },
-        "parameters": {
-          "adminUsername": {
-            "value": "[variables('f5DeploymentNames').adminUsername]"
-          },
-          "allowUsageAnalytics": {
-            "value": "[parameters('allowUsageAnalytics')]"
-          },
-          "appInsights": {
-            "value": "[variables('f5DeploymentNames').appInsights]"
-          },
-          "cpuMetricName": {
-            "value": "[variables('f5DeploymentNames').cpuMetricName]"
-          },
-          "customAutoscaleRules": {
-            "value": "[variables('f5DeploymentNames').customAutoscaleRules]"
-          },
-          "customEmail": {
-            "value": "[variables('f5DeploymentNames').customEmail]"
-          },
-          "uniqueString": {
-            "value": "[variables('f5DeploymentNames').uniqueString]"
-          },
-          "image": {
-            "value": "[variables('f5DeploymentNames').bigIpImage]"
-          },
-          "inboundMgmtNatPoolId": {
-            "value": "[if(and(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer, greater(variables('f5DeploymentNames').numberPublicMgmtIpAddresses, 0)), reference('dagTemplate').outputs.inboundMgmtNatPool.value, '')]"
-          },
-          "inboundSshNatPoolId": {
-            "value": "[if(and(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer, greater(variables('f5DeploymentNames').numberPublicMgmtIpAddresses, 0)), reference('dagTemplate').outputs.inboundSshNatPool.value, '')]"
-          },
-          "instanceHealthProbeId": {
-            "value": "[if(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer, reference('dagTemplate').outputs.externalLoadBalancerProbesId.value[0], if(variables('f5DeploymentNames').provisionInternalBigIpLoadBalancer, reference('dagTemplate').outputs.internalLoadBalancerProbesId.value[0], ''))]"
-          },
-          "instanceType": {
-            "value": "[variables('f5DeploymentNames').bigIpInstanceType]"
-          },
-          "loadBalancerBackendAddressPoolsArray": {
-            "value": "[if(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer, if(variables('f5DeploymentNames').provisionInternalBigIpLoadBalancer, createArray(createObject('id', reference('dagTemplate').outputs.externalBackEndLoadBalancerId.value), createObject('id', reference('dagTemplate').outputs.internalBackEndLoadBalancerId.value)), createArray(createObject('id', reference('dagTemplate').outputs.externalBackEndLoadBalancerId.value))), if(variables('f5DeploymentNames').provisionInternalBigIpLoadBalancer, createArray(createObject('id', reference('dagTemplate').outputs.internalBackEndLoadBalancerId.value)), createArray()))]"
-          },
-          "nsgId": {
-            "value": "[reference('dagTemplate').outputs.nsg0Id.value]"
-          },
-          "provisionPublicIp": {
-            "value": "[if(parameters('provisionPublicIp'), variables('f5DeploymentNames').publicIpConfig, createObject())]"
-          },
-          "roleDefinitionId": {
-            "value": ""
-          },
-          "bigIpRuntimeInitConfig": {
-            "value": "[parameters('bigIpRuntimeInitConfig')]"
-          },
-          "bigIpRuntimeInitPackageUrl": {
-            "value": "[parameters('bigIpRuntimeInitPackageUrl')]"
-          },
-          "maxBatchInstancePercent": {
-            "value": "[variables('f5DeploymentNames').maxBatchInstancePercent]"
-          },
-          "maxUnhealthyInstancePercent": {
-            "value": "[variables('f5DeploymentNames').maxUnhealthyInstancePercent]"
-          },
-          "maxUnhealthyUpgradedInstancePercent": {
-            "value": "[variables('f5DeploymentNames').maxUnhealthyUpgradedInstancePercent]"
-          },
-          "pauseTimeBetweenBatches": {
-            "value": "[variables('f5DeploymentNames').pauseTimeBetweenBatches]"
-          },
-          "scaleInCpuThreshold": {
-            "value": "[variables('f5DeploymentNames').scaleInCpuThreshold]"
-          },
-          "scaleInThroughputThreshold": {
-            "value": "[variables('f5DeploymentNames').scaleInThroughputThreshold]"
-          },
-          "scaleInTimeWindow": {
-            "value": "[variables('f5DeploymentNames').scaleInTimeWindow]"
-          },
-          "scaleOutCpuThreshold": {
-            "value": "[variables('f5DeploymentNames').scaleOutCpuThreshold]"
-          },
-          "scaleOutThroughputThreshold": {
-            "value": "[variables('f5DeploymentNames').scaleOutThroughputThreshold]"
-          },
-          "scaleOutTimeWindow": {
-            "value": "[variables('f5DeploymentNames').scaleOutTimeWindow]"
-          },
-          "sshKey": {
-            "value": "[parameters('sshKey')]"
-          },
-          "subnetId": {
-            "value": "[reference('networkTemplate').outputs.subnets.value[0]]"
-          },
-          "tagValues": {
-            "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], json('{}')) ]"
-          },
-          "throughputMetricName": {
-            "value": "[variables('f5DeploymentNames').throughputMetricName]"
-          },
-          "useAvailabilityZones": {
-            "value": "[parameters('useAvailabilityZones')]"
-          },
-          "userAssignManagedIdentity": {
-            "value": "[if(not(variables('f5DeploymentNames').createManagedIdentity), parameters('bigIpUserAssignManagedIdentity'), reference('accessTemplate').outputs.userAssignedIdentityId.value)]"
-          },
-          "vmScaleSetMaxCount": {
-            "value": "[variables('f5DeploymentNames').bigIpVmScaleSetMaxCount]"
-          },
-          "vmScaleSetMinCount": {
-            "value": "[variables('f5DeploymentNames').bigIpVmScaleSetMinCount]"
-          },
-          "vmssName": {
-            "value": "[variables('f5DeploymentNames').vmssName]"
-          },
-          "workspaceId": {
-            "value": "[if(parameters('createWorkspace'), reference('telemetryTemplate').outputs.workspaceId.value, parameters('workspaceId'))]"
-          }
-        }
-      }
-    },
-    //END F5 Deployemnt
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2021-04-01",
+            "name": "bigIpTemplate",
+            "dependsOn": [
+                "accessTemplate",
+                "networkTemplate",
+                "dagTemplate",
+                "telemetryTemplate"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/bigip-autoscale/bigip.json')]",
+                    "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+                },
+                "parameters": {
+                    "adminUsername": {
+                        "value": "[variables('f5DeploymentNames').adminUsername]"
+                    },
+                    "allowUsageAnalytics": {
+                        "value": "[parameters('allowUsageAnalytics')]"
+                    },
+                    "appInsights": {
+                        "value": "[variables('f5DeploymentNames').appInsights]"
+                    },
+                    "cpuMetricName": {
+                        "value": "[variables('f5DeploymentNames').cpuMetricName]"
+                    },
+                    "customAutoscaleRules": {
+                        "value": "[variables('f5DeploymentNames').customAutoscaleRules]"
+                    },
+                    "customEmail": {
+                        "value": "[variables('f5DeploymentNames').customEmail]"
+                    },
+                    "uniqueString": {
+                        "value": "[variables('f5DeploymentNames').uniqueString]"
+                    },
+                    "image": {
+                        "value": "[variables('f5DeploymentNames').bigIpImage]"
+                    },
+                    "inboundMgmtNatPoolId": {
+                        "value": "[if(and(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer, greater(variables('f5DeploymentNames').numberPublicMgmtIpAddresses, 0)), reference('dagTemplate').outputs.inboundMgmtNatPool.value, '')]"
+                    },
+                    "inboundSshNatPoolId": {
+                        "value": "[if(and(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer, greater(variables('f5DeploymentNames').numberPublicMgmtIpAddresses, 0)), reference('dagTemplate').outputs.inboundSshNatPool.value, '')]"
+                    },
+                    "instanceHealthProbeId": {
+                        "value": "[if(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer, reference('dagTemplate').outputs.externalLoadBalancerProbesId.value[0], if(variables('f5DeploymentNames').provisionInternalBigIpLoadBalancer, reference('dagTemplate').outputs.internalLoadBalancerProbesId.value[0], ''))]"
+                    },
+                    "instanceType": {
+                        "value": "[variables('f5DeploymentNames').bigIpInstanceType]"
+                    },
+                    "loadBalancerBackendAddressPoolsArray": {
+                        "value": "[if(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer, if(variables('f5DeploymentNames').provisionInternalBigIpLoadBalancer, createArray(createObject('id', reference('dagTemplate').outputs.externalBackEndLoadBalancerId.value), createObject('id', reference('dagTemplate').outputs.internalBackEndLoadBalancerId.value)), createArray(createObject('id', reference('dagTemplate').outputs.externalBackEndLoadBalancerId.value))), if(variables('f5DeploymentNames').provisionInternalBigIpLoadBalancer, createArray(createObject('id', reference('dagTemplate').outputs.internalBackEndLoadBalancerId.value)), createArray()))]"
+                    },
+                    "nsgId": {
+                        "value": "[reference('dagTemplate').outputs.nsg0Id.value]"
+                    },
+                    "provisionPublicIp": {
+                        "value": "[if(parameters('provisionPublicIp'), variables('f5DeploymentNames').publicIpConfig, createObject())]"
+                    },
+                    "roleDefinitionId": {
+                        "value": ""
+                    },
+                    "bigIpRuntimeInitConfig": {
+                        "value": "[parameters('bigIpRuntimeInitConfig')]"
+                    },
+                    "bigIpRuntimeInitPackageUrl": {
+                        "value": "[parameters('bigIpRuntimeInitPackageUrl')]"
+                    },
+                    "maxBatchInstancePercent": {
+                        "value": "[variables('f5DeploymentNames').maxBatchInstancePercent]"
+                    },
+                    "maxUnhealthyInstancePercent": {
+                        "value": "[variables('f5DeploymentNames').maxUnhealthyInstancePercent]"
+                    },
+                    "maxUnhealthyUpgradedInstancePercent": {
+                        "value": "[variables('f5DeploymentNames').maxUnhealthyUpgradedInstancePercent]"
+                    },
+                    "pauseTimeBetweenBatches": {
+                        "value": "[variables('f5DeploymentNames').pauseTimeBetweenBatches]"
+                    },
+                    "scaleInCpuThreshold": {
+                        "value": "[variables('f5DeploymentNames').scaleInCpuThreshold]"
+                    },
+                    "scaleInThroughputThreshold": {
+                        "value": "[variables('f5DeploymentNames').scaleInThroughputThreshold]"
+                    },
+                    "scaleInTimeWindow": {
+                        "value": "[variables('f5DeploymentNames').scaleInTimeWindow]"
+                    },
+                    "scaleOutCpuThreshold": {
+                        "value": "[variables('f5DeploymentNames').scaleOutCpuThreshold]"
+                    },
+                    "scaleOutThroughputThreshold": {
+                        "value": "[variables('f5DeploymentNames').scaleOutThroughputThreshold]"
+                    },
+                    "scaleOutTimeWindow": {
+                        "value": "[variables('f5DeploymentNames').scaleOutTimeWindow]"
+                    },
+                    "sshKey": {
+                        "value": "[parameters('sshKey')]"
+                    },
+                    "subnetId": {
+                        "value": "[reference('networkTemplate').outputs.subnets.value[0]]"
+                    },
+                    "tagValues": {
+                        "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], json('{}')) ]"
+                    },
+                    "throughputMetricName": {
+                        "value": "[variables('f5DeploymentNames').throughputMetricName]"
+                    },
+                    "useAvailabilityZones": {
+                        "value": "[parameters('useAvailabilityZones')]"
+                    },
+                    "userAssignManagedIdentity": {
+                        "value": "[if(not(variables('f5DeploymentNames').createManagedIdentity), parameters('bigIpUserAssignManagedIdentity'), reference('accessTemplate').outputs.userAssignedIdentityId.value)]"
+                    },
+                    "vmScaleSetMaxCount": {
+                        "value": "[variables('f5DeploymentNames').bigIpVmScaleSetMaxCount]"
+                    },
+                    "vmScaleSetMinCount": {
+                        "value": "[variables('f5DeploymentNames').bigIpVmScaleSetMinCount]"
+                    },
+                    "vmssName": {
+                        "value": "[variables('f5DeploymentNames').vmssName]"
+                    },
+                    "workspaceId": {
+                        "value": "[if(parameters('createWorkspace'), reference('telemetryTemplate').outputs.workspaceId.value, parameters('workspaceId'))]"
+                    }
+                }
+            }
+        },
+        //END F5 Deployemnt
         /*
             The following deployment will create the management group structure for ESLZ and ensure the sustainable, scalable architecture
         */
@@ -1958,7 +1971,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "[variables('deploymentNames').mgmtGroupDeploymentName]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -1977,7 +1990,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "[variables('deploymentNames').roleDefsDeploymentName]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "scope": "[concat('Microsoft.Management/managementGroups/', parameters('enterpriseScaleCompanyPrefix'))]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').mgmtGroupDeploymentName)]",
@@ -1999,7 +2012,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "[variables('deploymentNames').policyDeploymentName]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "scope": "[concat('Microsoft.Management/managementGroups/', parameters('enterpriseScaleCompanyPrefix'))]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').mgmtGroupDeploymentName)]",
@@ -2023,7 +2036,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-10-01",
             "name": "[concat('preparingToLaunch', copyIndex())]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "scope": "[concat('Microsoft.Management/managementGroups/', parameters('enterpriseScaleCompanyPrefix'))]",
             "dependsOn": [
                 "[variables('deploymentNames').policyDeploymentName]"
@@ -2054,7 +2067,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').mgmtSubscriptionPlacement]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "scope": "[variables('scopes').managementManagementGroup]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').mgmtGroupDeploymentName)]"
@@ -2081,7 +2094,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').connectivitySubscriptionPlacement]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "scope": "[variables('scopes').connectivityManagementGroup]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').mgmtGroupDeploymentName)]"
@@ -2108,7 +2121,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').identitySubscriptionPlacement]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "scope": "[variables('scopes').identityManagementGroup]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').mgmtGroupDeploymentName)]"
@@ -2138,7 +2151,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').monitoringDeploymentName]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "subscriptionId": "[parameters('managementSubscriptionId')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').mgmtSubscriptionPlacement)]",
@@ -2178,7 +2191,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').monitoringSolutionsDeploymentName]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "subscriptionId": "[parameters('managementSubscriptionId')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').monitoringDeploymentName)]",
@@ -2234,7 +2247,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').logAnalyticsPolicyDeploymentName]",
             "scope": "[variables('scopes').managementManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').mgmtSubscriptionPlacement)]",
                 "policyCompletion"
@@ -2277,7 +2290,7 @@
             "apiVersion": "2020-10-01",
             "name": "[take(concat(variables('mgmtGroupsArray')[copyIndex()], variables('deploymentNames').diagnosticSettingsforMGsDeploymentName), 64)]",
             "scope": "[concat('Microsoft.Management/managementGroups/', variables('mgmtGroupsArray')[copyIndex()])]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').mgmtSubscriptionPlacement)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('esLitedeploymentNames').platformLiteSubscriptionPlacement)]",
@@ -2308,7 +2321,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').asbPolicyDeploymentName]",
             "scope": "[variables('scopes').eslzRootManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').mgmtSubscriptionPlacement)]",
                 "policyCompletion",
@@ -2331,7 +2344,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').resourceDiagnosticsPolicyDeploymentName]",
             "scope": "[variables('scopes').eslzRootManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').mgmtSubscriptionPlacement)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('esLitedeploymentNames').platformLiteSubscriptionPlacement)]",
@@ -2361,7 +2374,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').activityDiagnosticsPolicyDeploymentName]",
             "scope": "[variables('scopes').eslzRootManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').monitoringDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').monitoringLiteDeploymentName)]"
@@ -2389,7 +2402,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').costOptimizationDeploymentName]",
             "scope": "[variables('scopes').eslzRootManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion"
             ],
@@ -2413,7 +2426,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').ascPolicyDeploymentName]",
             "scope": "[variables('scopes').eslzRootManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').monitoringDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').monitoringLiteDeploymentName)]"
@@ -2489,7 +2502,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').atpOssDbPolicyDeploymentName]",
             "scope": "[variables('scopes').eslzRootManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').monitoringDeploymentName)]"
             ],
@@ -2516,7 +2529,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').atpSqlDbPolicyDeploymentName]",
             "scope": "[variables('scopes').eslzRootManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').monitoringDeploymentName)]"
             ],
@@ -2543,7 +2556,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').mdEndpointsDeploymentName]",
             "scope": "[variables('scopes').eslzRootManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').monitoringDeploymentName)]"
             ],
@@ -2570,7 +2583,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').denyClassicResourcePolicyDeploymentName]",
             "scope": "[variables('scopes').eslzRootManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').mgmtGroupDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments',variables('esLiteDeploymentNames').mgmtGroupLiteDeploymentName)]"
@@ -2598,7 +2611,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').denyVMUnmanagedDiskPolicyDeploymentName]",
             "scope": "[variables('scopes').eslzRootManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion"
             ],
@@ -2622,7 +2635,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').ascGovPolicyDeploymentName]",
             "scope": "[variables('scopes').eslzRootManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').monitoringDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').monitoringLiteDeploymentName)]"
@@ -2674,7 +2687,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').ddosRgDeploymentName]",
             "subscriptionId": "[parameters('connectivitySubscriptionId')]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').connectivitySubscriptionPlacement)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').activityDiagnosticsPolicyDeploymentName)]",
@@ -2735,7 +2748,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').ddosHubPolicyDeploymentName]",
             "scope": "[variables('scopes').connectivityManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ddosDeploymentName)]"
             ],
@@ -2774,7 +2787,7 @@
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascGovPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ddosDeploymentName)]"
             ],
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -2867,7 +2880,7 @@
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascGovPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ddosDeploymentName)]"
             ],
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -2942,7 +2955,7 @@
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascGovPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ddosDeploymentName)]"
             ],
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -2999,7 +3012,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').privateDnsZoneRgDeploymentName]",
             "subscriptionId": "[parameters('connectivitySubscriptionId')]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').connectivitySubscriptionPlacement)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').activityDiagnosticsPolicyDeploymentName)]",
@@ -3072,7 +3085,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "[variables('deploymentNames').privateDnsPolicyDeploymentName]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "scope": "[variables('scopes').corpManagementGroup]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').mgmtGroupDeploymentName)]",
@@ -3109,7 +3122,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "[variables('deploymentNames').dnsZoneRoleAssignmentDeploymentName]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "subscriptionId": "[variables('singleVsDedicatedConnectivitySub')]",
             "dependsOn": [
                 "[variables('deploymentNames').privateDnsPolicyDeploymentName]"
@@ -3140,7 +3153,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').azVmMonitorPolicyDeploymentName]",
             "scope": "[variables('scopes').eslzRootManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').monitoringDeploymentName)]"
             ],
@@ -3170,7 +3183,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').azVmssMonitorPolicyDeploymentName]",
             "scope": "[variables('scopes').eslzRootManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').monitoringDeploymentName)]"
             ],
@@ -3200,7 +3213,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').azBackupLzPolicyDeploymentName]",
             "scope": "[variables('scopes').lzsManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion"
             ],
@@ -3227,7 +3240,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').ddosLzPolicyDeploymentName]",
             "scope": "[variables('scopes').lzsManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ddosDeploymentName)]"
             ],
@@ -3257,7 +3270,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').azPolicyForAksPolicyDeploymentName]",
             "scope": "[variables('scopes').lzsManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion"
             ],
@@ -3284,7 +3297,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').aksPrivEscalationPolicyDeploymentName]",
             "scope": "[variables('scopes').lzsManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion"
             ],
@@ -3308,7 +3321,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').aksPrivilegedPolicyDeploymentName]",
             "scope": "[variables('scopes').lzsManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion"
             ],
@@ -3332,7 +3345,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').aksHttpsPolicyDeploymentName]",
             "scope": "[variables('scopes').lzsManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion"
             ],
@@ -3356,7 +3369,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').tlsSslPolicyDeploymentName]",
             "scope": "[variables('scopes').lzsManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion"
             ],
@@ -3383,7 +3396,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').ipFwPolicyDeploymentName]",
             "scope": "[variables('scopes').lzsManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion"
             ],
@@ -3407,7 +3420,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').publicEndpointPolicyDeploymentName]",
             "scope": "[variables('scopes').corpManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion"
             ],
@@ -3434,7 +3447,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').pipOnNicPolicyDeploymentName]",
             "scope": "[variables('scopes').corpManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion"
             ],
@@ -3458,7 +3471,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').mgmtFromInternetPolicyDeploymentName]",
             "scope": "[variables('scopes').lzsManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion"
             ],
@@ -3485,7 +3498,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').storageHttpsPolicyDeploymentName]",
             "scope": "[variables('scopes').lzsManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion"
             ],
@@ -3509,7 +3522,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').kvGuardrailsPolicyDeploymentName]",
             "scope": "[variables('scopes').lzsManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion"
             ],
@@ -3536,7 +3549,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').denyHybridNetworkingPolicyDeploymentName]",
             "scope": "[variables('scopes').corpManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion"
             ],
@@ -3560,7 +3573,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').auditPeDnsZonesPolicyDeploymentName]",
             "scope": "[variables('scopes').corpManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion"
             ],
@@ -3590,7 +3603,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').auditAppGWWafPolicyDeploymentName]",
             "scope": "[variables('scopes').lzsManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion"
             ],
@@ -3614,7 +3627,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').enforceACSBPolicyDeploymentName]",
             "scope": "[variables('scopes').eslzRootManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion"
             ],
@@ -3641,7 +3654,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').subnetNsgPolicyDeploymentName]",
             "scope": "[variables('scopes').lzsManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion"
             ],
@@ -3668,7 +3681,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').sqlAuditPolicyDeploymentName]",
             "scope": "[variables('scopes').lzsManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').mgmtSubscriptionPlacement)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('esLitedeploymentNames').platformLiteSubscriptionPlacement)]",
@@ -3700,7 +3713,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "[variables('deploymentNames').sqlAuditRoleAssignmentDeploymentName1]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "subscriptionId": "[variables('singleVsDedicatedMgmtSub')]",
             "dependsOn": [
                 "[variables('deploymentNames').sqlAuditPolicyDeploymentName]"
@@ -3730,7 +3743,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "[variables('deploymentNames').sqlAuditRoleAssignmentDeploymentName2]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "subscriptionId": "[variables('singleVsDedicatedMgmtSub')]",
             "dependsOn": [
                 "[variables('deploymentNames').sqlAuditPolicyDeploymentName]"
@@ -3761,7 +3774,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').sqlEncryptionPolicyDeploymentName]",
             "scope": "[variables('scopes').lzsManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion"
             ],
@@ -3788,7 +3801,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').sqlThreatPolicyDeploymentName]",
             "scope": "[variables('scopes').lzsManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion"
             ],
@@ -3815,7 +3828,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').decommissionPolicyDeploymentName]",
             "scope": "[variables('scopes').decommissionedManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion"
             ],
@@ -3842,7 +3855,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').sandboxPolicyDeploymentName]",
             "scope": "[variables('scopes').sandboxManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion"
             ],
@@ -3872,7 +3885,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').azBackupIdentityPolicyDeploymentName]",
             "scope": "[variables('scopes').identityManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion"
             ],
@@ -3899,7 +3912,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').pipPolicyDeploymentName]",
             "scope": "[variables('scopes').identityManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').identitySubscriptionPlacement)]"
@@ -3924,7 +3937,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').subnetNsgIdentityPolicyDeploymentName]",
             "scope": "[variables('scopes').identityManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').identitySubscriptionPlacement)]"
@@ -3952,7 +3965,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('deploymentNames').mgmtFromInternetIdentityPolicyDeploymentName]",
             "scope": "[variables('scopes').identityManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').identitySubscriptionPlacement)]"
@@ -4077,7 +4090,7 @@
             "apiVersion": "2020-10-01",
             "name": "[concat(variables('deploymentNames').onlineLzSubs, copyIndex())]",
             "scope": "[variables('scopes').onlineManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').policyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').activityDiagnosticsPolicyDeploymentName)]",
@@ -4112,7 +4125,7 @@
             "apiVersion": "2020-10-01",
             "name": "[concat(variables('deploymentNames').corpLzSubs, copyIndex())]",
             "scope": "[variables('scopes').corpManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').policyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').activityDiagnosticsPolicyDeploymentName)]",
@@ -4147,7 +4160,7 @@
             "apiVersion": "2020-10-01",
             "name": "[concat(variables('deploymentNames').corpConnectedMoveLzSubs, copyIndex())]",
             "scope": "[variables('scopes').corpManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').policyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').activityDiagnosticsPolicyDeploymentName)]",
@@ -4300,7 +4313,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2019-10-01",
             "name": "[variables('esLiteDeploymentNames').mgmtGroupLiteDeploymentName]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -4323,7 +4336,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-10-01",
             "name": "[variables('esLiteDeploymentNames').platformLiteSubscriptionPlacement]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "scope": "[variables('scopes').platformManagementGroup]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').mgmtGroupLiteDeploymentName)]"
@@ -4353,7 +4366,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-10-01",
             "name": "[variables('esLiteDeploymentNames').monitoringLiteDeploymentName]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "subscriptionId": "[parameters('singlePlatformSubscriptionId')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('esliteDeploymentNames').platformLiteSubscriptionPlacement)]",
@@ -4396,7 +4409,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-10-01",
             "name": "[variables('esLiteDeploymentNames').monitoringSolutionsLiteDeploymentName]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "subscriptionId": "[parameters('singlePlatformSubscriptionId')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').monitoringLiteDeploymentName)]",
@@ -4455,7 +4468,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('esLiteDeploymentNames').logAnalyticsLitePolicyDeploymentName]",
             "scope": "[variables('scopes').platformManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').monitoringLiteDeploymentName)]",
                 "policyCompletion"
@@ -4501,7 +4514,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('esLiteDeploymentNames').ddosRgLiteDeploymentName]",
             "subscriptionId": "[parameters('singlePlatformSubscriptionId')]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').platformLiteSubscriptionPlacement)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').activityDiagnosticsPolicyDeploymentName)]",
@@ -4564,7 +4577,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('esLitedeploymentNames').privateDnsZoneRgLiteDeploymentName]",
             "subscriptionId": "[parameters('singlePlatformSubscriptionId')]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').platformLiteSubscriptionPlacement)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').activityDiagnosticsPolicyDeploymentName)]",
@@ -4641,7 +4654,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('esLiteDeploymentNames').ddosHubLitePolicyDeploymentName]",
             "scope": "[variables('scopes').platformManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').ddosLiteDeploymentName)]"
             ],
@@ -4681,7 +4694,7 @@
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascGovPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').ddosHubLitePolicyDeploymentName)]"
             ],
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -4775,7 +4788,7 @@
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascGovPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').ddosHubLitePolicyDeploymentName)]"
             ],
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -4853,7 +4866,7 @@
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').activityDiagnosticsPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').resourceDiagnosticsPolicyDeploymentName)]"
             ],
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -4910,7 +4923,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('esLitedeploymentNames').azBackupIdentityLitePolicyDeploymentName]",
             "scope": "[variables('scopes').platformManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').platformLiteSubscriptionPlacement)]"
             ],
@@ -4940,7 +4953,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('esLitedeploymentNames').subnetNsgIdentityLitePolicyDeploymentName]",
             "scope": "[variables('scopes').platformManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion",
                 "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').platformLiteSubscriptionPlacement)]"
@@ -4971,7 +4984,7 @@
             "apiVersion": "2020-10-01",
             "name": "[variables('esLitedeploymentNames').mgmtFromInternetIdentityLitePolicyDeploymentName]",
             "scope": "[variables('scopes').platformManagementGroup]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "policyCompletion",
                 "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').platformLiteSubscriptionPlacement)]"
@@ -4996,7 +5009,7 @@
             "condition": "[equals(parameters('telemetryOptOut'), 'No')]",
             "apiVersion": "2020-06-01",
             "name": "[variables('deploymentNames').pidCuaDeploymentName]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "type": "Microsoft.Resources/deployments",
             "properties": {
                 "mode": "Incremental",
@@ -5012,7 +5025,7 @@
             "apiVersion": "2020-06-01",
             "name": "[variables('deploymentNames').ztnPhase1PidCuaDeploymentName]",
             "subscriptionId": "[coalesce(parameters('connectivitySubscriptionId'), parameters('singlePlatformSubscriptionId'))]",
-            "location": "[deployment().location]",
+            "location": "[parameters('location')]",
             "type": "Microsoft.Resources/deployments",
             "properties": {
                 "mode": "Incremental",

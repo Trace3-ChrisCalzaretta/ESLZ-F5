@@ -3210,10 +3210,8 @@
                     }
                 ]
             }
-        ]
-    },
-    "outputs": {
-        "parameters": {
+        ],
+        "outputs": {
             "enterpriseScaleCompanyPrefix": "[steps('core').enterpriseScaleCompanyPrefix]",
             "singlePlatformSubscriptionId": "[steps('core').singleSubscription.selector]",
             "denyClassicResources": "[steps('core').denyClassicResources]",
@@ -3335,16 +3333,14 @@
             "restrictedSrcAddressApp": "[steps('f5Parameters').restrictedSrcAddressApp]",
             "restrictedSrcAddressMgmt": "[steps('f5Parameters').restrictedSrcAddressMgmt]",
             "sshKey": "[steps('f5Parameters').sshKey]",
-            "tagValues": "[steps('f5Parameters').tagValues]",
+            "tagsByResource": "[steps('tags').tagsByResource]",
             "templateBaseUrl": "[steps('f5Parameters').templateBaseUrl]",
             "uniqueString": "[steps('f5Parameters').uniqueString]",
             "useAvailabilityZones": "[steps('f5Parameters').useAvailabilityZones]",
             "workspaceId": "[steps('f5Parameters').workspaceId]",
             "f5AddressPrefix": "[steps('f5Parameters').f5AddressPrefix]",
             "f5CidrNotation": "[steps('f5Parameters').f5CidrNotation]",
-            "outTagsByResource": "[steps('tags').tagsByResource]"
-        },
-        "kind": "Tenant",
-        "location": "[steps('basics').resourceScope.location.name]"
+            "location": "[location()]"
+        }
     }
 }
