@@ -186,6 +186,7 @@
                             {
                                 "name": "telemetryOptOut",
                                 "type": "Microsoft.Common.OptionsGroup",
+                                "toolTip": "Select this option to opt out of sending telemetry data to Microsoft. No telemetry data will be collected.",
                                 "visible": true,
                                 "label": "Customer Usage Selection Options",
                                 "defaultValue": "Enabled",
@@ -2531,6 +2532,7 @@
                                             "width": "1fr",
                                             "element": {
                                                 "type": "Microsoft.Common.TextBox",
+                                                "toolTip":"Provide the address space for the virtual network in the selected subscription that will be peered to the connectivity hub virtual network",
                                                 "placeholder": "Ensure there are no overlapping IP addresses!",
                                                 "constraints": {
                                                     "required": true,
@@ -2798,6 +2800,7 @@
                     {
                         "name": "allowUsageAnalytics",
                         "type": "Microsoft.Common.OptionsGroup",
+                        "toolTip":"This setting configures whether F5 telemetry data will be sent to F5. Sending data helps F5 improve their products and services.",
                         "label": "Allowusageanalytics",
                         "defaultValue": true,
                         "constraints": {
@@ -2816,6 +2819,7 @@
                     {
                         "name": "appContainerName",
                         "type": "Microsoft.Common.TextBox",
+                        "toolTip": "The name of the container that will be used to deploy the sample application.",
                         "label": "Appcontainername",
                         "defaultValue": "f5devcentral/f5-demo-app:latest",
                         "constraints": {
@@ -2827,6 +2831,7 @@
                     {
                         "name": "appScalingMaxSize",
                         "type": "Microsoft.Common.Slider",
+                        "toolTip":"This setting configures the maximum number of instances that can run for the sample application. Scaling allows the application to grow or shrink based on demand.",
                         "min": 1,
                         "max": 20,
                         "label": "Appscalingmaxsize",
@@ -2835,6 +2840,7 @@
                     {
                         "name": "appScalingMinSize",
                         "type": "Microsoft.Common.Slider",
+                        "toolTip":"This setting configures the minimum number of instances that will run for the sample application. Scaling allows the application to grow or shrink based on demand.",
                         "label": "Appscalingminsize",
                         "min": 1,
                         "max": 20,
@@ -2843,6 +2849,7 @@
                     {
                         "name": "artifactLocation",
                         "type": "Microsoft.Common.TextBox",
+                        "toolTip":"The URL of the artifact (Docker image) that contains the sample application code. This image will be deployed to the containers.",
                         "label": "Artifactlocation",
                         "defaultValue": "f5-azure-arm-templates-v2/v2.8.0.0/examples/",
                         "constraints": {
@@ -2854,6 +2861,7 @@
                     {
                         "name": "bigIpImage",
                         "type": "Microsoft.Common.TextBox",
+                        "toolTip":"The name of the BIG-IP VE Docker image to use. This image contains the F5 BIG-IP software.",
                         "label": "Bigipimage",
                         "defaultValue": "f5-networks:f5-big-ip-best:f5-big-best-plus-hourly-25mbps:16.1.303000",
                         "constraints": {
@@ -2865,6 +2873,7 @@
                     {
                         "name": "bigIpInstanceType",
                         "type": "Microsoft.Common.TextBox",
+                        "toolTip": "The Azure instance type for the BIG-IP virtual machine. Larger instance types provide more CPU/memory resources.",
                         "label": "Bigipinstancetype",
                         "defaultValue": "Standard_D2s_v4",
                         "constraints": {
@@ -2876,6 +2885,7 @@
                     {
                         "name": "bigIpMaxBatchInstancePercent",
                         "type": "Microsoft.Common.Slider",
+                        "toolTip": "The maximum percentage of BIG-IP instances that can be updated simultaneously during a rolling update. Smaller values reduce the potential impact of an update but increase total update time.",
                         "label": "Bigipmaxbatchinstancepercent",
                         "min": 0,
                         "max": 100,
@@ -2884,6 +2894,7 @@
                     {
                         "name": "bigIpMaxUnhealthyInstancePercent",
                         "type": "Microsoft.Common.Slider",
+                        "toolTip": "The maximum percentage of unhealthy BIG-IP instances allowed during an update. This helps control the failure tolerance during an update process.",
                         "label": "Bigipmaxunhealthyinstancepercent",
                         "min": 0,
                         "max": 100,
@@ -2892,6 +2903,7 @@
                     {
                         "name": "bigIpMaxUnhealthyUpgradedInstancePercent",
                         "type": "Microsoft.Common.Slider",
+                        "toolTip": "The maximum percentage of unhealthy upgraded BIG-IP instances allowed. This helps manage the upgrade process effectively.",
                         "label": "Bigipmaxunhealthyupgradedinstancepercent",
                         "min": 0,
                         "max": 100,
@@ -2900,6 +2912,7 @@
                     {
                         "name": "bigIpPauseTimeBetweenBatches",
                         "type": "Microsoft.Common.Slider",
+                        "toolTip": "The pause time between update batches for BIG-IP instances. This helps in controlling the pace of the update process.",
                         "label": "Bigippausetimebetweenbatches",
                         "defaultValue": 0,
                         "min": 0,
@@ -2908,6 +2921,7 @@
                     {
                         "name": "bigIpRuntimeInitConfig",
                         "type": "Microsoft.Common.TextBox",
+                        "toolTip": "The URL for the BIG-IP runtime initialization configuration. This provides the necessary configuration details for the BIG-IP virtual machine.",
                         "label": "Bigipruntimeinitconfig",
                         "defaultValue": "https://raw.githubusercontent.com/F5Networks/f5-azure-arm-templates-v2/v2.8.0.0/examples/autoscale/bigip-configurations/runtime-init-conf-payg-with-app.yaml",
                         "constraints": {
@@ -2919,6 +2933,7 @@
                     {
                         "name": "bigIpRuntimeInitPackageUrl",
                         "type": "Microsoft.Common.TextBox",
+                        "toolTip": "The URL for the BIG-IP runtime initialization package. This contains the necessary scripts and tools for initializing the BIG-IP virtual machine.",
                         "label": "Bigipruntimeinitpackageurl",
                         "defaultValue": "https://cdn.f5.com/product/cloudsolutions/f5-bigip-runtime-init/v1.6.1/dist/f5-bigip-runtime-init-1.6.1-1.gz.run",
                         "constraints": {
@@ -2930,6 +2945,7 @@
                     {
                         "name": "bigIpScaleInCpuThreshold",
                         "type": "Microsoft.Common.Slider",
+                        "toolTip": "The CPU threshold for scaling in BIG-IP instances. When the CPU usage falls below this threshold, instances are removed to conserve resources.",
                         "label": "Bigipscaleincputhreshold",
                         "defaultValue": 20,
                         "min": 0,
@@ -2938,6 +2954,7 @@
                     {
                         "name": "bigIpScaleInThroughputThreshold",
                         "type": "Microsoft.Common.Slider",
+                        "toolTip": "The throughput threshold for scaling in BIG-IP instances. When the throughput falls below this threshold, instances are removed to optimize performance.",
                         "label": "Bigipscaleinthroughputthreshold",
                         "defaultValue": 10000000,
                         "min": 0,
@@ -2946,6 +2963,7 @@
                     {
                         "name": "bigIpScaleInTimeWindow",
                         "type": "Microsoft.Common.Slider",
+                        "toolTip": "The time window for scaling in BIG-IP instances. This helps control the scaling process and avoid abrupt changes in instance count.",
                         "label": "Bigipscaleintimewindow",
                         "defaultValue": 10,
                         "min": 0,
@@ -2954,6 +2972,7 @@
                     {
                         "name": "bigIpScaleOutCpuThreshold",
                         "type": "Microsoft.Common.Slider",
+                        "toolTip": "The CPU threshold for scaling out BIG-IP instances. When the CPU usage exceeds this threshold, additional instances are added to handle the load.",
                         "label": "Bigipscaleoutcputhreshold",
                         "defaultValue": 80,
                         "min": 0,
@@ -2962,6 +2981,7 @@
                     {
                         "name": "bigIpScaleOutThroughputThreshold",
                         "type": "Microsoft.Common.Slider",
+                        "toolTip": "The throughput threshold for scaling out BIG-IP instances. When the throughput exceeds this threshold, additional instances are added to enhance performance.",
                         "label": "Bigipscaleoutthroughputthreshold",
                         "defaultValue": 20000000,
                         "min": 0,
@@ -2970,6 +2990,7 @@
                     {
                         "name": "bigIpScaleOutTimeWindow",
                         "type": "Microsoft.Common.Slider",
+                        "toolTip": "The time window for scaling out BIG-IP instances. This helps control the scaling process and ensures smooth addition of instances.",
                         "label": "Bigipscaleouttimewindow",
                         "defaultValue": 10,
                         "min": 0,
@@ -2978,6 +2999,7 @@
                     {
                         "name": "bigIpScalingMaxSize",
                         "type": "Microsoft.Common.Slider",
+                        "toolTip": "The maximum size for BIG-IP scaling. This sets the upper limit for the number of BIG-IP instances in the scaling group.",
                         "label": "Bigipscalingmaxsize",
                         "defaultValue": 10,
                         "min": 0,
@@ -2986,6 +3008,7 @@
                     {
                         "name": "bigIpScalingMinSize",
                         "type": "Microsoft.Common.Slider",
+                        "toolTip": "The minimum size for BIG-IP scaling. This sets the lower limit for the number of BIG-IP instances in the scaling group.",
                         "label": "Bigipscalingminsize",
                         "defaultValue": 1,
                         "min": 0,
@@ -2994,6 +3017,7 @@
                     {
                         "name": "bigIpUserAssignManagedIdentity",
                         "type": "Microsoft.Common.TextBox",
+                        "toolTip": "The resource ID for the user-assigned managed identity for the BIG-IP instances. This helps in managing identity and access within Azure.",
                         "label": "Bigipuserassignmanagedidentity",
                         "defaultValue": "",
                         "constraints": {
@@ -3005,6 +3029,7 @@
                     {
                         "name": "createWorkspace",
                         "type": "Microsoft.Common.OptionsGroup",
+                        "toolTip": "Choose whether to create a new workspace. A workspace helps in organizing and managing resources.",
                         "label": "Createworkspace",
                         "defaultValue": true,
                         "constraints": {
@@ -3023,6 +3048,7 @@
                     {
                         "name": "provisionExternalBigIpLoadBalancer",
                         "type": "Microsoft.Common.OptionsGroup",
+                        "toolTip": "Choose whether to provision an external BIG-IP load balancer. This helps in distributing traffic externally.",
                         "label": "Provisionexternalbigiploadbalancer",
                         "defaultValue": true,
                         "constraints": {
@@ -3041,6 +3067,7 @@
                     {
                         "name": "provisionInternalBigIpLoadBalancer",
                         "type": "Microsoft.Common.OptionsGroup",
+                        "toolTip": "Choose whether to provision an internal BIG-IP load balancer. This helps in distributing traffic within the internal network.",
                         "label": "Provisioninternalbigiploadbalancer",
                         "defaultValue": false,
                         "constraints": {
@@ -3059,6 +3086,7 @@
                     {
                         "name": "provisionPublicIp",
                         "type": "Microsoft.Common.OptionsGroup",
+                        "toolTip": "Choose whether to provision a public IP address. This enables external access to the resources.",
                         "label": "Provisionpublicip",
                         "defaultValue": true,
                         "constraints": {
@@ -3077,6 +3105,7 @@
                     {
                         "name": "restrictedSrcAddressApp",
                         "type": "Microsoft.Common.TextBox",
+                        "toolTip": "Define the restricted source address for the application. This adds an additional layer of security by limiting access.",
                         "label": "Restrictedsrcaddressapp",
                         "defaultValue": "",
                         "constraints": {
@@ -3088,6 +3117,7 @@
                     {
                         "name": "restrictedSrcAddressMgmt",
                         "type": "Microsoft.Common.TextBox",
+                        "toolTip": "Define the restricted source address for management access. This ensures that only authorized IPs can access management interfaces.",
                         "label": "Restrictedsrcaddressmgmt",
                         "defaultValue": "",
                         "constraints": {
@@ -3099,6 +3129,7 @@
                     {
                         "name": "sshKey",
                         "type": "Microsoft.Common.TextBox",
+                        "toolTip": "Provide the SSH key for secure access. This key is used for authentication and ensures secure communication.",
                         "label": "Sshkey",
                         "defaultValue": "",
                         "constraints": {
@@ -3110,6 +3141,7 @@
                     {
                         "name": "templateBaseUrl",
                         "type": "Microsoft.Common.TextBox",
+                        "toolTip": "Provide the base URL for the templates. This URL contains the necessary templates for provisioning and configuration.",
                         "label": "Templatebaseurl",
                         "defaultValue": "https://cdn.f5.com/product/cloudsolutions/",
                         "constraints": {
@@ -3121,6 +3153,7 @@
                     {
                         "name": "uniqueString",
                         "type": "Microsoft.Common.TextBox",
+                        "toolTip": "Provide a unique string that identifies the resources. It must contain only alphanumeric characters and hyphens.",
                         "label": "Uniquestring",
                         "defaultValue": "",
                         "constraints": {
@@ -3168,6 +3201,7 @@
                     {
                         "name": "useAvailabilityZones",
                         "type": "Microsoft.Common.OptionsGroup",
+                        "toolTip": "Choose whether to use availability zones for higher availability and fault tolerance. Availability zones are isolated locations within a region.",
                         "label": "Useavailabilityzones",
                         "defaultValue": false,
                         "constraints": {
@@ -3186,6 +3220,7 @@
                     {
                         "name": "workspaceId",
                         "type": "Microsoft.Common.TextBox",
+                        "toolTip": "Provide the Azure workspace ID where the resources will be managed. The workspace ID must be a valid Azure resource ID.",
                         "label": "Workspaceid",
                         "defaultValue": "WORKSPACE_ID",
                         "constraints": {
@@ -3203,6 +3238,7 @@
                     {
                         "name": "tagsByResource",
                         "type": "Microsoft.Common.TagsByResource",
+                        "toolTip": "Tags to apply to all resources provisioned by this deployment. You can use tags to identify and group resources for cost allocation.",
                         "resources": [
                             "Microsoft.Storage/storageAccounts",
                             "Microsoft.Compute/virtualMachines",

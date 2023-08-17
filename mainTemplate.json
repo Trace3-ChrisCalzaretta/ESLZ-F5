@@ -2171,13 +2171,13 @@
                         "value": "[variables('platformResourceNames').logAnalyticsWorkspace]"
                     },
                     "workspaceRegion": {
-                        "value": "[deployment().location]"
+                        "value": "[parameters('location')]"
                     },
                     "automationAccountName": {
                         "value": "[variables('platformResourceNames').automationAccount]"
                     },
                     "automationRegion": {
-                        "value": "[deployment().location]"
+                        "value": "[parameters('location')]"
                     },
                     "retentionInDays": {
                         "value": "[parameters('retentionInDays')]"
@@ -2211,7 +2211,7 @@
                         "value": "[variables('platformResourceNames').logAnalyticsWorkspace]"
                     },
                     "workspaceRegion": {
-                        "value": "[deployment().location]"
+                        "value": "[parameters('location')]"
                     },
                     "enableSecuritySolution": {
                         "value": "[parameters('enableSecuritySolution')]"
@@ -2269,13 +2269,13 @@
                         "value": "[variables('platformResourceNames').logAnalyticsWorkspace]"
                     },
                     "workspaceRegion": {
-                        "value": "[deployment().location]"
+                        "value": "[parameters('location')]"
                     },
                     "automationAccountName": {
                         "value": "[variables('platformResourceNames').automationAccount]"
                     },
                     "automationRegion": {
-                        "value": "[deployment().location]"
+                        "value": "[parameters('location')]"
                     },
                     "retentionInDays": {
                         "value": "[parameters('retentionInDays')]"
@@ -4386,13 +4386,13 @@
                         "value": "[variables('platformResourceNames').logAnalyticsWorkspace]"
                     },
                     "workspaceRegion": {
-                        "value": "[deployment().location]"
+                        "value": "[parameters('location')]"
                     },
                     "automationAccountName": {
                         "value": "[variables('platformResourceNames').automationAccount]"
                     },
                     "automationRegion": {
-                        "value": "[deployment().location]"
+                        "value": "[parameters('location')]"
                     },
                     "retentionInDays": {
                         "value": "[parameters('retentionInDays')]"
@@ -4429,7 +4429,7 @@
                         "value": "[variables('platformResourceNames').logAnalyticsWorkspace]"
                     },
                     "workspaceRegion": {
-                        "value": "[deployment().location]"
+                        "value": "[parameters('location')]"
                     },
                     "enableSecuritySolution": {
                         "value": "[parameters('enableSecuritySolution')]"
@@ -4490,13 +4490,13 @@
                         "value": "[variables('platformResourceNames').logAnalyticsWorkspace]"
                     },
                     "workspaceRegion": {
-                        "value": "[deployment().location]"
+                        "value": "[parameters('location')]"
                     },
                     "automationAccountName": {
                         "value": "[variables('platformResourceNames').automationAccount]"
                     },
                     "automationRegion": {
-                        "value": "[deployment().location]"
+                        "value": "[parameters('location')]"
                     },
                     "retentionInDays": {
                         "value": "[parameters('retentionInDays')]"
