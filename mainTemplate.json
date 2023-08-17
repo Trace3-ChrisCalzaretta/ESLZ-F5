@@ -1659,7 +1659,7 @@
           },
           "cidrNotation": {
             "value": "[parameters('f5CidrNotation')]"
-          }
+          },
           "tagValues": {
             "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualNetwork'), parameters('tagsByResource')['Microsoft.Network/virtualNetwork'], json('{}')) ]"
           }
