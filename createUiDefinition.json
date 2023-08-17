@@ -2843,7 +2843,9 @@
                         "label": "Appcontainername",
                         "defaultValue": "f5devcentral/f5-demo-app:latest",
                         "constraints": {
-                            "required": true
+                            "required": true,
+                            "regex": "^[a-zA-Z0-9-/:.]+$",
+                            "validationMessage": "The app container name must only contain alphanumeric characters, hyphens, slashes, and colons."
                         }
                     },
                     {
@@ -2868,7 +2870,9 @@
                         "label": "Artifactlocation",
                         "defaultValue": "f5-azure-arm-templates-v2/v2.8.0.0/examples/",
                         "constraints": {
-                            "required": true
+                            "required": true,
+                            "regex": "^[a-zA-Z0-9-/.]+$",
+                            "validationMessage": "The artifact location must only contain alphanumeric characters, hyphens, slashes, and dots."
                         }
                     },
                     {
@@ -2877,7 +2881,9 @@
                         "label": "Bigipimage",
                         "defaultValue": "f5-networks:f5-big-ip-best:f5-big-best-plus-hourly-25mbps:16.1.303000",
                         "constraints": {
-                            "required": true
+                            "required": true,
+                            "regex": "^[a-zA-Z0-9-:._]+$",
+                            "validationMessage": "The big IP image must only contain alphanumeric characters, hyphens, colons, dots, and underscores."
                         }
                     },
                     {
@@ -2886,9 +2892,11 @@
                         "label": "Bigipinstancetype",
                         "defaultValue": "Standard_D2s_v4",
                         "constraints": {
-                            "required": true
+                            "required": true,
+                            "regex": "^[a-zA-Z0-9-_]+$",
+                            "validationMessage": "The big IP instance type must only contain alphanumeric characters, hyphens, and underscores."
                         }
-                    },
+                    },                    
                     {
                         "name": "bigIpMaxBatchInstancePercent",
                         "type": "Microsoft.Common.Slider",
@@ -2927,7 +2935,9 @@
                         "label": "Bigipruntimeinitconfig",
                         "defaultValue": "https://raw.githubusercontent.com/F5Networks/f5-azure-arm-templates-v2/v2.8.0.0/examples/autoscale/bigip-configurations/runtime-init-conf-payg-with-app.yaml",
                         "constraints": {
-                            "required": true
+                            "required": true,
+                            "regex": "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$",
+                            "validationMessage": "The big IP runtime init config must be a valid URL."
                         }
                     },
                     {
@@ -2936,9 +2946,11 @@
                         "label": "Bigipruntimeinitpackageurl",
                         "defaultValue": "https://cdn.f5.com/product/cloudsolutions/f5-bigip-runtime-init/v1.6.1/dist/f5-bigip-runtime-init-1.6.1-1.gz.run",
                         "constraints": {
-                            "required": true
+                            "required": true,
+                            "regex": "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$",
+                            "validationMessage": "The big IP runtime init package URL must be a valid URL."
                         }
-                    },
+                    },                    
                     {
                         "name": "bigIpScaleInCpuThreshold",
                         "type": "Microsoft.Common.Slider",
@@ -3009,7 +3021,9 @@
                         "label": "Bigipuserassignmanagedidentity",
                         "defaultValue": "",
                         "constraints": {
-                            "required": false
+                            "required": false,
+                            "regex": "^/subscriptions/[a-zA-Z0-9-]+/resourceGroups/[a-zA-Z0-9-]+/providers/Microsoft\\.ManagedIdentity/userAssignedIdentities/[a-zA-Z0-9-]+$",
+                            "validationMessage": "The big IP user assign managed identity must be a valid resource ID."
                         }
                     },
                     {
@@ -3090,7 +3104,9 @@
                         "label": "Restrictedsrcaddressapp",
                         "defaultValue": "",
                         "constraints": {
-                            "required": false
+                            "required": false,
+                            "regex": "^((\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})/\\d{1,2})?$",
+                            "validationMessage": "The restricted source address for the app must be a valid IP address or CIDR notation."
                         }
                     },
                     {
@@ -3099,7 +3115,9 @@
                         "label": "Restrictedsrcaddressmgmt",
                         "defaultValue": "",
                         "constraints": {
-                            "required": false
+                            "required": false,
+                            "regex": "^((\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})/\\d{1,2})?$",
+                            "validationMessage": "The restricted source address for management must be a valid IP address or CIDR notation."
                         }
                     },
                     {
@@ -3108,7 +3126,9 @@
                         "label": "Sshkey",
                         "defaultValue": "",
                         "constraints": {
-                            "required": false
+                            "required": false,
+                            "regex": "^[a-zA-Z0-9-+=/]*$",
+                            "validationMessage": "The SSH key must be a valid SSH key."
                         }
                     },
                     {
@@ -3117,7 +3137,9 @@
                         "label": "Templatebaseurl",
                         "defaultValue": "https://cdn.f5.com/product/cloudsolutions/",
                         "constraints": {
-                            "required": true
+                            "required": true,
+                            "regex": "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$",
+                            "validationMessage": "The template base URL must be a valid URL."
                         }
                     },
                     {
@@ -3126,7 +3148,9 @@
                         "label": "Uniquestring",
                         "defaultValue": "",
                         "constraints": {
-                            "required": false
+                            "required": false,
+                            "regex": "^[a-zA-Z0-9-]*$",
+                            "validationMessage": "The unique string must only contain alphanumeric characters and hyphens."
                         }
                     },
                     {
@@ -3189,7 +3213,9 @@
                         "label": "Workspaceid",
                         "defaultValue": "WORKSPACE_ID",
                         "constraints": {
-                            "required": true
+                            "required": true,
+                            "regex": "^/subscriptions/[a-zA-Z0-9-]+/resourceGroups/[a-zA-Z0-9-]+/providers/[a-zA-Z0-9-./]+/[a-zA-Z0-9-./]+$",
+                            "validationMessage": "The workspace ID must be a valid Azure resource ID."
                         }
                     }
                 ]
