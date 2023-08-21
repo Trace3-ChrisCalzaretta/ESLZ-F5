@@ -1001,6 +1001,13 @@
                 "description": "Enter the the value for the CIDR notation (ex. 16 for /16, 24 for /24) that will be applied to the subnets created within the virtual network."
             }
         },
+        "customEmail": {
+            "defaultValue": [],
+            "metadata": {
+                "description": "Enter string array of email addresses to be notified when scale up or scale down occurs. Example: ['myemail@email.com','meyemail2@email.com']."
+            },
+            "type": "array"
+        },
         "tagsByResource": {
             "type": "object",
             "defaultValue": {}
@@ -1862,7 +1869,7 @@
                         "value": "[variables('f5DeploymentNames').customAutoscaleRules]"
                     },
                     "customEmail": {
-                        "value": "[variables('f5DeploymentNames').customEmail]"
+                        "value": "[parameters('customEmail')]"
                     },
                     "uniqueString": {
                         "value": "[variables('f5DeploymentNames').uniqueString]"

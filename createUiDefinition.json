@@ -2797,6 +2797,18 @@
                 "bladeTitle": "F5 Settings",
                 "elements": [
                     {
+                        "name": "customEmail",
+                        "type": "Microsoft.Common.TextBox",
+                        "toolTip": "Enter string array of email addresses to be notified when scale up or scale down occurs.",
+                        "label": "Email Addresses",
+                        "defaultValue": "['myemail@email.com','myemail2@email.com']",
+                        "constraints": {
+                            "required": true,
+                            "regex": "^\\[\\s*'([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})'(,\\s*'([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})')*\\s*\\]$",
+                            "validationMessage": "Please enter a valid array of email addresses. Example: ['myemail@email.com','myemail2@email.com']."
+                        }
+                    },
+                    {
                         "name": "allowUsageAnalytics",
                         "type": "Microsoft.Common.OptionsGroup",
                         "toolTip":"This setting configures whether F5 telemetry data will be sent to F5. Sending data helps F5 improve their products and services.",
