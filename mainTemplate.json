@@ -1291,7 +1291,14 @@
             "govMdfcPolicyAssignment": "[uri(deployment().properties.templateLink.uri, 'managementGroupTemplates/policyAssignments/gov/fairfaxDINE-MDFCConfigPolicyAssignment.json')]",
             "costOptimizationPolicyInitiative": "[uri(deployment().properties.templateLink.uri, 'managementGroupTemplates/policyAssignments/AUDIT-UnusedResourcesPolicyAssignment.json')]",
             "VMUnmanagedDiskPolicyAssignment": "[uri(deployment().properties.templateLink.uri, 'managementGroupTemplates/policyAssignments/DENY-VMUnmanagedDiskPolicyAssignment.json')]",
-            "diagnosticSettingsforManagementGroups": "[uri(deployment().properties.templateLink.uri, 'managementGroupTemplates/diagSettingsMGs/diagSettingsMGs.json')]"
+            "diagnosticSettingsforManagementGroups": "[uri(deployment().properties.templateLink.uri, 'managementGroupTemplates/diagSettingsMGs/diagSettingsMGs.json')]",
+            "f5Telemetry": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/telemetry/telemetry.json')]",
+            "f5Access": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/access/access.json')]",
+            "f5Network": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/network/network.json')]",
+            "f5Dag": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/dag/dag.json')]",
+            "f5Bastion": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/bastion/bastion.json')]",
+            "f5Application": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/application/application.json')]",
+            "f5BigIP": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/bigip-autoscale/bigip.json')]"
         },
         // Declaring deterministic deployment names
         "deploymentSuffix": "[concat('-', parameters('location'), '-', guid(parameters('enterpriseScaleCompanyPrefix'), parameters('currentDateTimeUtcNow')))]",
@@ -1584,7 +1591,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/telemetry/telemetry.json')]",
+                    "uri": "[variables('deploymentUris').f5Telemetry]",
                     "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
                 },
                 "parameters": {
@@ -1605,7 +1612,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/access/access.json')]",
+                    "uri": "[variables('deploymentUris').f5Access]",
                     "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
                 },
                 "parameters": {
@@ -1649,7 +1656,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/network/network.json')]",
+                    "uri": "[variables('deploymentUris').f5Network]",
                     "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
                 },
                 "parameters": {
@@ -1684,7 +1691,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/dag/dag.json')]",
+                    "uri": "[variables('deploymentUris').f5Dag]",
                     "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
                 },
                 "parameters": {
@@ -1735,7 +1742,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/bastion/bastion.json')]",
+                    "uri": "[variables('deploymentUris').f5Bastion]",
                     "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
                 },
                 "parameters": {
@@ -1778,7 +1785,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/application/application.json')]",
+                    "uri": "[variables('deploymentUris').f5Application]",
                     "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
                 },
                 "parameters": {
@@ -1835,7 +1842,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/bigip-autoscale/bigip.json')]",
+                    "uri": "[variables('deploymentUris').f5BigIP]",
                     "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
                 },
                 "parameters": {
