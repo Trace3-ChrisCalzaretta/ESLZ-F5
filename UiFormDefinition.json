@@ -3391,8 +3391,7 @@
                 "useAvailabilityZones": "[steps('f5Parameters').useAvailabilityZones]",
                 "workspaceId": "[steps('f5Parameters').workspaceId]",
                 "f5AddressPrefix": "[steps('f5Parameters').f5AddressPrefix]",
-                "f5CidrNotation": "[steps('f5Parameters').f5CidrNotation]",
-                "location": "[location()]"
+                "f5CidrNotation": "[steps('f5Parameters').f5CidrNotation]"
             },
             "kind": "Tenant",
             "location": "[steps('basics').resourceScope.location.name]"
