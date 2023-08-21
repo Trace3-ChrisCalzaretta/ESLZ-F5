@@ -738,27 +738,12 @@
                 "description": "The current date and time using the utcNow function. Used for deployment name uniqueness"
             }
         },
-        // "defaultValue": "https://cdn.f5.com/product/cloudsolutions/",
-        "templateBaseUrl": {
-            "defaultValue": "https://github.com/Trace3-ChrisCalzaretta/ESLZ-F5/tree/main/Template/modules",
-            "metadata": {
-                "description": "The publicly accessible URL where the linked ARM templates are located."
-            },
-            "type": "string"
-        },
         "allowUsageAnalytics": {
             "defaultValue": true,
             "metadata": {
                 "description": "This deployment can send anonymous statistics to F5 to help us determine how to improve our solutions. If you select **false** statistics are not sent."
             },
             "type": "bool"
-        },
-        "artifactLocation": {
-            "defaultValue": "[concat('f5-azure-arm-templates-v2/v', deployment().properties.template.contentVersion, '/examples/')]",
-            "metadata": {
-                "description": "The directory, relative to the templateBaseUrl, where the modules folder is located."
-            },
-            "type": "string"
         },
         "uniqueString": {
             "metadata": {
@@ -1014,7 +999,6 @@
         }
     },
     "variables": {
-        // Declaring the prescriptive management group structure that will be used in the scope construction
         "f5DeploymentNames": {
             "appContainerName": "F5Container",
             "contentVersion": "[deployment().properties.template.contentVersion]",
@@ -1299,13 +1283,13 @@
             "costOptimizationPolicyInitiative": "[uri(deployment().properties.templateLink.uri, 'managementGroupTemplates/policyAssignments/AUDIT-UnusedResourcesPolicyAssignment.json')]",
             "VMUnmanagedDiskPolicyAssignment": "[uri(deployment().properties.templateLink.uri, 'managementGroupTemplates/policyAssignments/DENY-VMUnmanagedDiskPolicyAssignment.json')]",
             "diagnosticSettingsforManagementGroups": "[uri(deployment().properties.templateLink.uri, 'managementGroupTemplates/diagSettingsMGs/diagSettingsMGs.json')]",
-            "f5Telemetry": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/telemetry/telemetry.json')]",
-            "f5Access": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/access/access.json')]",
-            "f5Network": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/network/network.json')]",
-            "f5Dag": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/dag/dag.json')]",
-            "f5Bastion": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/bastion/bastion.json')]",
-            "f5Application": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/application/application.json')]",
-            "f5BigIP": "[concat(parameters('templateBaseUrl'), parameters('artifactLocation'), 'modules/bigip-autoscale/bigip.json')]"
+            "f5Telemetry": "[uri(deployment().properties.templateLink.uri, 'modules/telemetry/telemetry.json')]",
+            "f5Access": "[uri(deployment().properties.templateLink.uri, 'modules/access/access.json')]",
+            "f5Network": "[uri(deployment().properties.templateLink.uri, 'modules/network/network.json')]",
+            "f5Dag": "[uri(deployment().properties.templateLink.uri, 'modules/dag/dag.json')]",
+            "f5Bastion": "[uri(deployment().properties.templateLink.uri, 'modules/bastion/bastion.json')]",
+            "f5Application": "[uri(deployment().properties.templateLink.uri, 'modules/application/application.json')]",
+            "f5BigIP": "[uri(deployment().properties.templateLink.uri, 'modules/bigip-autoscale/bigip.json')]"
         },
         // Declaring deterministic deployment names
         "deploymentSuffix": "[concat('-', parameters('location'), '-', guid(parameters('enterpriseScaleCompanyPrefix'), parameters('currentDateTimeUtcNow')))]",
@@ -1595,6 +1579,7 @@
             "apiVersion": "2021-04-01",
             "condition": "[parameters('createWorkspace')]",
             "name": "telemetryTemplate",
+            "location": "[parameters('location')]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -1616,6 +1601,7 @@
             "apiVersion": "2021-04-01",
             "condition": "[variables('f5DeploymentNames').createManagedIdentity]",
             "name": "accessTemplate",
+            "location": "[parameters('location')]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -1660,6 +1646,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
             "name": "networkTemplate",
+            "location": "[parameters('location')]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -1692,6 +1679,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
             "name": "dagTemplate",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "networkTemplate"
             ],
@@ -1743,6 +1731,7 @@
             "apiVersion": "2021-04-01",
             "condition": "[not(parameters('provisionPublicIp'))]",
             "name": "bastionTemplate",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "bigIpTemplate"
             ],
@@ -1785,6 +1774,7 @@
             "condition": "[variables('f5DeploymentNames').provisionApp]",
             "apiVersion": "2021-04-01",
             "name": "appTemplate",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "networkTemplate",
                 "dagTemplate"
@@ -1840,6 +1830,7 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
             "name": "bigIpTemplate",
+            "location": "[parameters('location')]",
             "dependsOn": [
                 "accessTemplate",
                 "networkTemplate",
@@ -2728,6 +2719,7 @@
             "apiVersion": "2021-04-01",
             "name": "[variables('deploymentNames').ddosDeploymentName]",
             "subscriptionId": "[parameters('connectivitySubscriptionId')]",
+            "location": "[parameters('location')]",
             "resourceGroup": "[variables('platformRgNames').ddosRg]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ddosRgDeploymentName)]",

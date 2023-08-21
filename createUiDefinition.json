@@ -2858,18 +2858,6 @@
                         "defaultValue": 1
                     },
                     {
-                        "name": "artifactLocation",
-                        "type": "Microsoft.Common.TextBox",
-                        "toolTip":"The URL of the artifact (Docker image) that contains the sample application code. This image will be deployed to the containers.",
-                        "label": "Artifactlocation",
-                        "defaultValue": "f5-azure-arm-templates-v2/v2.8.0.0/examples/",
-                        "constraints": {
-                            "required": true,
-                            "regex": "^[a-zA-Z0-9-/.]+$",
-                            "validationMessage": "The artifact location must only contain alphanumeric characters, hyphens, slashes, and dots."
-                        }
-                    },
-                    {
                         "name": "bigIpImage",
                         "type": "Microsoft.Common.TextBox",
                         "toolTip":"The name of the BIG-IP VE Docker image to use. This image contains the F5 BIG-IP software.",
@@ -3150,18 +3138,6 @@
                         }
                     },
                     {
-                        "name": "templateBaseUrl",
-                        "type": "Microsoft.Common.TextBox",
-                        "toolTip": "Provide the base URL for the templates. This URL contains the necessary templates for provisioning and configuration.",
-                        "label": "Templatebaseurl",
-                        "defaultValue": "https://cdn.f5.com/product/cloudsolutions/",
-                        "constraints": {
-                            "required": true,
-                            "regex": "^(https?|ftp)://[^\\s/$.?#].[^\\s]*$",
-                            "validationMessage": "The template base URL must be a valid URL."
-                        }
-                    },
-                    {
                         "name": "uniqueString",
                         "type": "Microsoft.Common.TextBox",
                         "toolTip": "Provide a unique string that identifies the resources. It must contain only alphanumeric characters and hyphens.",
@@ -3357,7 +3333,6 @@
             "appContainerName": "[steps('f5Parameters').appContainerName]",
             "appScalingMaxSize": "[steps('f5Parameters').appScalingMaxSize]",
             "appScalingMinSize": "[steps('f5Parameters').appScalingMinSize]",
-            "artifactLocation": "[steps('f5Parameters').artifactLocation]",
             "bigIpImage": "[steps('f5Parameters').bigIpImage]",
             "bigIpInstanceType": "[steps('f5Parameters').bigIpInstanceType]",
             "bigIpMaxBatchInstancePercent": "[steps('f5Parameters').bigIpMaxBatchInstancePercent]",
@@ -3383,7 +3358,6 @@
             "restrictedSrcAddressMgmt": "[steps('f5Parameters').restrictedSrcAddressMgmt]",
             "sshKey": "[steps('f5Parameters').sshKey]",
             "tagsByResource": "[steps('tags').tagsByResource]",
-            "templateBaseUrl": "[steps('f5Parameters').templateBaseUrl]",
             "uniqueString": "[steps('f5Parameters').uniqueString]",
             "useAvailabilityZones": "[steps('f5Parameters').useAvailabilityZones]",
             "workspaceId": "[steps('f5Parameters').workspaceId]",
