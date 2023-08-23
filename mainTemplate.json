@@ -738,6 +738,18 @@
                 "description": "The current date and time using the utcNow function. Used for deployment name uniqueness"
             }
         },
+        "f5SubscriptionId": {
+            "type": "string",
+            "defaultValue": "",
+            "maxLength": 36,
+            "metadata": {
+                "description": "Provide the subscription id of an existing, empty subscription you want to dedicate for networking."
+            }
+        },
+        "f5Location": {
+            "type": "string",
+            "defaultValue": "[deployment().location]"
+        },
         "allowUsageAnalytics": {
             "defaultValue": true,
             "metadata": {
@@ -1000,6 +1012,9 @@
     },
     "variables": {
         "f5DeploymentNames": {
+            "f5Rg": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-f5-', parameters('f5Location'))]",
+            "f5SubscriptionPlacement": "[take(concat('alz-f5Sub', variables('deploymentSuffix')), 64)]",
+            "f5RgDeploymentName": "[take(concat('alz-f5Rg', variables('deploymentSuffix')), 64)]",
             "appContainerName": "F5Container",
             "contentVersion": "[deployment().properties.template.contentVersion]",
             "uniqueString": "[toLower( parameters('uniqueString'))]",
@@ -1575,6 +1590,37 @@
     "resources": [
         //F5 DEPLOYMENT
         {
+            // Creating resource group for F5 deployments
+            "condition": "[not(empty(parameters('f5SubscriptionId')))]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2021-04-01",
+            "name": "[variables('f5DeploymentNames').f5RgDeploymentName]",
+            "subscriptionId": "[parameters('f5SubscriptionId')]",
+            "location": "[parameters('f5Location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', variables('f5deploymentNames').f5SubscriptionPlacement)]",
+                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').activityDiagnosticsPolicyDeploymentName)]",
+                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').asbPolicyDeploymentName)]",
+                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascPolicyDeploymentName)]",
+                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').resourceDiagnosticsPolicyDeploymentName)]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "contentVersion": "1.0.0.0",
+                    "uri": "[variables('deploymentUris').resourceGroup]"
+                },
+                "parameters": {
+                    "rgName": {
+                        "value": "[variables('f5DeploymentNames').f5RgDeploymentName]"
+                    },
+                    "location": {
+                        "value": "[parameters('f5Location')]"
+                    }
+                }
+            }
+        },
+        {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
             "condition": "[parameters('createWorkspace')]",
@@ -2142,6 +2188,33 @@
                 }
             }
         },
+        {
+            // Placing connectivity subscription into dedicated management group
+            "condition": "[not(empty(parameters('f5SubscriptionId')))]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2021-04-01",
+            "name": "[variables('f5DeploymentNames').f5SubscriptionPlacement]",
+            "location": "[parameters('location')]",
+            "scope": "[variables('scopes').onlineManagementGroup]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').mgmtGroupDeploymentName)]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "contentVersion": "1.0.0.0",
+                    "uri": "[variables('deploymentUris').subscriptionPlacement]"
+                },
+                "parameters": {
+                    "targetManagementGroupId": {
+                        "value": "[variables('mgmtGroups').online]"
+                    },
+                    "subscriptionId": {
+                        "value": "[parameters('f5SubscriptionID')]"
+                    }
+                }
+            }
+        },
         /*
             The following deployments will optionally configure the governance, security, and monitoring for the Azure platform and landing zones
         */
@@ -2624,55 +2697,6 @@
                 "parameters": {
                     "enforcementMode": {
                         "value": "[if(equals(parameters('denyVMUnmanagedDisk'), 'Yes'), 'Default', 'DoNotEnforce')]"
-                    }
-                }
-            }
-        },
-        {
-            // Az Gov Only - Assigning Azure Security Center configuration policy initiative to intermediate root management group if condition is true
-            "condition": "[and(or(not(empty(parameters('managementSubscriptionId'))), not(empty(parameters('singlePlatformSubscriptionId')))), equals(parameters('enableAsc'), 'Yes'), equals(environment().resourceManager, 'https://management.usgovcloudapi.net'))]",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2021-04-01",
-            "name": "[variables('deploymentNames').ascGovPolicyDeploymentName]",
-            "scope": "[variables('scopes').eslzRootManagementGroup]",
-            "location": "[parameters('location')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').monitoringDeploymentName)]",
-                "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').monitoringLiteDeploymentName)]"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "contentVersion": "1.0.0.0",
-                    "uri": "[variables('deploymentUris').govMdfcPolicyAssignment]"
-                },
-                "parameters": {
-                    "logAnalyticsResourceId": {
-                        "value": "[variables('platformResourceIds').logAnalyticsResourceId]"
-                    },
-                    "topLevelManagementGroupPrefix": {
-                        "value": "[parameters('enterpriseScaleCompanyPrefix')]"
-                    },
-                    "emailContactAsc": {
-                        "value": "[parameters('emailContactAsc')]"
-                    },
-                    "enableAscForServers": {
-                        "value": "[parameters('enableAscForServers')]"
-                    },
-                    "enableAscForSql": {
-                        "value": "[parameters('enableAscForSql')]"
-                    },
-                    "enableAscForStorage": {
-                        "value": "[parameters('enableAscForStorage')]"
-                    },
-                    "enableAscForContainers": {
-                        "value": "[parameters('enableAscForContainers')]"
-                    },
-                    "enableAscForArm": {
-                        "value": "[parameters('enableAscForArm')]"
-                    },
-                    "enableAscForDns": {
-                        "value": "[parameters('enableAscForDns')]"
                     }
                 }
             }

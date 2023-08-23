@@ -2841,6 +2841,19 @@
                             }
                         },
                         {
+                            "name": "f5Location",
+                            "type": "Microsoft.Common.DropDown",
+                            "label": "Region for the F5 appliances",
+                            "filter": true,
+                            "toolTip": "Select the target region for your F5 deployment (requires you to provide a subscriptionId for the F5 network)",
+                            "defaultValue": "[steps('basics').resourceScope.location.displayName]",
+                            "constraints": {
+                                "allowedValues": "[map(steps('basics').getLocations.value,(item) => parse(concat('{\"label\":\"',item.displayName,'\",\"value\":\"',item.name,'\"}')))]",
+                                "required": true
+                            },
+                            "visible": "[not(equals(steps('connectivity').enableHub, 'No'))]"
+                        },
+                        {
                             "name": "customEmail",
                             "type": "Microsoft.Common.TextBox",
                             "toolTip": "Enter string array of email addresses to be notified when scale up or scale down occurs.",
@@ -3375,7 +3388,8 @@
                 "enforceAcsb": "[steps('landingZones').lzSection.enforceAcsb]",
                 "enableDecommissioned": "[steps('decommissionedSandboxZones').decommSection.enableDecommissioned]",
                 "enableSandbox": "[steps('decommissionedSandboxZones').sandboxSection.enableSandbox]",
-                "f5Subscription": "[steps('f5Parameters').f5Sub]",
+                "f5SubscriptionId": "[steps('f5Parameters').f5Sub]",
+                "f5Location": "[steps('f5Parameters').f5Location]",
                 "customEmailAddresses": "[steps('f5Parameters').customEmail]",
                 "allowUsageAnalytics": "[steps('f5Parameters').allowUsageAnalytics]",
                 "appContainerName": "[steps('f5Parameters').appContainerName]",
