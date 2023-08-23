@@ -948,14 +948,14 @@
             },
             "type": "string"
         },
-        "createWorkspace": {
+        "enableF5Telemetry": {
             "defaultValue": true,
             "metadata": {
-                "description": "This deployment will create a workspace and workbook as part of the Telemetry module, intended for enabling Remote Logging using Azure Log Workspace."
+                "description": "This deployment will create will enable telemtry for F5."
             },
             "type": "bool"
         },
-        "workspaceId": {
+        "existingWorkspaceId": {
             "metadata": {
                 "description": "Log Analytics workspace ID used by Telemetry Streaming for sending logs"
             },
@@ -1623,7 +1623,7 @@
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
-            "condition": "[parameters('createWorkspace')]",
+            "condition": "[and(not(empty(parameters('existingWorkspaceId'))), parameters('enableF5Telemetry'))]",
             "name": "telemetryTemplate",
             "location": "[parameters('location')]",
             "properties": {
@@ -1633,6 +1633,9 @@
                     "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
                 },
                 "parameters": {
+                    "existingWorkspaceId": {
+                        "value": "[parameters('existingWorkspaceId')]"
+                    },
                     "uniqueString": {
                         "value": "[variables('f5DeploymentNames').uniqueString]"
                     },
@@ -2002,7 +2005,7 @@
                         "value": "[variables('f5DeploymentNames').vmssName]"
                     },
                     "workspaceId": {
-                        "value": "[if(parameters('createWorkspace'), reference('telemetryTemplate').outputs.workspaceId.value, parameters('workspaceId'))]"
+                        "value": "[parameters('existingWorkspaceId')]"
                     }
                 }
             }
