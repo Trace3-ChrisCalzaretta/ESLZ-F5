@@ -2,6 +2,10 @@
 	"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 	"contentVersion": "2.8.0.0",
 	"parameters": {
+		"f5ResourceGroup": {
+			"type": "string",
+			"defaultValue": "f5rg"
+		},
 		"solutionType": {
 			"allowedValues": [
 				"standard",
@@ -127,7 +131,7 @@
 			"Microsoft.Compute/virtualMachineScaleSets/networkInterfaces/read",
 			"Microsoft.Network/networkInterfaces/read",
 			"Microsoft.Network/publicIPAddresses/read",
-			"Microsoft.Resources/subscriptions/resourceGroups/read"		
+			"Microsoft.Resources/subscriptions/resourceGroups/read"
 		],
 		"standardDataActions": [],
 		"telemetryActions": [
@@ -169,6 +173,7 @@
 		],
 		"keyVaultName": "[if(not(empty(parameters('secretId'))), variables('secretIdSplitArray')[1], concat(parameters('uniqueString'), 'kv'))]",
 		"assignableScopes": "[if(empty(parameters('customAssignableScopes')), createArray(resourceGroup().id), parameters('customAssignableScopes'))]",
+		"resourceDeploymentName": "[take(concat(deployment().name, '-access'), 64)]",
 		"roleDefinitionName": "[guid(resourceGroup().id, string(parameters('customRolePermissions')), string(parameters('roleName')))]",
 		"secretIdSplitDelimiters": [ "https://", "[environment().suffixes.keyvaultDns]" ],
 		"secretIdSplitArray": "[split(parameters('secretId'),variables('secretIdSplitDelimiters'))]",
@@ -177,138 +182,161 @@
 	},
 	"resources": [
 		{
-			"apiVersion": "2018-07-01",
-			"name": "[variables('roleDefinitionName')]",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2019-10-01",
+			"name": "[variables('resourceDeploymentName')]",
+			"resourceGroup": "[parameters('f5ResourceGroup')]",
+			"dependsOn": [],
 			"properties": {
-				"assignableScopes": "[variables('assignableScopes')]",
-				"description": "[parameters('roleDescription')]",
-				"isCustom": true,
-				"permissions": "[if(variables('createCustomRolePermissions'), parameters('customRolePermissions'), variables('solutionPermissions'))]",
-				"roleName": "[parameters('roleName')]",
-				"type": "customRole"
-			},
-			"type": "Microsoft.Authorization/roleDefinitions"
-		},
-		{
-			"apiVersion": "2018-11-30",
-			"location": "[resourceGroup().location]",
-			"name": "[variables('userAssignedIdentityName')]",
-			"tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
-			"type": "Microsoft.ManagedIdentity/userAssignedIdentities"
-		},
-		{
-			"apiVersion": "2021-04-01-preview",
-			"condition": "[variables('createUserAssignedIdentity')]",
-			"dependsOn": [
-				"[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]",
-				"[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitionName'))]"
-			],
-			"name": "[guid(resourceGroup().id, 'roleId')]",
-			"properties": {
-				"principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').principalId]",
-				"roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions/', variables('roleDefinitionName'))]",
-				"scope": "[resourceGroup().id]",
-				"principalType": "ServicePrincipal"
-			},
-			"type": "Microsoft.Authorization/roleAssignments"
-		},
-		{
-			"apiVersion": "2022-07-01",
-			"condition": "[and(variables('createSecret'), variables('createUserAssignedIdentity'))]",
-			"name": "[variables('keyVaultName')]",
-			"location": "[resourceGroup().location]",
-			"properties": {
-				"accessPolicies": [
-					{
-						"objectId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').principalId]",
-						"permissions": {
-							"keys": "[parameters('keyVaultPermissionsKeys')]",
-							"secrets": "[parameters('keyVaultPermissionsSecrets')]"
+				"mode": "Incremental",
+				"template": {
+					"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+					"contentVersion": "1.0.0.0",
+					"parameters": {},
+					"resources": [
+						{
+							"apiVersion": "2018-07-01",
+							"name": "[variables('roleDefinitionName')]",
+							"properties": {
+								"assignableScopes": "[variables('assignableScopes')]",
+								"description": "[parameters('roleDescription')]",
+								"isCustom": true,
+								"permissions": "[if(variables('createCustomRolePermissions'), parameters('customRolePermissions'), variables('solutionPermissions'))]",
+								"roleName": "[parameters('roleName')]",
+								"type": "customRole"
+							},
+							"type": "Microsoft.Authorization/roleDefinitions"
 						},
-						"tenantId": "[variables('tenantId')]"
-					}
-				],
-				"enabledForDeployment": true,
-				"enabledForDiskEncryption": true,
-				"enabledForTemplateDeployment": true,
-				"enablePurgeProtection": true,
-				"networkAcls": {
-					"bypass": "AzureServices",
-					"defaultAction": "Allow"
-				},  
-				"sku": {
-					"family": "A",
-					"name": "standard"
-				},
-				"tenantId": "[variables('tenantId')]"
-			},
-			"tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
-			"type": "Microsoft.KeyVault/vaults"
-		},
-		{
-			"apiVersion": "2022-07-01",
-			"condition": "[and(variables('createSecret'), variables('createUserAssignedIdentity'))]",
-			"dependsOn": [
-				"[variables('keyVaultName')]"
-			],
-			"name": "[concat(variables('keyVaultName'), '/BigIpSecret')]",
-			"properties": {
-				"contentType": "string",
-				"value": "[parameters('secretValue')]"
-			},
-			"tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
-			"type": "Microsoft.KeyVault/vaults/secrets"
-		},
-		{
-			"apiVersion": "2022-07-01",
-			"condition": "[and(variables('useSecret'), variables('createUserAssignedIdentity'))]",
-			"dependsOn": [
-				"[variables('keyVaultName')]"
-			],
-			"name": "[concat(variables('keyVaultName'), '/add')]",
-			"properties": {
-				"accessPolicies": [
-					{
-						"objectId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').principalId]",
-						"permissions": {
-							"keys": "[parameters('keyVaultPermissionsKeys')]",
-							"secrets": "[parameters('keyVaultPermissionsSecrets')]"
+						{
+							"apiVersion": "2018-11-30",
+							"location": "[resourceGroup().location]",
+							"name": "[variables('userAssignedIdentityName')]",
+							"tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
+							"type": "Microsoft.ManagedIdentity/userAssignedIdentities"
 						},
-						"tenantId": "[variables('tenantId')]"
+						{
+							"apiVersion": "2021-04-01-preview",
+							"condition": "[variables('createUserAssignedIdentity')]",
+							"dependsOn": [
+								"[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]",
+								"[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitionName'))]"
+							],
+							"name": "[guid(resourceGroup().id, 'roleId')]",
+							"properties": {
+								"principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').principalId]",
+								"roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions/', variables('roleDefinitionName'))]",
+								"scope": "[resourceGroup().id]",
+								"principalType": "ServicePrincipal"
+							},
+							"type": "Microsoft.Authorization/roleAssignments"
+						},
+						{
+							"apiVersion": "2022-07-01",
+							"condition": "[and(variables('createSecret'), variables('createUserAssignedIdentity'))]",
+							"name": "[variables('keyVaultName')]",
+							"location": "[resourceGroup().location]",
+							"properties": {
+								"accessPolicies": [
+									{
+										"objectId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').principalId]",
+										"permissions": {
+											"keys": "[parameters('keyVaultPermissionsKeys')]",
+											"secrets": "[parameters('keyVaultPermissionsSecrets')]"
+										},
+										"tenantId": "[variables('tenantId')]"
+									}
+								],
+								"enabledForDeployment": true,
+								"enabledForDiskEncryption": true,
+								"enabledForTemplateDeployment": true,
+								"enablePurgeProtection": true,
+								"networkAcls": {
+									"bypass": "AzureServices",
+									"defaultAction": "Allow"
+								},
+								"sku": {
+									"family": "A",
+									"name": "standard"
+								},
+								"tenantId": "[variables('tenantId')]"
+							},
+							"tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
+							"type": "Microsoft.KeyVault/vaults"
+						},
+						{
+							"apiVersion": "2022-07-01",
+							"condition": "[and(variables('createSecret'), variables('createUserAssignedIdentity'))]",
+							"dependsOn": [
+								"[variables('keyVaultName')]"
+							],
+							"name": "[concat(variables('keyVaultName'), '/BigIpSecret')]",
+							"properties": {
+								"contentType": "string",
+								"value": "[parameters('secretValue')]"
+							},
+							"tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
+							"type": "Microsoft.KeyVault/vaults/secrets"
+						},
+						{
+							"apiVersion": "2022-07-01",
+							"condition": "[and(variables('useSecret'), variables('createUserAssignedIdentity'))]",
+							"dependsOn": [
+								"[variables('keyVaultName')]"
+							],
+							"name": "[concat(variables('keyVaultName'), '/add')]",
+							"properties": {
+								"accessPolicies": [
+									{
+										"objectId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').principalId]",
+										"permissions": {
+											"keys": "[parameters('keyVaultPermissionsKeys')]",
+											"secrets": "[parameters('keyVaultPermissionsSecrets')]"
+										},
+										"tenantId": "[variables('tenantId')]"
+									}
+								],
+								"enabledForDeployment": true,
+								"enabledForDiskEncryption": true,
+								"enabledForTemplateDeployment": true,
+								"networkAcls": {
+									"bypass": "AzureServices",
+									"defaultAction": "Allow"
+								},
+								"tenantId": "[variables('tenantId')]"
+							},
+							"tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
+							"type": "Microsoft.KeyVault/vaults/accessPolicies"
+						}
+					],
+					"outputs": {
+						"roleDefinitionId": {
+							"type": "string",
+							"value": "[resourceId('Microsoft.Authorization/roleDefinitions/', variables('roleDefinitionName'))]"
+						},
+						"keyVaultName": {
+							"condition": "[variables('doSecret')]",
+							"type": "string",
+							"value": "[variables('keyVaultName')]"
+						},
+						"secretId": {
+							"condition": "[variables('doSecret')]",
+							"type": "string",
+							"value": "[if(variables('createSecret'), reference(resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyVaultName'), 'BigIpSecret')).secretUri, parameters('secretId'))]"
+						},
+						"userAssignedIdentityId": {
+							"condition": "[variables('createUserAssignedIdentity')]",
+							"type": "string",
+							"value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('userAssignedIdentityName'))]"
+						}
 					}
-				],
-				"enabledForDeployment": true,
-				"enabledForDiskEncryption": true,
-				"enabledForTemplateDeployment": true,
-				"networkAcls": {
-					"bypass": "AzureServices",
-					"defaultAction": "Allow"
-				},
-				"tenantId": "[variables('tenantId')]"
-			},
-			"tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
-			"type": "Microsoft.KeyVault/vaults/accessPolicies"
+				}
+			}
 		}
 	],
 	"outputs": {
-		"roleDefinitionId": {
+		"deployment": {
 			"type": "string",
-			"value": "[resourceId('Microsoft.Authorization/roleDefinitions/', variables('roleDefinitionName'))]"
-		},
-		"keyVaultName": {
-			"condition": "[variables('doSecret')]",
-			"type": "string",
-			"value": "[variables('keyVaultName')]"
-		},
-		"secretId": {
-			"condition": "[variables('doSecret')]",
-			"type": "string",
-			"value": "[if(variables('createSecret'), reference(resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyVaultName'), 'BigIpSecret')).secretUri, parameters('secretId'))]"
-		},
-		"userAssignedIdentityId": {
-			"condition": "[variables('createUserAssignedIdentity')]",
-			"type": "string",
-			"value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities/', variables('userAssignedIdentityName'))]"
+			"value": "[concat(deployment().name, ' has successfully deployed.')]"
 		}
 	}
 }

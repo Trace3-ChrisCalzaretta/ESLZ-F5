@@ -1612,7 +1612,7 @@
                 },
                 "parameters": {
                     "rgName": {
-                        "value": "[variables('f5DeploymentNames').f5RgDeploymentName]"
+                        "value": "[variables('f5DeploymentNames').f5Rg]"
                     },
                     "location": {
                         "value": "[parameters('f5Location')]"
@@ -1650,7 +1650,8 @@
             "apiVersion": "2021-04-01",
             "condition": "[variables('f5DeploymentNames').createManagedIdentity]",
             "name": "accessTemplate",
-            "location": "[parameters('location')]",
+            "subscriptionId": "[parameters('f5SubscriptionId')]",
+            "location": "[parameters('f5Location')]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -1658,6 +1659,9 @@
                     "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
                 },
                 "parameters": {
+                    "f5ResourceGroup": {
+                        "value": "[parameters('f5Location')]"
+                    },
                     "uniqueString": {
                         "value": "[variables('f5DeploymentNames').uniqueString]"
                     },
