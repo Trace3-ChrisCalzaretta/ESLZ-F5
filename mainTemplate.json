@@ -1652,6 +1652,9 @@
             "name": "accessTemplate",
             "subscriptionId": "[parameters('f5SubscriptionId')]",
             "location": "[parameters('f5Location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', variables('f5deploymentNames').f5RgDeploymentName)]"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -1660,7 +1663,7 @@
                 },
                 "parameters": {
                     "f5ResourceGroup": {
-                        "value": "[parameters('f5Location')]"
+                        "value": "[variables('f5DeploymentNames').f5Rg]"
                     },
                     "uniqueString": {
                         "value": "[variables('f5DeploymentNames').uniqueString]"
@@ -1699,7 +1702,11 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
             "name": "networkTemplate",
-            "location": "[parameters('location')]",
+            "subscriptionId": "[parameters('f5SubscriptionId')]",
+            "location": "[parameters('f5Location')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', variables('f5deploymentNames').f5RgDeploymentName)]"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -1707,6 +1714,9 @@
                     "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
                 },
                 "parameters": {
+                    "f5ResourceGroup": {
+                        "value": "[variables('f5DeploymentNames').f5Rg]"
+                    },
                     "createNatGateway": {
                         "value": "[variables('f5DeploymentNames').createNatGateway]"
                     },
@@ -1732,7 +1742,8 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
             "name": "dagTemplate",
-            "location": "[parameters('location')]",
+            "subscriptionId": "[parameters('f5SubscriptionId')]",
+            "location": "[parameters('f5Location')]",
             "dependsOn": [
                 "networkTemplate"
             ],
@@ -1743,6 +1754,9 @@
                     "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
                 },
                 "parameters": {
+                    "f5ResourceGroup": {
+                        "value": "[variables('f5DeploymentNames').f5Rg]"
+                    },
                     "uniqueString": {
                         "value": "[variables('f5DeploymentNames').uniqueString]"
                     },
@@ -1784,7 +1798,8 @@
             "apiVersion": "2021-04-01",
             "condition": "[not(parameters('provisionPublicIp'))]",
             "name": "bastionTemplate",
-            "location": "[parameters('location')]",
+            "subscriptionId": "[parameters('f5SubscriptionId')]",
+            "location": "[parameters('f5Location')]",
             "dependsOn": [
                 "bigIpTemplate"
             ],
@@ -1795,6 +1810,9 @@
                     "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
                 },
                 "parameters": {
+                    "f5ResourceGroup": {
+                        "value": "[variables('f5DeploymentNames').f5Rg]"
+                    },
                     "adminUsername": {
                         "value": "[variables('f5DeploymentNames').adminUsername]"
                     },
@@ -1827,7 +1845,8 @@
             "condition": "[variables('f5DeploymentNames').provisionApp]",
             "apiVersion": "2021-04-01",
             "name": "appTemplate",
-            "location": "[parameters('location')]",
+            "subscriptionId": "[parameters('f5SubscriptionId')]",
+            "location": "[parameters('f5Location')]",
             "dependsOn": [
                 "networkTemplate",
                 "dagTemplate"
@@ -1839,6 +1858,9 @@
                     "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
                 },
                 "parameters": {
+                    "f5ResourceGroup": {
+                        "value": "[variables('f5DeploymentNames').f5Rg]"
+                    },
                     "adminUsername": {
                         "value": "[variables('f5DeploymentNames').adminUsername]"
                     },
@@ -1883,7 +1905,8 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
             "name": "bigIpTemplate",
-            "location": "[parameters('location')]",
+            "subscriptionId": "[parameters('f5SubscriptionId')]",
+            "location": "[parameters('f5Location')]",
             "dependsOn": [
                 "accessTemplate",
                 "networkTemplate",
@@ -1897,6 +1920,9 @@
                     "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
                 },
                 "parameters": {
+                    "f5ResourceGroup": {
+                        "value": "[variables('f5DeploymentNames').f5Rg]"
+                    },
                     "adminUsername": {
                         "value": "[variables('f5DeploymentNames').adminUsername]"
                     },

@@ -2,6 +2,10 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "2.8.0.0",
   "parameters": {
+    "f5ResourceGroup": {
+      "type": "string",
+      "defaultValue": "f5rg"
+    },
     "adminUsername": {
       "defaultValue": "azureuser",
       "metadata": {
@@ -430,6 +434,7 @@
       "id": "[parameters('nsgId')]"
     },
     "offerToUse": "[if(variables('useCustomImage'), json('null'), variables('image')[1])]",
+    "resourceDeploymentName": "[take(concat(deployment().name, '-bigip'), 64)]",
     "rollingUpgrade": "[not(empty(parameters('instanceHealthProbeId')))]",
     "scaleInTimeWindow": "[concat('PT', parameters('scaleInTimeWindow'), 'M')]",
     "scaleOutTimeWindow": "[concat('PT', parameters('scaleOutTimeWindow'), 'M')]",
@@ -473,230 +478,253 @@
   },
   "resources": [
     {
-      "apiVersion": "2019-12-01",
-      "dependsOn": [
-        "[variables('deploymentScript')]",
-        "[variables('diagnosticsStorageAccountName')]"
-      ],
-      "identity": "[if(and(empty(parameters('userAssignManagedIdentity')), empty(parameters('roleDefinitionId'))), json('null'), variables('identity'))]",
-      "location": "[resourceGroup().location]",
-      "name": "[parameters('vmssName')]",
-      "plan": "[if(variables('useCustomImage'), json('null'), variables('imagePlan'))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[variables('resourceDeploymentName')]",
+      "resourceGroup": "[parameters('f5ResourceGroup')]",
+      "dependsOn": [],
       "properties": {
-        "overprovision": false,
-        "upgradePolicy": "[if(variables('rollingUpgrade'), variables('upgradePolicyRolling'), variables('upgradePolicyManual'))]",
-        "virtualMachineProfile": {
-          "extensionProfile": {
-            "extensions": [
-              {
-                "name": "onboarder",
-                "properties": {
-                  "autoUpgradeMinorVersion": true,
-                  "forceUpdateTag": "[parameters('updateTag')]",
-                  "publisher": "Microsoft.Azure.Extensions",
-                  "settings": "[variables('extSettingsRef')]",
-                  "type": "CustomScript",
-                  "typeHandlerVersion": "2.0"
-                }
-              }
-            ]
-          },
-          "networkProfile": {
-            "healthProbe": "[if(variables('rollingUpgrade'), variables('healthProbe'), json('null'))]",
-            "networkInterfaceConfigurations": [
-              {
-                "name": "nic1",
-                "properties": {
-                  "ipConfigurations": [
-                    {
-                      "name": "ipconfig1",
-                      "properties": {
-                        "loadBalancerBackendAddressPools": "[parameters('loadBalancerBackendAddressPoolsArray')]",
-                        "loadBalancerInboundNatPools": "[if(and(empty(variables('useInboundMgmtNatPool')), empty(variables('useInboundSshNatPool'))), json('null'), union(variables('useInboundMgmtNatPool'), variables('useInboundSshNatPool')))]",
-                        "publicIpAddressConfiguration": "[if(empty(parameters('provisionPublicIp')), json('null'), parameters('provisionPublicIp'))]",
-                        "subnet": {
-                          "id": "[parameters('subnetId')]"
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {},
+          "resources": [
+            {
+              "apiVersion": "2019-12-01",
+              "dependsOn": [
+                "[variables('deploymentScript')]",
+                "[variables('diagnosticsStorageAccountName')]"
+              ],
+              "identity": "[if(and(empty(parameters('userAssignManagedIdentity')), empty(parameters('roleDefinitionId'))), json('null'), variables('identity'))]",
+              "location": "[resourceGroup().location]",
+              "name": "[parameters('vmssName')]",
+              "plan": "[if(variables('useCustomImage'), json('null'), variables('imagePlan'))]",
+              "properties": {
+                "overprovision": false,
+                "upgradePolicy": "[if(variables('rollingUpgrade'), variables('upgradePolicyRolling'), variables('upgradePolicyManual'))]",
+                "virtualMachineProfile": {
+                  "extensionProfile": {
+                    "extensions": [
+                      {
+                        "name": "onboarder",
+                        "properties": {
+                          "autoUpgradeMinorVersion": true,
+                          "forceUpdateTag": "[parameters('updateTag')]",
+                          "publisher": "Microsoft.Azure.Extensions",
+                          "settings": "[variables('extSettingsRef')]",
+                          "type": "CustomScript",
+                          "typeHandlerVersion": "2.0"
                         }
                       }
+                    ]
+                  },
+                  "networkProfile": {
+                    "healthProbe": "[if(variables('rollingUpgrade'), variables('healthProbe'), json('null'))]",
+                    "networkInterfaceConfigurations": [
+                      {
+                        "name": "nic1",
+                        "properties": {
+                          "ipConfigurations": [
+                            {
+                              "name": "ipconfig1",
+                              "properties": {
+                                "loadBalancerBackendAddressPools": "[parameters('loadBalancerBackendAddressPoolsArray')]",
+                                "loadBalancerInboundNatPools": "[if(and(empty(variables('useInboundMgmtNatPool')), empty(variables('useInboundSshNatPool'))), json('null'), union(variables('useInboundMgmtNatPool'), variables('useInboundSshNatPool')))]",
+                                "publicIpAddressConfiguration": "[if(empty(parameters('provisionPublicIp')), json('null'), parameters('provisionPublicIp'))]",
+                                "subnet": {
+                                  "id": "[parameters('subnetId')]"
+                                }
+                              }
+                            }
+                          ],
+                          "networkSecurityGroup": "[if(empty(parameters('nsgId')), json('null'), variables('networkSecurityGroup'))]",
+                          "primary": true
+                        }
+                      }
+                    ]
+                  },
+                  "osProfile": {
+                    "adminUsername": "[parameters('adminUsername')]",
+                    "computerNamePrefix": "[parameters('vmssName')]",
+                    "customData": "[json('null')]",
+                    "linuxConfiguration": {
+                      "disablePasswordAuthentication": true,
+                      "ssh": {
+                        "publicKeys": [
+                          {
+                            "keyData": "[parameters('sshKey')]",
+                            "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]"
+                          }
+                        ]
+                      }
                     }
-                  ],
-                  "networkSecurityGroup": "[if(empty(parameters('nsgId')), json('null'), variables('networkSecurityGroup'))]",
-                  "primary": true
-                }
-              }
-            ]
-          },
-          "osProfile": {
-            "adminUsername": "[parameters('adminUsername')]",
-            "computerNamePrefix": "[parameters('vmssName')]",
-            "customData": "[json('null')]",
-            "linuxConfiguration": {
-              "disablePasswordAuthentication": true,
-              "ssh": {
-                "publicKeys": [
-                  {
-                    "keyData": "[parameters('sshKey')]",
-                    "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]"
+                  },
+                  "storageProfile": "[if(variables('useCustomImage'), variables('storageProfileArray').customImage, variables('storageProfileArray').platformImage)]",
+                  "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                      "enabled": true,
+                      "storageUri": "[concat('https://', variables('diagnosticsStorageAccountName'), '.blob.', environment().suffixes.storage)]"
+                    }
                   }
-                ]
+                }
+              },
+              "sku": {
+                "capacity": "[parameters('vmScaleSetMinCount')]",
+                "name": "[parameters('instanceType')]",
+                "tier": "Standard"
+              },
+              "tags": "[union(variables('runtimeInitTag'), parameters('tagValues'))]",
+              "type": "Microsoft.Compute/virtualMachineScaleSets",
+              "zones": "[if(parameters('useAvailabilityZones'), createArray(1, 2, 3), json('null'))]"
+            },
+            {
+              "apiVersion": "2022-09-01",
+              "kind": "Storage",
+              "location": "[resourceGroup().location]",
+              "name": "[variables('diagnosticsStorageAccountName')]",
+              "properties": {
+                "allowBlobPublicAccess": false,
+                "supportsHttpsTrafficOnly": true
+              },
+              "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+              },
+              "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
+              "type": "Microsoft.Storage/storageAccounts"
+            },
+            {
+              "apiVersion": "2015-04-01",
+              "dependsOn": [
+                "[variables('vmssId')]"
+              ],
+              "location": "[resourceGroup().location]",
+              "name": "[concat(parameters('uniqueString'), '-bigip-vmss-autoscale-settings')]",
+              "properties": {
+                "enabled": true,
+                "name": "[concat(parameters('uniqueString'), '-bigip-vmss-autoscale-settings')]",
+                "notifications": [
+                  {
+                    "email": {
+                      "customEmails": "[parameters('customEmail')]",
+                      "sendToSubscriptionAdministrator": false,
+                      "sendToSubscriptionCoAdministrators": false
+                    },
+                    "operation": "Scale"
+                  }
+                ],
+                "profiles": [
+                  {
+                    "capacity": {
+                      "default": "[parameters('vmScaleSetMinCount')]",
+                      "maximum": "[parameters('vmScaleSetMaxCount')]",
+                      "minimum": "[parameters('vmScaleSetMinCount')]"
+                    },
+                    "name": "Profile1",
+                    "rules": "[if(empty(parameters('customAutoscaleRules')), variables('autoscaleRules'), parameters('customAutoscaleRules'))]"
+                  }
+                ],
+                "targetResourceUri": "[variables('vmssId')]"
+              },
+              "type": "Microsoft.Insights/autoscaleSettings"
+            },
+            {
+              "apiVersion": "2020-02-02",
+              "condition": "[not(equals(variables('appInsightsName'), 'NOT_USED'))]",
+              "kind": "other",
+              "location": "[resourceGroup().location]",
+              "name": "[variables('appInsightsName')]",
+              "properties": {
+                "ApplicationId": "[variables('appInsightsName')]",
+                "Application_Type": "other"
+              },
+              "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
+              "type": "Microsoft.Insights/components"
+            },
+            {
+              "apiVersion": "2021-04-01-preview",
+              "condition": "[not(empty(parameters('roleDefinitionId')))]",
+              "dependsOn": [
+                "[variables('vmssId')]"
+              ],
+              "name": "[guid(resourceGroup().id, 'roleId')]",
+              "properties": {
+                "principalId": "[reference(variables('vmssId'), '2019-12-01', 'Full').identity.principalId]",
+                "roleDefinitionId": "[parameters('roleDefinitionId')]",
+                "scope": "[resourceGroup().id]"
+              },
+              "type": "Microsoft.Authorization/roleAssignments"
+            },
+            {
+              "name": "[variables('deploymentScriptName')]",
+              "condition": "[and(not(equals(variables('appInsightsName'), 'NOT_USED')), not(empty(parameters('customAutoscaleRules'))))]",
+              "dependsOn": [
+                "[variables('appInsightsName')]"
+              ],
+              "type": "Microsoft.Resources/deploymentScripts",
+              "apiVersion": "2020-10-01",
+              "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                  "[parameters('userAssignManagedIdentity')]": {}
+                }
+              },
+              "location": "[resourceGroup().location]",
+              "kind": "AzureCLI",
+              "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
+              "properties": {
+                "AzCliVersion": "2.0.80",
+                "timeout": "PT30M",
+                "environmentVariables": [
+                  {
+                    "name": "INSTRUMENTATION_KEY",
+                    "secureValue": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightsName')), '2020-02-02').InstrumentationKey]"
+                  }
+                ],
+                "scriptContent": "NOW=$(date); METRICS=(\"F5_system_cpu\" \"F5_system_tmmCpu\" \"F5_system_memory\" \"F5_system_tmmMemory\" \"F5_throughputIn_sys/performance/throughput/In_Current\"); for METRIC in \"${METRICS[@]}\"; do curl -d '{\"name\":\"MetricData\",\"time\":\"'\"${NOW}\"'\",\"iKey\":\"'\"${INSTRUMENTATION_KEY}\"'\",\"data\":{\"baseType\":\"MetricData\",\"baseData\":{\"metrics\":[{\"name\":\"'\"${METRIC}\"'\",\"value\":0,\"count\":0}]}}}' https://dc.services.visualstudio.com/v2/track; sleep 2; done",
+                "cleanupPreference": "OnSuccess",
+                "retentionInterval": "P1D"
               }
             }
-          },
-          "storageProfile": "[if(variables('useCustomImage'), variables('storageProfileArray').customImage, variables('storageProfileArray').platformImage)]",
-          "diagnosticsProfile": {
-            "bootDiagnostics": {
-              "enabled": true,
-              "storageUri": "[concat('https://', variables('diagnosticsStorageAccountName'), '.blob.', environment().suffixes.storage)]"
+          ],
+          "outputs": {
+            "appInsightsComponentId": {
+              "condition": "[not(equals(variables('appInsightsName'), 'NOT_USED'))]",
+              "type": "string",
+              "value": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/microsoft.insights/components/', parameters('appInsights'))]"
+            },
+            "appInsightsInstrumentationKey": {
+              "condition": "[not(equals(variables('appInsightsName'), 'NOT_USED'))]",
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightsName')), '2020-02-02').InstrumentationKey]"
+            },
+            "roleAssignmentId": {
+              "condition": "[not(empty(parameters('roleDefinitionId')))]",
+              "type": "string",
+              "value": "[concat('/subscriptions/',subscription().subscriptionId, '/resourcegroups/',  resourceGroup().name, '/providers/Microsoft.Authorization/roleAssignments/', guid(resourceGroup().id, 'roleId'))]"
+            },
+            "autoscaleSettingsId": {
+              "type": "string",
+              "value": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/microsoft.insights/autoscalesettings/', concat(parameters('uniqueString'), '-bigip-vmss-autoscale-settings'))]"
+            },
+            "vmssId": {
+              "type": "string",
+              "value": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', parameters('vmssName'))]"
+            },
+            "vmssName": {
+              "type": "string",
+              "value": "[parameters('vmssName')]"
             }
           }
         }
-      },
-      "sku": {
-        "capacity": "[parameters('vmScaleSetMinCount')]",
-        "name": "[parameters('instanceType')]",
-        "tier": "Standard"
-      },
-      "tags": "[union(variables('runtimeInitTag'), parameters('tagValues'))]",
-      "type": "Microsoft.Compute/virtualMachineScaleSets",
-      "zones": "[if(parameters('useAvailabilityZones'), createArray(1, 2, 3), json('null'))]"
-    },
-    {
-      "apiVersion": "2022-09-01",
-      "kind": "Storage",
-      "location": "[resourceGroup().location]",
-      "name": "[variables('diagnosticsStorageAccountName')]",
-      "properties": {
-        "allowBlobPublicAccess": false,
-        "supportsHttpsTrafficOnly": true
-      },
-      "sku": {
-        "name": "Standard_LRS",
-        "tier": "Standard"
-      },
-      "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
-      "type": "Microsoft.Storage/storageAccounts"
-    },
-    {
-      "apiVersion": "2015-04-01",
-      "dependsOn": [
-        "[variables('vmssId')]"
-      ],
-      "location": "[resourceGroup().location]",
-      "name": "[concat(parameters('uniqueString'), '-bigip-vmss-autoscale-settings')]",
-      "properties": {
-        "enabled": true,
-        "name": "[concat(parameters('uniqueString'), '-bigip-vmss-autoscale-settings')]",
-        "notifications": [
-          {
-            "email": {
-              "customEmails": "[parameters('customEmail')]",
-              "sendToSubscriptionAdministrator": false,
-              "sendToSubscriptionCoAdministrators": false
-            },
-            "operation": "Scale"
-          }
-        ],
-        "profiles": [
-          {
-            "capacity": {
-              "default": "[parameters('vmScaleSetMinCount')]",
-              "maximum": "[parameters('vmScaleSetMaxCount')]",
-              "minimum": "[parameters('vmScaleSetMinCount')]"
-            },
-            "name": "Profile1",
-            "rules": "[if(empty(parameters('customAutoscaleRules')), variables('autoscaleRules'), parameters('customAutoscaleRules'))]"
-          }
-        ],
-        "targetResourceUri": "[variables('vmssId')]"
-      },
-      "type": "Microsoft.Insights/autoscaleSettings"
-    },
-    {
-      "apiVersion": "2020-02-02",
-      "condition": "[not(equals(variables('appInsightsName'), 'NOT_USED'))]",
-      "kind": "other",
-      "location": "[resourceGroup().location]",
-      "name": "[variables('appInsightsName')]",
-      "properties": {
-        "ApplicationId": "[variables('appInsightsName')]",
-        "Application_Type": "other"
-      },
-      "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
-      "type": "Microsoft.Insights/components"
-    },
-    {
-      "apiVersion": "2021-04-01-preview",
-      "condition": "[not(empty(parameters('roleDefinitionId')))]",
-      "dependsOn": [
-        "[variables('vmssId')]"
-      ],
-      "name": "[guid(resourceGroup().id, 'roleId')]",
-      "properties": {
-        "principalId": "[reference(variables('vmssId'), '2019-12-01', 'Full').identity.principalId]",
-        "roleDefinitionId": "[parameters('roleDefinitionId')]",
-        "scope": "[resourceGroup().id]"
-      },
-      "type": "Microsoft.Authorization/roleAssignments"
-    },
-    {
-      "name": "[variables('deploymentScriptName')]",
-      "condition": "[and(not(equals(variables('appInsightsName'), 'NOT_USED')), not(empty(parameters('customAutoscaleRules'))))]",
-      "dependsOn": [
-        "[variables('appInsightsName')]"
-      ],
-      "type": "Microsoft.Resources/deploymentScripts",
-      "apiVersion": "2020-10-01",
-      "identity": {
-        "type": "UserAssigned",
-        "userAssignedIdentities": {
-          "[parameters('userAssignManagedIdentity')]": {}
-        }
-      },
-      "location": "[resourceGroup().location]",
-      "kind": "AzureCLI",
-      "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
-      "properties": {
-        "AzCliVersion": "2.0.80",
-        "timeout": "PT30M",
-        "environmentVariables": [
-          {
-            "name": "INSTRUMENTATION_KEY",
-            "secureValue": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightsName')), '2020-02-02').InstrumentationKey]"
-          }
-        ],
-        "scriptContent": "NOW=$(date); METRICS=(\"F5_system_cpu\" \"F5_system_tmmCpu\" \"F5_system_memory\" \"F5_system_tmmMemory\" \"F5_throughputIn_sys/performance/throughput/In_Current\"); for METRIC in \"${METRICS[@]}\"; do curl -d '{\"name\":\"MetricData\",\"time\":\"'\"${NOW}\"'\",\"iKey\":\"'\"${INSTRUMENTATION_KEY}\"'\",\"data\":{\"baseType\":\"MetricData\",\"baseData\":{\"metrics\":[{\"name\":\"'\"${METRIC}\"'\",\"value\":0,\"count\":0}]}}}' https://dc.services.visualstudio.com/v2/track; sleep 2; done",
-        "cleanupPreference": "OnSuccess",
-        "retentionInterval": "P1D"
       }
     }
   ],
   "outputs": {
-    "appInsightsComponentId": {
-      "condition": "[not(equals(variables('appInsightsName'), 'NOT_USED'))]",
+    "deployment": {
       "type": "string",
-      "value": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/microsoft.insights/components/', parameters('appInsights'))]"
-    },
-    "appInsightsInstrumentationKey": {
-      "condition": "[not(equals(variables('appInsightsName'), 'NOT_USED'))]",
-      "type": "string",
-      "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightsName')), '2020-02-02').InstrumentationKey]"
-    },
-    "roleAssignmentId": {
-      "condition": "[not(empty(parameters('roleDefinitionId')))]",
-      "type": "string",
-      "value": "[concat('/subscriptions/',subscription().subscriptionId, '/resourcegroups/',  resourceGroup().name, '/providers/Microsoft.Authorization/roleAssignments/', guid(resourceGroup().id, 'roleId'))]"
-    },
-    "autoscaleSettingsId": {
-      "type": "string",
-      "value": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/microsoft.insights/autoscalesettings/', concat(parameters('uniqueString'), '-bigip-vmss-autoscale-settings'))]"
-    },
-    "vmssId": {
-      "type": "string",
-      "value": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', parameters('vmssName'))]"
-    },
-    "vmssName": {
-      "type": "string",
-      "value": "[parameters('vmssName')]"
+      "value": "[concat(deployment().name, ' has successfully deployed.')]"
     }
   }
 }

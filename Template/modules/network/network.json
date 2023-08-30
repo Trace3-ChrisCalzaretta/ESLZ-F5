@@ -2,6 +2,10 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "2.8.0.0",
     "parameters": {
+        "f5ResourceGroup": {
+            "type": "string",
+            "defaultValue": "f5rg"
+        },
         "createNatGateway": {
             "defaultValue": false,
             "metadata": {
@@ -69,101 +73,125 @@
             }
         ],
         "natGatewayName": "[concat(parameters('vnetName'), '-vgw')]",
-        "natGatewayPublicIpName": "[concat(parameters('vnetName'), '-vgw-pip-01')]"
+        "natGatewayPublicIpName": "[concat(parameters('vnetName'), '-vgw-pip-01')]",
+        "resourceDeploymentName": "[take(concat(deployment().name, '-network'), 64)]"
     },
     "resources": [
         {
-            "type": "Microsoft.Network/routeTables",
-            "apiVersion": "2020-06-01",
-            "copy": {
-                "name": "routeTableLoop",
-                "count": "[parameters('numSubnets')]"
-            },
-            "name": "[concat('route-table-subnet-0', copyIndex(1))]",
-            "location": "[resourceGroup().location]",
-            "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]"
-        },
-        {
-            "apiVersion": "2020-06-01",
-            "condition": "[parameters('createNatGateway')]",
-            "location": "[resourceGroup().location]",
-            "name": "[variables('natGatewayPublicIpName')]",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "[variables('resourceDeploymentName')]",
+            "resourceGroup": "[parameters('f5ResourceGroup')]",
+            "dependsOn": [],
             "properties": {
-                "idleTimeoutInMinutes": 30,
-                "publicIPAllocationMethod": "Static"
-            },
-            "sku": {
-                "name": "Standard"
-            },
-            "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
-            "type": "Microsoft.Network/publicIPAddresses"
-        },
-        {
-            "apiVersion": "2020-06-01",
-            "dependsOn": [
-                "[variables('natGatewayPublicIpName')]"
-            ],
-            "location": "[resourceGroup().location]",
-            "condition": "[parameters('createNatGateway')]",
-            "name": "[variables('natGatewayName')]",
-            "sku": {
-                "name": "Standard"
-            },
-            "properties": {
-                "idleTimeoutInMinutes": 4,
-                "publicIpAddresses": [
-                    {
-                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('natGatewayPublicIpName'))]"
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "resources": [
+                        {
+                            "type": "Microsoft.Network/routeTables",
+                            "apiVersion": "2020-06-01",
+                            "copy": {
+                                "name": "routeTableLoop",
+                                "count": "[parameters('numSubnets')]"
+                            },
+                            "name": "[concat('route-table-subnet-0', copyIndex(1))]",
+                            "location": "[resourceGroup().location]",
+                            "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]"
+                        },
+                        {
+                            "apiVersion": "2020-06-01",
+                            "condition": "[parameters('createNatGateway')]",
+                            "location": "[resourceGroup().location]",
+                            "name": "[variables('natGatewayPublicIpName')]",
+                            "properties": {
+                                "idleTimeoutInMinutes": 30,
+                                "publicIPAllocationMethod": "Static"
+                            },
+                            "sku": {
+                                "name": "Standard"
+                            },
+                            "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
+                            "type": "Microsoft.Network/publicIPAddresses"
+                        },
+                        {
+                            "apiVersion": "2020-06-01",
+                            "dependsOn": [
+                                "[variables('natGatewayPublicIpName')]"
+                            ],
+                            "location": "[resourceGroup().location]",
+                            "condition": "[parameters('createNatGateway')]",
+                            "name": "[variables('natGatewayName')]",
+                            "sku": {
+                                "name": "Standard"
+                            },
+                            "properties": {
+                                "idleTimeoutInMinutes": 4,
+                                "publicIpAddresses": [
+                                    {
+                                        "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('natGatewayPublicIpName'))]"
+                                    }
+                                ]
+                            },
+                            "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
+                            "type": "Microsoft.Network/natGateways"
+                        },
+                        {
+                            "type": "Microsoft.Network/virtualNetworks",
+                            "apiVersion": "2020-06-01",
+                            "dependsOn": [
+                                "routeTableLoop",
+                                "[resourceId('Microsoft.Network/natGateways', variables('natGatewayName'))]"
+                            ],
+                            "name": "[parameters('vnetName')]",
+                            "location": "[resourceGroup().location]",
+                            "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
+                            "properties": {
+                                "addressSpace": {
+                                    "addressPrefixes": [
+                                        "[concat(parameters('vnetAddressPrefix'), '.0.0/', parameters('cidrNotation'))]"
+                                    ]
+                                },
+                                "subnets": "[variables('constructSubnetArray')]"
+                            }
+                        }
+                    ],
+                    "outputs": {
+                        "routeTables": {
+                            "condition": "[greaterOrEquals(parameters('numSubnets'), 1)]",
+                            "copy": {
+                                "count": "[parameters('numSubnets')]",
+                                "input": "[resourceId('Microsoft.Network/routeTables', concat('route-table-subnet-0', copyIndex(1)))]"
+                            },
+                            "type": "Array"
+                        },
+                        "natGateway": {
+                            "type": "string",
+                            "value": "[resourceId('Microsoft.Network/natGateways', variables('natGatewayName'))]"
+                        },
+                        "subnets": {
+                            "condition": "[greaterOrEquals(parameters('numSubnets'), 1)]",
+                            "copy": {
+                                "count": "[parameters('numSubnets')]",
+                                "input": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), concat('subnet-0', copyIndex(1)))]"
+                            },
+                            "type": "Array"
+                        },
+                        "virtualNetwork": {
+                            "type": "string",
+                            "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+                        }
                     }
-                ]
-            },
-            "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
-            "type": "Microsoft.Network/natGateways"
-        },
-        {
-            "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2020-06-01",
-            "dependsOn": [
-                "routeTableLoop",
-                "[resourceId('Microsoft.Network/natGateways', variables('natGatewayName'))]"
-            ],
-            "name": "[parameters('vnetName')]",
-            "location": "[resourceGroup().location]",
-            "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
-            "properties": {
-                "addressSpace": {
-                    "addressPrefixes": [
-                        "[concat(parameters('vnetAddressPrefix'), '.0.0/', parameters('cidrNotation'))]"
-                    ]
-                },
-                "subnets": "[variables('constructSubnetArray')]"
+                }
             }
         }
     ],
     "outputs": {
-        "routeTables": {
-            "condition": "[greaterOrEquals(parameters('numSubnets'), 1)]",
-            "copy": {
-                "count": "[parameters('numSubnets')]",
-                "input": "[resourceId('Microsoft.Network/routeTables', concat('route-table-subnet-0', copyIndex(1)))]"
-            },
-            "type": "Array"
-        },
-        "natGateway": {
+        "deployment": {
             "type": "string",
-            "value": "[resourceId('Microsoft.Network/natGateways', variables('natGatewayName'))]"
-        },
-        "subnets": {
-            "condition": "[greaterOrEquals(parameters('numSubnets'), 1)]",
-            "copy": {
-                "count": "[parameters('numSubnets')]",
-                "input": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), concat('subnet-0', copyIndex(1)))]"
-            },
-            "type": "Array"
-        },
-        "virtualNetwork": {
-            "type": "string",
-            "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+            "value": "[concat(deployment().name, ' has successfully deployed.')]"
         }
     }
 }
