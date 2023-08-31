@@ -2874,7 +2874,7 @@
                             "visible": true
                         },
                         {
-                            "name": "existingWorkspaceID",
+                            "name": "existingWorkspaceId",
                             "type": "Microsoft.Common.TextBox",
                             "label": "Existing Workspace ID",
                             "defaultValue": "",
