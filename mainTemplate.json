@@ -949,11 +949,15 @@
             "type": "string"
         },
         "enableF5Telemetry": {
-            "defaultValue": true,
+            "defaultValue": "Yes",
             "metadata": {
                 "description": "This deployment will create will enable telemtry for F5."
             },
-            "type": "bool"
+            "allowedValues": [
+                "Yes",
+                "No"
+            ],
+            "type": "string"
         },
         "existingWorkspaceId": {
             "metadata": {
@@ -1623,7 +1627,7 @@
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
-            "condition": "[and(not(empty(parameters('existingWorkspaceId'))), parameters('enableF5Telemetry'))]",
+            "condition": "[and(not(empty(parameters('existingWorkspaceId'))), equals(parameters('enableF5Telemetry'), 'Yes'))]",
             "name": "telemetryTemplate",
             "location": "[parameters('location')]",
             "properties": {
