@@ -3202,7 +3202,7 @@
                             "defaultValue": "",
                             "constraints": {
                                 "required": false,
-                                "regex": "^[a-zA-Z0-9-+=/@]*$",
+                                "regex": "^[a-zA-Z0-9-+=/:@\\s]*$",
                                 "validationMessage": "The SSH key must be a valid SSH key."
                             }
                         },
