@@ -1015,198 +1015,179 @@
         }
     },
     "variables": {
-        "f5DeploymentNames": {
-            "f5Rg": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-f5-', parameters('f5Location'))]",
-            "f5SubscriptionPlacement": "[take(concat('alz-f5Sub', variables('deploymentSuffix')), 64)]",
-            "f5RgDeploymentName": "[take(concat('alz-f5Rg', variables('deploymentSuffix')), 64)]",
-            "appContainerName": "F5Container",
-            "contentVersion": "[deployment().properties.template.contentVersion]",
-            "uniqueString": "[toLower( parameters('uniqueString'))]",
-            "adminUsername": "[string('azureuser')]",
-            "createManagedIdentity": "[empty(parameters('bigIpUserAssignManagedIdentity'))]",
-            "solutionType": "standard",
-            "customAssignableScopes": [],
-            "customRolePermissions": [],
-            "roleDescription": "Role created by autoscale deployment",
-            "roleName": "[concat(variables('f5DeploymentNames').uniqueString, '-bigip-autoscale-role')]",
-            "keyVaultPermissionsKeys": [],
-            "keyVaultPermissionsSecrets": [],
-            "userAssignedIdentityName": "[concat(variables('f5DeploymentNames').uniqueString, '-bigip-identity')]",
-            "createNatGateway": "[and(not(parameters('provisionPublicIp')), not(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer))]",
-            "numSubnets": 2,
-            "vnetName": "[concat(variables('f5DeploymentNames').uniqueString, '-vnet')]",
-            "provisionExternalBigIpLoadBalancer": "[parameters('provisionExternalBigIpLoadBalancer')]",
-            "provisionInternalBigIpLoadBalancer": "[parameters('provisionInternalBigIpLoadBalancer')]",
-            "externalLoadBalancerName": "[if(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer, concat(variables('f5DeploymentNames').uniqueString, '-external-lb'), '')]",
-            "internalLoadBalancerName": "[if(variables('f5DeploymentNames').provisionInternalBigIpLoadBalancer, concat(variables('f5DeploymentNames').uniqueString, '-internal-lb'), '')]",
-            "loadBalancerRulePorts": [
-                "80",
-                "443"
-            ],
-            "mgmtSecurityGroup": [
-                {
-                    "destinationPortRanges": [
-                        "22",
-                        "8443"
-                    ],
-                    "sourceAddressPrefix": "[parameters('restrictedSrcAddressMgmt')]",
-                    "protocol": "Tcp"
+        "f5Rg": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-f5-', parameters('f5Location'))]",
+        "f5SubscriptionPlacement": "[take(concat('alz-f5Sub', variables('deploymentSuffix')), 64)]",
+        "f5RgDeploymentName": "[take(concat('alz-f5Rg', variables('deploymentSuffix')), 64)]",
+        "appContainerName": "F5Container",
+        "contentVersion": "[deployment().properties.template.contentVersion]",
+        "commonUniqueString": "[toLower(parameters('uniqueString'))]",
+        "adminUsername": "azureuser",
+        "createManagedIdentity": "[empty(parameters('bigIpUserAssignManagedIdentity'))]",
+        "solutionType": "standard",
+        "customAssignableScopes": [],
+        "customRolePermissions": [],
+        "roleDescription": "Role created by autoscale deployment",
+        "roleName": "[concat(variables('commonUniqueString'), '-bigip-autoscale-role')]",
+        "keyVaultPermissionsKeys": [],
+        "keyVaultPermissionsSecrets": [],
+        "userAssignedIdentityName": "[concat(variables('commonUniqueString'), '-bigip-identity')]",
+        "createNatGateway": "[and(not(parameters('provisionPublicIp')), not(parameters('provisionExternalBigIpLoadBalancer')))]",
+        "numSubnets": 2,
+        "vnetName": "[concat(variables('commonUniqueString'), '-vnet')]",
+        "provisionExternalBigIpLoadBalancer": "[parameters('provisionExternalBigIpLoadBalancer')]",
+        "provisionInternalBigIpLoadBalancer": "[parameters('provisionInternalBigIpLoadBalancer')]",
+        "externalLoadBalancerName": "[if(parameters('provisionExternalBigIpLoadBalancer'), concat(variables('commonUniqueString'), '-external-lb'), '')]",
+        "internalLoadBalancerName": "[if(parameters('provisionInternalBigIpLoadBalancer'), concat(variables('commonUniqueString'), '-internal-lb'), '')]",
+        "loadBalancerRulePorts": [ "80", "443" ],
+        "mgmtSecurityGroup": [
+            {
+                "destinationPortRanges": [ "22", "8443" ],
+                "sourceAddressPrefix": "[parameters('restrictedSrcAddressMgmt')]",
+                "protocol": "Tcp"
+            },
+            {
+                "destinationPortRanges": [ "80", "443" ],
+                "sourceAddressPrefix": "*",
+                "protocol": "Tcp"
+            }
+        ],
+        "appSecurityGroup": [
+            {
+                "destinationPortRanges": [ "80", "443" ],
+                "sourceAddressPrefix": "[parameters('restrictedSrcAddressApp')]",
+                "protocol": "Tcp"
+            },
+            {
+                "destinationPortRanges": [ "80", "443" ],
+                "sourceAddressPrefix": "10.0.0.0/8",
+                "protocol": "Tcp"
+            }
+        ],
+        "bastionSecurityGroup": [
+            {
+                "destinationPortRanges": [ "22" ],
+                "sourceAddressPrefix": "[parameters('restrictedSrcAddressMgmt')]",
+                "protocol": "Tcp"
+            }
+        ],
+        "numberPublicExternalIpAddresses": "[if(parameters('provisionExternalBigIpLoadBalancer'), 1, 0)]",
+        "numberPublicMgmtIpAddresses": 0,
+        "bastionInstanceName": "[variables('commonUniqueString')]",
+        "bastionInstanceType": "Standard_D2_v4",
+        "appInstanceName": "[variables('commonUniqueString')]",
+        "appInstanceType": "Standard_D2_v4",
+        "appVmScaleSetMaxCount": "[parameters('appScalingMaxSize')]",
+        "appVmScaleSetMinCount": "[parameters('appScalingMinSize')]",
+        "cloudInitUrl": "",
+        "createAutoscaleGroup": true,
+        "provisionApp": "[not(empty(parameters('appContainerName')))]",
+        "appInsights": "[concat(variables('commonUniqueString'), '-app-insights')]",
+        "appInsightsId": "[resourceId('Microsoft.Insights/components', variables('appInsights'))]",
+        "bigIpImage": "[parameters('bigIpImage')]",
+        "bigIpInstanceType": "[parameters('bigIpInstanceType')]",
+        "bigIpVmScaleSetMaxCount": "[parameters('bigIpScalingMaxSize')]",
+        "bigIpVmScaleSetMinCount": "[parameters('bigIpScalingMinSize')]",
+        "cpuMetricName": "Percentage CPU",
+        "maxBatchInstancePercent": "[parameters('bigIpMaxBatchInstancePercent')]",
+        "maxUnhealthyInstancePercent": "[parameters('bigIpMaxUnhealthyInstancePercent')]",
+        "maxUnhealthyUpgradedInstancePercent": "[parameters('bigIpMaxUnhealthyUpgradedInstancePercent')]",
+        "pauseTimeBetweenBatches": "[parameters('bigIpPauseTimeBetweenBatches')]",
+        "publicIpConfig": {
+            "name": "[concat(variables('commonUniqueString'), '-bigip-vmss-pip')]",
+            "properties": {
+                "idleTimeoutInMinutes": 15
+            }
+        },
+        "scaleInCpuThreshold": "[parameters('bigIpScaleInCpuThreshold')]",
+        "scaleInThroughputThreshold": "[parameters('bigIpScaleInThroughputThreshold')]",
+        "scaleInTimeWindow": "[parameters('bigIpScaleInTimeWindow')]",
+        "scaleOutCpuThreshold": "[parameters('bigIpScaleOutCpuThreshold')]",
+        "scaleOutThroughputThreshold": "[parameters('bigIpScaleOutThroughputThreshold')]",
+        "scaleOutTimeWindow": "[parameters('bigIpScaleOutTimeWindow')]",
+        "throughputMetricName": "Network In",
+        "vmssName": "[concat(variables('commonUniqueString'), '-bigip-vmss')]",
+        "customAutoscaleRules": [
+            {
+                "scaleAction": {
+                    "direction": "Increase",
+                    "type": "ChangeCount",
+                    "value": "1",
+                    "cooldown": "PT1M"
                 },
-                {
-                    "destinationPortRanges": [
-                        "80",
-                        "443"
-                    ],
-                    "sourceAddressPrefix": "*",
-                    "protocol": "Tcp"
-                }
-            ],
-            "appSecurityGroup": [
-                {
-                    "destinationPortRanges": [
-                        "80",
-                        "443"
-                    ],
-                    "sourceAddressPrefix": "[parameters('restrictedSrcAddressApp')]",
-                    "protocol": "Tcp"
-                },
-                {
-                    "destinationPortRanges": [
-                        "80",
-                        "443"
-                    ],
-                    "sourceAddressPrefix": "10.0.0.0/8",
-                    "protocol": "Tcp"
-                }
-            ],
-            "bastionSecurityGroup": [
-                {
-                    "destinationPortRanges": [
-                        "22"
-                    ],
-                    "sourceAddressPrefix": "[parameters('restrictedSrcAddressMgmt')]",
-                    "protocol": "Tcp"
-                }
-            ],
-            "numberPublicExternalIpAddresses": "[if(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer, 1, 0)]",
-            "numberPublicMgmtIpAddresses": 0,
-            "bastionInstanceName": "[variables('f5DeploymentNames').uniqueString]",
-            "bastionInstanceType": "Standard_D2_v4",
-            "appInstanceName": "[variables('f5DeploymentNames').uniqueString]",
-            "appInstanceType": "Standard_D2_v4",
-            "appVmScaleSetMaxCount": "[parameters('appScalingMaxSize')]",
-            "appVmScaleSetMinCount": "[parameters('appScalingMinSize')]",
-            "cloudInitUrl": "",
-            "createAutoscaleGroup": true,
-            "provisionApp": "[not(empty(parameters('appContainerName')))]",
-            "appInsights": "[concat(variables('f5DeploymentNames').uniqueString, '-app-insights')]",
-            "appInsightsId": "[resourceId('Microsoft.Insights/components', variables('f5DeploymentNames').appInsights)]",
-            "bigIpImage": "[parameters('bigIpImage')]",
-            "bigIpInstanceType": "[parameters('bigIpInstanceType')]",
-            "bigIpVmScaleSetMaxCount": "[parameters('bigIpScalingMaxSize')]",
-            "bigIpVmScaleSetMinCount": "[parameters('bigIpScalingMinSize')]",
-            "cpuMetricName": "Percentage CPU",
-            "customAutoscaleRules": [
-                {
-                    "scaleAction": {
-                        "direction": "Increase",
-                        "type": "ChangeCount",
-                        "value": "1",
-                        "cooldown": "PT1M"
-                    },
-                    "metricTrigger": {
-                        "metricName": "F5_system_cpu",
-                        "metricNamespace": "azure.applicationinsights",
-                        "metricResourceUri": "[variables('f5DeploymentNames').appInsightsId]",
-                        "operator": "GreaterThan",
-                        "statistic": "Average",
-                        "threshold": "[variables('f5DeploymentNames').scaleOutCpuThreshold]",
-                        "timeAggregation": "Average",
-                        "timeGrain": "PT1M",
-                        "timeWindow": "[concat('PT', parameters('bigIpScaleOutTimeWindow'), 'M')]",
-                        "dividePerInstance": false
-                    }
-                },
-                {
-                    "scaleAction": {
-                        "direction": "Decrease",
-                        "type": "ChangeCount",
-                        "value": "1",
-                        "cooldown": "PT1M"
-                    },
-                    "metricTrigger": {
-                        "metricName": "F5_system_cpu",
-                        "metricNamespace": "azure.applicationinsights",
-                        "metricResourceUri": "[variables('f5DeploymentNames').appInsightsId]",
-                        "operator": "LessThan",
-                        "statistic": "Average",
-                        "threshold": "[variables('f5DeploymentNames').scaleInCpuThreshold]",
-                        "timeAggregation": "Average",
-                        "timeGrain": "PT1M",
-                        "timeWindow": "[concat('PT', parameters('bigIpScaleInTimeWindow'), 'M')]",
-                        "dividePerInstance": false
-                    }
-                },
-                {
-                    "scaleAction": {
-                        "direction": "Increase",
-                        "type": "ChangeCount",
-                        "value": "1",
-                        "cooldown": "PT1M"
-                    },
-                    "metricTrigger": {
-                        "metricName": "F5_throughputIn_sys/performance/throughput/In_Current",
-                        "metricNamespace": "azure.applicationinsights",
-                        "metricResourceUri": "[variables('f5DeploymentNames').appInsightsId]",
-                        "operator": "GreaterThan",
-                        "statistic": "Average",
-                        "threshold": "[variables('f5DeploymentNames').scaleOutThroughputThreshold]",
-                        "timeAggregation": "Average",
-                        "timeGrain": "PT1M",
-                        "timeWindow": "[concat('PT', parameters('bigIpScaleOutTimeWindow'), 'M')]",
-                        "dividePerInstance": false
-                    }
-                },
-                {
-                    "scaleAction": {
-                        "direction": "Decrease",
-                        "type": "ChangeCount",
-                        "value": "1",
-                        "cooldown": "PT1M"
-                    },
-                    "metricTrigger": {
-                        "metricName": "F5_throughputIn_sys/performance/throughput/In_Current",
-                        "metricNamespace": "azure.applicationinsights",
-                        "metricResourceUri": "[variables('f5DeploymentNames').appInsightsId]",
-                        "operator": "LessThan",
-                        "statistic": "Average",
-                        "threshold": "[variables('f5DeploymentNames').scaleInThroughputThreshold]",
-                        "timeAggregation": "Average",
-                        "timeGrain": "PT1M",
-                        "timeWindow": "[concat('PT', parameters('bigIpScaleInTimeWindow'), 'M')]",
-                        "dividePerInstance": false
-                    }
-                }
-            ],
-            "maxBatchInstancePercent": "[parameters('bigIpMaxBatchInstancePercent')]",
-            "maxUnhealthyInstancePercent": "[parameters('bigIpMaxUnhealthyInstancePercent')]",
-            "maxUnhealthyUpgradedInstancePercent": "[parameters('bigIpMaxUnhealthyUpgradedInstancePercent')]",
-            "pauseTimeBetweenBatches": "[parameters('bigIpPauseTimeBetweenBatches')]",
-            "publicIpConfig": {
-                "name": "[concat(variables('f5DeploymentNames').uniqueString, '-bigip-vmss-pip')]",
-                "properties": {
-                    "idleTimeoutInMinutes": 15
+                "metricTrigger": {
+                    "metricName": "F5_system_cpu",
+                    "metricNamespace": "azure.applicationinsights",
+                    "metricResourceUri": "[variables('appInsightsId')]",
+                    "operator": "GreaterThan",
+                    "statistic": "Average",
+                    "threshold": "[variables('scaleOutCpuThreshold')]",
+                    "timeAggregation": "Average",
+                    "timeGrain": "PT1M",
+                    "timeWindow": "[concat('PT', parameters('bigIpScaleOutTimeWindow'), 'M')]",
+                    "dividePerInstance": false
                 }
             },
-            "scaleInCpuThreshold": "[parameters('bigIpScaleInCpuThreshold')]",
-            "scaleInThroughputThreshold": "[parameters('bigIpScaleInThroughputThreshold')]",
-            "scaleInTimeWindow": "[parameters('bigIpScaleInTimeWindow')]",
-            "scaleOutCpuThreshold": "[parameters('bigIpScaleOutCpuThreshold')]",
-            "scaleOutThroughputThreshold": "[parameters('bigIpScaleOutThroughputThreshold')]",
-            "scaleOutTimeWindow": "[parameters('bigIpScaleOutTimeWindow')]",
-            "throughputMetricName": "Network In",
-            "vmssName": "[concat(variables('f5DeploymentNames').uniqueString, '-bigip-vmss')]"
-        },
+            {
+                "scaleAction": {
+                    "direction": "Decrease",
+                    "type": "ChangeCount",
+                    "value": "1",
+                    "cooldown": "PT1M"
+                },
+                "metricTrigger": {
+                    "metricName": "F5_system_cpu",
+                    "metricNamespace": "azure.applicationinsights",
+                    "metricResourceUri": "[variables('appInsightsId')]",
+                    "operator": "LessThan",
+                    "statistic": "Average",
+                    "threshold": "[variables('scaleInCpuThreshold')]",
+                    "timeAggregation": "Average",
+                    "timeGrain": "PT1M",
+                    "timeWindow": "[concat('PT', parameters('bigIpScaleInTimeWindow'), 'M')]",
+                    "dividePerInstance": false
+                }
+            },
+            {
+                "scaleAction": {
+                    "direction": "Increase",
+                    "type": "ChangeCount",
+                    "value": "1",
+                    "cooldown": "PT1M"
+                },
+                "metricTrigger": {
+                    "metricName": "F5_throughputIn_sys/performance/throughput/In_Current",
+                    "metricNamespace": "azure.applicationinsights",
+                    "metricResourceUri": "[variables('appInsightsId')]",
+                    "operator": "GreaterThan",
+                    "statistic": "Average",
+                    "threshold": "[variables('scaleOutThroughputThreshold')]",
+                    "timeAggregation": "Average",
+                    "timeGrain": "PT1M",
+                    "timeWindow": "[concat('PT', parameters('bigIpScaleOutTimeWindow'), 'M')]",
+                    "dividePerInstance": false
+                }
+            },
+            {
+                "scaleAction": {
+                    "direction": "Decrease",
+                    "type": "ChangeCount",
+                    "value": "1",
+                    "cooldown": "PT1M"
+                },
+                "metricTrigger": {
+                    "metricName": "F5_throughputIn_sys/performance/throughput/In_Current",
+                    "metricNamespace": "azure.applicationinsights",
+                    "metricResourceUri": "[variables('appInsightsId')]",
+                    "operator": "LessThan",
+                    "statistic": "Average",
+                    "threshold": "[variables('scaleInThroughputThreshold')]",
+                    "timeAggregation": "Average",
+                    "timeGrain": "PT1M",
+                    "timeWindow": "[concat('PT', parameters('bigIpScaleInTimeWindow'), 'M')]",
+                    "dividePerInstance": false
+                }
+            }
+        ],
         "mgmtGroups": {
             "eslzRoot": "[parameters('enterpriseScaleCompanyPrefix')]",
             "platform": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-', 'platform')]",
@@ -1598,11 +1579,11 @@
             "condition": "[not(empty(parameters('f5SubscriptionId')))]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
-            "name": "[variables('f5DeploymentNames').f5RgDeploymentName]",
+            "name": "[variables('f5RgDeploymentName')]",
             "subscriptionId": "[parameters('f5SubscriptionId')]",
             "location": "[parameters('f5Location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', variables('f5deploymentNames').f5SubscriptionPlacement)]",
+                "[resourceId('Microsoft.Resources/deployments', variables('f5SubscriptionPlacement'))]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').activityDiagnosticsPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').asbPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascPolicyDeploymentName)]",
@@ -1616,7 +1597,7 @@
                 },
                 "parameters": {
                     "rgName": {
-                        "value": "[variables('f5DeploymentNames').f5Rg]"
+                        "value": "[variables('f5Rg')]"
                     },
                     "location": {
                         "value": "[parameters('f5Location')]"
@@ -1634,14 +1615,14 @@
                 "mode": "Incremental",
                 "templateLink": {
                     "uri": "[variables('deploymentUris').f5Telemetry]",
-                    "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+                    "contentVersion": "[variables('contentVersion')]"
                 },
                 "parameters": {
                     "existingWorkspaceId": {
                         "value": "[parameters('existingWorkspaceId')]"
                     },
                     "uniqueString": {
-                        "value": "[variables('f5DeploymentNames').uniqueString]"
+                        "value": "[variables('commonUniqueString')]"
                     },
                     "tagValues": {
                         "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], json('{}')) ]"
@@ -1652,49 +1633,49 @@
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
-            "condition": "[variables('f5DeploymentNames').createManagedIdentity]",
+            "condition": "[variables('createManagedIdentity')]",
             "name": "accessTemplate",
             "subscriptionId": "[parameters('f5SubscriptionId')]",
             "location": "[parameters('f5Location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', variables('f5deploymentNames').f5RgDeploymentName)]"
+                "[resourceId('Microsoft.Resources/deployments', variables('f5RgDeploymentName'))]"
             ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
                     "uri": "[variables('deploymentUris').f5Access]",
-                    "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+                    "contentVersion": "[variables('contentVersion')]"
                 },
                 "parameters": {
                     "f5ResourceGroup": {
-                        "value": "[variables('f5DeploymentNames').f5Rg]"
+                        "value": "[variables('f5Rg')]"
                     },
                     "uniqueString": {
-                        "value": "[variables('f5DeploymentNames').uniqueString]"
+                        "value": "[variables('commonUniqueString')]"
                     },
                     "solutionType": {
-                        "value": "[variables('f5DeploymentNames').solutionType]"
+                        "value": "[variables('solutionType')]"
                     },
                     "customAssignableScopes": {
-                        "value": "[variables('f5DeploymentNames').customAssignableScopes]"
+                        "value": "[variables('customAssignableScopes')]"
                     },
                     "roleDescription": {
-                        "value": "[variables('f5DeploymentNames').roleDescription]"
+                        "value": "[variables('roleDescription')]"
                     },
                     "roleName": {
-                        "value": "[variables('f5DeploymentNames').roleName]"
+                        "value": "[variables('roleName')]"
                     },
                     "customRolePermissions": {
-                        "value": "[variables('f5DeploymentNames').customRolePermissions]"
+                        "value": "[variables('customRolePermissions')]"
                     },
                     "keyVaultPermissionsKeys": {
-                        "value": "[variables('f5DeploymentNames').keyVaultPermissionsKeys]"
+                        "value": "[variables('keyVaultPermissionsKeys')]"
                     },
                     "keyVaultPermissionsSecrets": {
-                        "value": "[variables('f5DeploymentNames').keyVaultPermissionsSecrets]"
+                        "value": "[variables('keyVaultPermissionsSecrets')]"
                     },
                     "userAssignedIdentityName": {
-                        "value": "[variables('f5DeploymentNames').userAssignedIdentityName]"
+                        "value": "[variables('userAssignedIdentityName')]"
                     },
                     "tagValues": {
                         "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.ManagedIdentity/userAssignedIdentities'), parameters('tagsByResource')['Microsoft.ManagedIdentity/userAssignedIdentities'], json('{}')) ]"
@@ -1709,26 +1690,26 @@
             "subscriptionId": "[parameters('f5SubscriptionId')]",
             "location": "[parameters('f5Location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Resources/deployments', variables('f5deploymentNames').f5RgDeploymentName)]"
+                "[resourceId('Microsoft.Resources/deployments', variables('f5RgDeploymentName'))]"
             ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
                     "uri": "[variables('deploymentUris').f5Network]",
-                    "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+                    "contentVersion": "[variables('contentVersion')]"
                 },
                 "parameters": {
                     "f5ResourceGroup": {
-                        "value": "[variables('f5DeploymentNames').f5Rg]"
+                        "value": "[variables('f5Rg')]"
                     },
                     "createNatGateway": {
-                        "value": "[variables('f5DeploymentNames').createNatGateway]"
+                        "value": "[variables('createNatGateway')]"
                     },
                     "numSubnets": {
-                        "value": "[variables('f5DeploymentNames').numSubnets]"
+                        "value": "[variables('numSubnets')]"
                     },
                     "vnetName": {
-                        "value": "[variables('f5DeploymentNames').vnetName]"
+                        "value": "[variables('vnetName')]"
                     },
                     "vnetAddressPrefix": {
                         "value": "[parameters('f5AddressPrefix')]"
@@ -1755,41 +1736,41 @@
                 "mode": "Incremental",
                 "templateLink": {
                     "uri": "[variables('deploymentUris').f5Dag]",
-                    "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+                    "contentVersion": "[variables('contentVersion')]"
                 },
                 "parameters": {
                     "f5ResourceGroup": {
-                        "value": "[variables('f5DeploymentNames').f5Rg]"
+                        "value": "[variables('f5Rg')]"
                     },
                     "uniqueString": {
-                        "value": "[variables('f5DeploymentNames').uniqueString]"
+                        "value": "[variables('commonUniqueString')]"
                     },
                     "externalLoadBalancerName": {
-                        "value": "[if(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer,variables('f5DeploymentNames').externalLoadBalancerName, 'None')]"
+                        "value": "[if(variables('provisionExternalBigIpLoadBalancer'),variables('externalLoadBalancerName'), 'None')]"
                     },
                     "internalLoadBalancerName": {
-                        "value": "[if(variables('f5DeploymentNames').provisionInternalBigIpLoadBalancer, variables('f5DeploymentNames').internalLoadBalancerName, 'None')]"
+                        "value": "[if(variables('provisionInternalBigIpLoadBalancer'), variables('internalLoadBalancerName'), 'None')]"
                     },
                     "internalSubnetId": {
                         "value": "[reference('networkTemplate').outputs.subnets.value[1]]"
                     },
                     "loadBalancerRulePorts": {
-                        "value": "[variables('f5DeploymentNames').loadBalancerRulePorts]"
+                        "value": "[variables('loadBalancerRulePorts')]"
                     },
                     "nsg0": {
-                        "value": "[variables('f5DeploymentNames').mgmtSecurityGroup]"
+                        "value": "[variables('mgmtSecurityGroup')]"
                     },
                     "nsg1": {
-                        "value": "[variables('f5DeploymentNames').appSecurityGroup]"
+                        "value": "[variables('appSecurityGroup')]"
                     },
                     "nsg2": {
-                        "value": "[if(parameters('provisionPublicIp'), createArray(), variables('f5DeploymentNames').bastionSecurityGroup)]"
+                        "value": "[if(parameters('provisionPublicIp'), createArray(), variables('bastionSecurityGroup'))]"
                     },
                     "numberPublicExternalIpAddresses": {
-                        "value": "[variables('f5DeploymentNames').numberPublicExternalIpAddresses]"
+                        "value": "[variables('numberPublicExternalIpAddresses')]"
                     },
                     "numberPublicMgmtIpAddresses": {
-                        "value": "[variables('f5DeploymentNames').numberPublicMgmtIpAddresses]"
+                        "value": "[variables('numberPublicMgmtIpAddresses')]"
                     },
                     "tagValues": {
                         "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualNetwork'), parameters('tagsByResource')['Microsoft.Network/virtualNetwork'], json('{}')) ]"
@@ -1811,23 +1792,23 @@
                 "mode": "Incremental",
                 "templateLink": {
                     "uri": "[variables('deploymentUris').f5Bastion]",
-                    "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+                    "contentVersion": "[variables('contentVersion')]"
                 },
                 "parameters": {
                     "f5ResourceGroup": {
-                        "value": "[variables('f5DeploymentNames').f5Rg]"
+                        "value": "[variables('f5Rg')]"
                     },
                     "adminUsername": {
-                        "value": "[variables('f5DeploymentNames').adminUsername]"
+                        "value": "[variables('adminUsername')]"
                     },
                     "createAutoscaleGroup": {
-                        "value": "[variables('f5DeploymentNames').createAutoscaleGroup]"
+                        "value": "[variables('createAutoscaleGroup')]"
                     },
                     "instanceName": {
-                        "value": "[variables('f5DeploymentNames').bastionInstanceName]"
+                        "value": "[variables('bastionInstanceName')]"
                     },
                     "instanceType": {
-                        "value": "[variables('f5DeploymentNames').bastionInstanceType]"
+                        "value": "[variables('bastionInstanceType')]"
                     },
                     "nsgId": {
                         "value": "[reference('dagTemplate').outputs.nsg2Id.value]"
@@ -1846,7 +1827,7 @@
         },
         {
             "type": "Microsoft.Resources/deployments",
-            "condition": "[variables('f5DeploymentNames').provisionApp]",
+            "condition": "[variables('provisionApp')]",
             "apiVersion": "2021-04-01",
             "name": "appTemplate",
             "subscriptionId": "[parameters('f5SubscriptionId')]",
@@ -1859,29 +1840,29 @@
                 "mode": "Incremental",
                 "templateLink": {
                     "uri": "[variables('deploymentUris').f5Application]",
-                    "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+                    "contentVersion": "[variables('contentVersion')]"
                 },
                 "parameters": {
                     "f5ResourceGroup": {
-                        "value": "[variables('f5DeploymentNames').f5Rg]"
+                        "value": "[variables('f5Rg')]"
                     },
                     "adminUsername": {
-                        "value": "[variables('f5DeploymentNames').adminUsername]"
+                        "value": "[variables('adminUsername')]"
                     },
                     "appContainerName": {
-                        "value": "[variables('f5DeploymentNames').appContainerName]"
+                        "value": "[variables('appContainerName')]"
                     },
                     "cloudInitUrl": {
-                        "value": "[variables('f5DeploymentNames').cloudInitUrl]"
+                        "value": "[variables('cloudInitUrl')]"
                     },
                     "createAutoscaleGroup": {
-                        "value": "[variables('f5DeploymentNames').createAutoscaleGroup]"
+                        "value": "[variables('createAutoscaleGroup')]"
                     },
                     "instanceName": {
-                        "value": "[variables('f5DeploymentNames').appInstanceName]"
+                        "value": "[variables('appInstanceName')]"
                     },
                     "instanceType": {
-                        "value": "[variables('f5DeploymentNames').appInstanceType]"
+                        "value": "[variables('appInstanceType')]"
                     },
                     "nsgId": {
                         "value": "[reference('dagTemplate').outputs.nsg1Id.value]"
@@ -1897,10 +1878,10 @@
                         "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], json('{}')) ]"
                     },
                     "vmScaleSetMaxCount": {
-                        "value": "[variables('f5DeploymentNames').appVmScaleSetMaxCount]"
+                        "value": "[variables('appVmScaleSetMaxCount')]"
                     },
                     "vmScaleSetMinCount": {
-                        "value": "[variables('f5DeploymentNames').appVmScaleSetMinCount]"
+                        "value": "[variables('appVmScaleSetMinCount')]"
                     }
                 }
             }
@@ -1921,56 +1902,56 @@
                 "mode": "Incremental",
                 "templateLink": {
                     "uri": "[variables('deploymentUris').f5BigIP]",
-                    "contentVersion": "[variables('f5DeploymentNames').contentVersion]"
+                    "contentVersion": "[variables('contentVersion')]"
                 },
                 "parameters": {
                     "f5ResourceGroup": {
-                        "value": "[variables('f5DeploymentNames').f5Rg]"
+                        "value": "[variables('f5Rg')]"
                     },
                     "adminUsername": {
-                        "value": "[variables('f5DeploymentNames').adminUsername]"
+                        "value": "[variables('adminUsername')]"
                     },
                     "allowUsageAnalytics": {
                         "value": "[parameters('allowUsageAnalytics')]"
                     },
                     "appInsights": {
-                        "value": "[variables('f5DeploymentNames').appInsights]"
+                        "value": "[variables('appInsights')]"
                     },
                     "cpuMetricName": {
-                        "value": "[variables('f5DeploymentNames').cpuMetricName]"
+                        "value": "[variables('cpuMetricName')]"
                     },
                     "customAutoscaleRules": {
-                        "value": "[variables('f5DeploymentNames').customAutoscaleRules]"
+                        "value": "[variables('customAutoscaleRules')]"
                     },
                     "customEmail": {
                         "value": "[parameters('customEmail')]"
                     },
                     "uniqueString": {
-                        "value": "[variables('f5DeploymentNames').uniqueString]"
+                        "value": "[variables('commonUniqueString')]"
                     },
                     "image": {
-                        "value": "[variables('f5DeploymentNames').bigIpImage]"
+                        "value": "[variables('bigIpImage')]"
                     },
                     "inboundMgmtNatPoolId": {
-                        "value": "[if(and(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer, greater(variables('f5DeploymentNames').numberPublicMgmtIpAddresses, 0)), reference('dagTemplate').outputs.inboundMgmtNatPool.value, '')]"
+                        "value": "[if(and(variables('provisionExternalBigIpLoadBalancer'), greater(variables('numberPublicMgmtIpAddresses'), 0)), reference('dagTemplate').outputs.inboundMgmtNatPool.value, '')]"
                     },
                     "inboundSshNatPoolId": {
-                        "value": "[if(and(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer, greater(variables('f5DeploymentNames').numberPublicMgmtIpAddresses, 0)), reference('dagTemplate').outputs.inboundSshNatPool.value, '')]"
+                        "value": "[if(and(variables('provisionExternalBigIpLoadBalancer'), greater(variables('numberPublicMgmtIpAddresses'), 0)), reference('dagTemplate').outputs.inboundSshNatPool.value, '')]"
                     },
                     "instanceHealthProbeId": {
-                        "value": "[if(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer, reference('dagTemplate').outputs.externalLoadBalancerProbesId.value[0], if(variables('f5DeploymentNames').provisionInternalBigIpLoadBalancer, reference('dagTemplate').outputs.internalLoadBalancerProbesId.value[0], ''))]"
+                        "value": "[if(variables('provisionExternalBigIpLoadBalancer'), reference('dagTemplate').outputs.externalLoadBalancerProbesId.value[0], if(variables('provisionInternalBigIpLoadBalancer'), reference('dagTemplate').outputs.internalLoadBalancerProbesId.value[0], ''))]"
                     },
                     "instanceType": {
-                        "value": "[variables('f5DeploymentNames').bigIpInstanceType]"
+                        "value": "[variables('bigIpInstanceType')]"
                     },
                     "loadBalancerBackendAddressPoolsArray": {
-                        "value": "[if(variables('f5DeploymentNames').provisionExternalBigIpLoadBalancer, if(variables('f5DeploymentNames').provisionInternalBigIpLoadBalancer, createArray(createObject('id', reference('dagTemplate').outputs.externalBackEndLoadBalancerId.value), createObject('id', reference('dagTemplate').outputs.internalBackEndLoadBalancerId.value)), createArray(createObject('id', reference('dagTemplate').outputs.externalBackEndLoadBalancerId.value))), if(variables('f5DeploymentNames').provisionInternalBigIpLoadBalancer, createArray(createObject('id', reference('dagTemplate').outputs.internalBackEndLoadBalancerId.value)), createArray()))]"
+                        "value": "[if(variables('provisionExternalBigIpLoadBalancer'), if(variables('provisionInternalBigIpLoadBalancer'), createArray(createObject('id', reference('dagTemplate').outputs.externalBackEndLoadBalancerId.value), createObject('id', reference('dagTemplate').outputs.internalBackEndLoadBalancerId.value)), createArray(createObject('id', reference('dagTemplate').outputs.externalBackEndLoadBalancerId.value))), if(variables('provisionInternalBigIpLoadBalancer'), createArray(createObject('id', reference('dagTemplate').outputs.internalBackEndLoadBalancerId.value)), createArray()))]"
                     },
                     "nsgId": {
                         "value": "[reference('dagTemplate').outputs.nsg0Id.value]"
                     },
                     "provisionPublicIp": {
-                        "value": "[if(parameters('provisionPublicIp'), variables('f5DeploymentNames').publicIpConfig, createObject())]"
+                        "value": "[if(parameters('provisionPublicIp'), variables('publicIpConfig'), createObject())]"
                     },
                     "roleDefinitionId": {
                         "value": ""
@@ -1982,34 +1963,34 @@
                         "value": "[parameters('bigIpRuntimeInitPackageUrl')]"
                     },
                     "maxBatchInstancePercent": {
-                        "value": "[variables('f5DeploymentNames').maxBatchInstancePercent]"
+                        "value": "[variables('maxBatchInstancePercent')]"
                     },
                     "maxUnhealthyInstancePercent": {
-                        "value": "[variables('f5DeploymentNames').maxUnhealthyInstancePercent]"
+                        "value": "[variables('maxUnhealthyInstancePercent')]"
                     },
                     "maxUnhealthyUpgradedInstancePercent": {
-                        "value": "[variables('f5DeploymentNames').maxUnhealthyUpgradedInstancePercent]"
+                        "value": "[variables('maxUnhealthyUpgradedInstancePercent')]"
                     },
                     "pauseTimeBetweenBatches": {
-                        "value": "[variables('f5DeploymentNames').pauseTimeBetweenBatches]"
+                        "value": "[variables('pauseTimeBetweenBatches')]"
                     },
                     "scaleInCpuThreshold": {
-                        "value": "[variables('f5DeploymentNames').scaleInCpuThreshold]"
+                        "value": "[variables('scaleInCpuThreshold')]"
                     },
                     "scaleInThroughputThreshold": {
-                        "value": "[variables('f5DeploymentNames').scaleInThroughputThreshold]"
+                        "value": "[variables('scaleInThroughputThreshold')]"
                     },
                     "scaleInTimeWindow": {
-                        "value": "[variables('f5DeploymentNames').scaleInTimeWindow]"
+                        "value": "[variables('scaleInTimeWindow')]"
                     },
                     "scaleOutCpuThreshold": {
-                        "value": "[variables('f5DeploymentNames').scaleOutCpuThreshold]"
+                        "value": "[variables('scaleOutCpuThreshold')]"
                     },
                     "scaleOutThroughputThreshold": {
-                        "value": "[variables('f5DeploymentNames').scaleOutThroughputThreshold]"
+                        "value": "[variables('scaleOutThroughputThreshold')]"
                     },
                     "scaleOutTimeWindow": {
-                        "value": "[variables('f5DeploymentNames').scaleOutTimeWindow]"
+                        "value": "[variables('scaleOutTimeWindow')]"
                     },
                     "sshKey": {
                         "value": "[parameters('sshKey')]"
@@ -2021,22 +2002,22 @@
                         "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], json('{}')) ]"
                     },
                     "throughputMetricName": {
-                        "value": "[variables('f5DeploymentNames').throughputMetricName]"
+                        "value": "[variables('throughputMetricName')]"
                     },
                     "useAvailabilityZones": {
                         "value": "[parameters('useAvailabilityZones')]"
                     },
                     "userAssignManagedIdentity": {
-                        "value": "[if(not(variables('f5DeploymentNames').createManagedIdentity), parameters('bigIpUserAssignManagedIdentity'), reference('accessTemplate').outputs.userAssignedIdentityId.value)]"
+                        "value": "[if(not(variables('createManagedIdentity')), parameters('bigIpUserAssignManagedIdentity'), reference('accessTemplate').outputs.userAssignedIdentityId.value)]"
                     },
                     "vmScaleSetMaxCount": {
-                        "value": "[variables('f5DeploymentNames').bigIpVmScaleSetMaxCount]"
+                        "value": "[variables('bigIpVmScaleSetMaxCount')]"
                     },
                     "vmScaleSetMinCount": {
-                        "value": "[variables('f5DeploymentNames').bigIpVmScaleSetMinCount]"
+                        "value": "[variables('bigIpVmScaleSetMinCount')]"
                     },
                     "vmssName": {
-                        "value": "[variables('f5DeploymentNames').vmssName]"
+                        "value": "[variables('vmssName')]"
                     },
                     "workspaceId": {
                         "value": "[parameters('existingWorkspaceId')]"
@@ -2230,7 +2211,7 @@
             "condition": "[not(empty(parameters('f5SubscriptionId')))]",
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
-            "name": "[variables('f5DeploymentNames').f5SubscriptionPlacement]",
+            "name": "[variables('f5SubscriptionPlacement')]",
             "location": "[parameters('location')]",
             "scope": "[variables('scopes').onlineManagementGroup]",
             "dependsOn": [
