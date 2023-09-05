@@ -37,11 +37,12 @@
   },
   "variables": {
     "uniqueString": "[toLower(parameters('uniqueString'))]",
-    "appInsightsId": "[resourceId('Microsoft.Insights/components', concat(variables('uniqueString'), '-app-insights'))]"
+    "appInsightsId": "[resourceId('Microsoft.Insights/components', concat(variables('uniqueString'), '-app-insights'))]",
+    "resourceDeploymentName": "[take(concat(deployment().name, '-workbook'), 64)]"
   },
   "resources": [
     {
-      "name": "[guid(resourceGroup().id,variables('uniqueString'),'waf-view-workbook')]",
+      "name": "[variables('resourceDeploymentName')]",
       "type": "Microsoft.Insights/workbooks",
       "location": "[resourceGroup().location]",
       "apiVersion": "2020-10-20",
