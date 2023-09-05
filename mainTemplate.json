@@ -1240,24 +1240,24 @@
         },
         // Declaring all required deployment uri's used for deployments of composite ARM templates for ESLZ
         "azPrivateDnsPolicyAssignmentMapping": {
-            "https://management.azure.com/": "Org/Azure/eslzArmmanagementGroupTemplates/policyAssignments/DINE-PrivateDNSZonesPolicyAssignment.json",
-            "https://management.usgovcloudapi.net": "Org/Azure/eslzArmmanagementGroupTemplates/policyAssignments/gov/fairfaxDINE-PrivateDNSZonesPolicyAssignment.json"
+            "https://management.azure.com/": "Org/Azure/eslzArm/managementGroupTemplates/policyAssignments/DINE-PrivateDNSZonesPolicyAssignment.json",
+            "https://management.usgovcloudapi.net": "Org/Azure/eslzArm/managementGroupTemplates/policyAssignments/gov/fairfaxDINE-PrivateDNSZonesPolicyAssignment.json"
         },
         "azPrivateDnsPolicyAssignment": "[variables('azPrivateDnsPolicyAssignmentMapping')[environment().resourceManager]]",
         "deploymentUris": {
-            "managementGroups": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArmmanagementGroupTemplates/mgmtGroupStructure/mgmtGroups.json')]",
-            "managementGroupsLite": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArmmanagementGroupTemplates/mgmtGroupStructure/mgmtGroupsLite.json')]",
-            "roleDefinitions": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArmmanagementGroupTemplates/roleDefinitions/customRoleDefinitions.json')]",
-            "policyDefinitions": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArmmanagementGroupTemplates/policyDefinitions/policies.json')]",
-            "vnetConnectivityHub": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArmsubscriptionTemplates/hubspoke-connectivity.json')]",
-            "vwanConnectivityHub": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArmsubscriptionTemplates/vwan-connectivity.json')]",
-            "nvaConnectivityHub": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArmsubscriptionTemplates/nvahubspoke-connectivity.json')]",
-            "subscriptionPlacement": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArmmanagementGroupTemplates/subscriptionOrganization/subscriptionOrganization.json')]",
-            "monitoring": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArmsubscriptionTemplates/logAnalyticsWorkspace.json')]",
-            "resourceGroup": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArmsubscriptionTemplates/resourceGroup.json')]",
+            "managementGroups": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArm/managementGroupTemplates/mgmtGroupStructure/mgmtGroups.json')]",
+            "managementGroupsLite": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArm/managementGroupTemplates/mgmtGroupStructure/mgmtGroupsLite.json')]",
+            "roleDefinitions": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArm/managementGroupTemplates/roleDefinitions/customRoleDefinitions.json')]",
+            "policyDefinitions": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArm/managementGroupTemplates/policyDefinitions/policies.json')]",
+            "vnetConnectivityHub": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArm/subscriptionTemplates/hubspoke-connectivity.json')]",
+            "vwanConnectivityHub": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArm/subscriptionTemplates/vwan-connectivity.json')]",
+            "nvaConnectivityHub": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArm/subscriptionTemplates/nvahubspoke-connectivity.json')]",
+            "subscriptionPlacement": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArm/managementGroupTemplates/subscriptionOrganization/subscriptionOrganization.json')]",
+            "monitoring": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArm/subscriptionTemplates/logAnalyticsWorkspace.json')]",
+            "resourceGroup": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArm/subscriptionTemplates/resourceGroup.json')]",
             "ddosProtection": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArmresourceGroupTemplates/ddosProtection.json')]",
             "logAnalyticsPolicyAssignment": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArm/managementGroupTemplates/policyAssignments/DINE-LogAnalyticsPolicyAssignment.json')]",
-            "monitoringSolutions": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArmsubscriptionTemplates/logAnalyticsSolutions.json')]",
+            "monitoringSolutions": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArm/subscriptionTemplates/logAnalyticsSolutions.json')]",
             "asbPolicyInitiative": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArm/managementGroupTemplates/policyAssignments/DINE-ASBPolicyAssignment.json')]",
             "resourceDiagnosticsInitiative": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArm/managementGroupTemplates/policyAssignments/DINE-ResourceDiagnosticsPolicyAssignment.json')]",
             "activityDiagnosticsPolicyAssignment": "[uri(deployment().properties.templateLink.uri, 'Org/Azure/eslzArm/managementGroupTemplates/policyAssignments/DINE-ActivityLogPolicyAssignment.json')]",
@@ -1632,7 +1632,7 @@
                 "mode": "Incremental",
                 "templateLink": {
                     "uri": "[variables('deploymentUris').f5Telemetry]",
-                    "contentVersion": "[variables('contentVersion')]"
+                    "contentVersion": "2.8.0.0"
                 },
                 "parameters": {
                     "existingWorkspaceId": {
@@ -1661,7 +1661,7 @@
                 "mode": "Incremental",
                 "templateLink": {
                     "uri": "[variables('deploymentUris').f5Access]",
-                    "contentVersion": "[variables('contentVersion')]"
+                    "contentVersion": "2.8.0.0"
                 },
                 "parameters": {
                     "f5ResourceGroup": {
@@ -1713,7 +1713,7 @@
                 "mode": "Incremental",
                 "templateLink": {
                     "uri": "[variables('deploymentUris').f5Network]",
-                    "contentVersion": "[variables('contentVersion')]"
+                    "contentVersion": "2.8.0.0"
                 },
                 "parameters": {
                     "f5ResourceGroup": {
@@ -1753,7 +1753,7 @@
                 "mode": "Incremental",
                 "templateLink": {
                     "uri": "[variables('deploymentUris').f5Dag]",
-                    "contentVersion": "[variables('contentVersion')]"
+                    "contentVersion": "2.8.0.0"
                 },
                 "parameters": {
                     "f5ResourceGroup": {
@@ -1809,7 +1809,7 @@
                 "mode": "Incremental",
                 "templateLink": {
                     "uri": "[variables('deploymentUris').f5Bastion]",
-                    "contentVersion": "[variables('contentVersion')]"
+                    "contentVersion": "2.8.0.0"
                 },
                 "parameters": {
                     "f5ResourceGroup": {
@@ -1857,7 +1857,7 @@
                 "mode": "Incremental",
                 "templateLink": {
                     "uri": "[variables('deploymentUris').f5Application]",
-                    "contentVersion": "[variables('contentVersion')]"
+                    "contentVersion": "2.8.0.0"
                 },
                 "parameters": {
                     "f5ResourceGroup": {
@@ -1919,7 +1919,7 @@
                 "mode": "Incremental",
                 "templateLink": {
                     "uri": "[variables('deploymentUris').f5BigIP]",
-                    "contentVersion": "[variables('contentVersion')]"
+                    "contentVersion": "2.8.0.0"
                 },
                 "parameters": {
                     "f5ResourceGroup": {
