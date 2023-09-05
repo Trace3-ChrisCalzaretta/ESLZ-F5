@@ -67,7 +67,7 @@
     },
     "workbookId": {
       "type": "String",
-      "value": "[resourceId( 'microsoft.insights/workbooks', guid(resourceGroup().id,variables('uniqueString'),'waf-view-workbook'))]"
+      "value": "[resourceId('Microsoft.Insights/workbooks', variables('resourceDeploymentName'))]"
     }
   }
 }
