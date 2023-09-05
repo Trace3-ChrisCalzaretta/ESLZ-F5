@@ -1088,7 +1088,7 @@
                 "protocol": "Tcp"
             }
         ],
-        "numberPublicExternalIpAddresses": "[if(parameters('provisionExternalBigIpLoadBalancer'), 1, 0)]",
+        "numberPublicExternalIpAddresses": "[if(equals(parameters('provisionExternalBigIpLoadBalancer'), 'Yes'), 1, 0)]",
         "numberPublicMgmtIpAddresses": 0,
         "bastionInstanceName": "[variables('commonUniqueString')]",
         "bastionInstanceType": "Standard_D2_v4",
