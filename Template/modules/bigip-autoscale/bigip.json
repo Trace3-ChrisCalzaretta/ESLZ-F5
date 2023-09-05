@@ -14,11 +14,15 @@
       "type": "string"
     },
     "allowUsageAnalytics": {
-      "defaultValue": true,
       "metadata": {
         "description": "This deployment can send anonymous statistics to F5 to help us determine how to improve our solutions. If you select **false** statistics are not sent."
       },
-      "type": "bool"
+      "defaultValue": "Yes",
+      "type": "string",
+      "allowedValues": [
+        "Yes",
+        "No"
+      ]
     },
     "appInsights": {
       "defaultValue": "",
@@ -263,11 +267,15 @@
       "type": "string"
     },
     "useAvailabilityZones": {
-      "defaultValue": false,
       "metadata": {
         "description": "This deployment can deploy resources into Azure Availability Zones (if the region supports it).  If that is not desired the input should be set false. If the region does not support availability zones the input should be set to false."
       },
-      "type": "bool"
+      "defaultValue": "Yes",
+      "type": "string",
+      "allowedValues": [
+        "Yes",
+        "No"
+      ]
     },
     "userAssignManagedIdentity": {
       "defaultValue": "",
@@ -439,7 +447,7 @@
     "scaleInTimeWindow": "[concat('PT', parameters('scaleInTimeWindow'), 'M')]",
     "scaleOutTimeWindow": "[concat('PT', parameters('scaleOutTimeWindow'), 'M')]",
     "singleQuote": "'",
-    "skipTelemetry": "[if(parameters('allowUsageAnalytics'), '', '--skip-telemetry')]",
+    "skipTelemetry": "[if(equals(parameters('allowUsageAnalytics'), 'Yes'), '', '--skip-telemetry')]",
     "skuToUse": "[if(variables('useCustomImage'), json('null'), variables('image')[2])]",
     "storageProfileArray": {
       "customImage": {

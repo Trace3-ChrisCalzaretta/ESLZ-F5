@@ -751,11 +751,15 @@
             "defaultValue": "[deployment().location]"
         },
         "allowUsageAnalytics": {
-            "defaultValue": true,
             "metadata": {
                 "description": "This deployment can send anonymous statistics to F5 to help us determine how to improve our solutions. If you select **false** statistics are not sent."
             },
-            "type": "bool"
+            "defaultValue": "Yes",
+            "type": "string",
+            "allowedValues": [
+                "Yes",
+                "No"
+            ]
         },
         "uniqueString": {
             "metadata": {
@@ -914,32 +918,48 @@
             "type": "int"
         },
         "provisionExternalBigIpLoadBalancer": {
-            "defaultValue": true,
             "metadata": {
                 "description": "Select true if you would like to provision an external Azure load balancer."
             },
-            "type": "bool"
+            "defaultValue": "Yes",
+            "type": "string",
+            "allowedValues": [
+                "Yes",
+                "No"
+            ]
         },
         "provisionInternalBigIpLoadBalancer": {
-            "defaultValue": false,
             "metadata": {
                 "description": "Select true if you would like to provision an internal Azure load balancer."
             },
-            "type": "bool"
+            "defaultValue": "Yes",
+            "type": "string",
+            "allowedValues": [
+                "Yes",
+                "No"
+            ]
         },
         "provisionPublicIp": {
-            "defaultValue": true,
             "metadata": {
                 "description": "Select true if you would like to provision a public IP address for accessing the BIG-IP instance(s)."
             },
-            "type": "bool"
+            "defaultValue": "Yes",
+            "type": "string",
+            "allowedValues": [
+                "Yes",
+                "No"
+            ]
         },
         "useAvailabilityZones": {
-            "defaultValue": false,
             "metadata": {
                 "description": "This deployment can deploy resources into Azure Availability Zones (if the region supports it).  If that is not desired the input should be set false. If the region does not support availability zones the input should be set to false."
             },
-            "type": "bool"
+            "defaultValue": "Yes",
+            "type": "string",
+            "allowedValues": [
+                "Yes",
+                "No"
+            ]
         },
         "bigIpUserAssignManagedIdentity": {
             "defaultValue": "",
@@ -1031,11 +1051,11 @@
         "keyVaultPermissionsKeys": [],
         "keyVaultPermissionsSecrets": [],
         "userAssignedIdentityName": "[concat(variables('commonUniqueString'), '-bigip-identity')]",
-        "createNatGateway": "[and(not(parameters('provisionPublicIp')), not(parameters('provisionExternalBigIpLoadBalancer')))]",
+        "createNatGateway": "[and(equals(parameters('provisionPublicIp'), 'No'), equals(parameters('provisionExternalBigIpLoadBalancer'), 'No'))]",
         "numSubnets": 2,
         "vnetName": "[concat(variables('commonUniqueString'), '-vnet')]",
-        "provisionExternalBigIpLoadBalancer": "[parameters('provisionExternalBigIpLoadBalancer')]",
-        "provisionInternalBigIpLoadBalancer": "[parameters('provisionInternalBigIpLoadBalancer')]",
+        "provisionExternalBigIpLoadBalancer": "[equals(parameters('provisionExternalBigIpLoadBalancer'), 'Yes')]",
+        "provisionInternalBigIpLoadBalancer": "[equals(parameters('provisionInternalBigIpLoadBalancer'), 'Yes')]",
         "externalLoadBalancerName": "[if(parameters('provisionExternalBigIpLoadBalancer'), concat(variables('commonUniqueString'), '-external-lb'), '')]",
         "internalLoadBalancerName": "[if(parameters('provisionInternalBigIpLoadBalancer'), concat(variables('commonUniqueString'), '-internal-lb'), '')]",
         "loadBalancerRulePorts": [ "80", "443" ],
@@ -1314,7 +1334,6 @@
             "ascPolicyDeploymentName": "[take(concat('alz-ASC', variables('deploymentSuffix')), 64)]",
             "atpOssDbPolicyDeploymentName": "[take(concat('alz-AtpOssDb', variables('deploymentSuffix')), 64)]",
             "atpSqlDbPolicyDeploymentName": "[take(concat('alz-AtpSqlDb', variables('deploymentSuffix')), 64)]",
-            "ascGovPolicyDeploymentName": "[take(concat('alz-Gov-ASC', variables('deploymentSuffix')), 64)]",
             "vnetConnectivityHubDeploymentName": "[take(concat('alz-HubSpoke', variables('deploymentSuffix')), 64)]",
             "vwanConnectivityHubDeploymentName": "[take(concat('alz-VWanHub', variables('deploymentSuffix')), 64)]",
             "nvaConnectivityHubDeploymentName": "[take(concat('alz-NVAHub', variables('deploymentSuffix')), 64)]",
@@ -1764,7 +1783,7 @@
                         "value": "[variables('appSecurityGroup')]"
                     },
                     "nsg2": {
-                        "value": "[if(parameters('provisionPublicIp'), createArray(), variables('bastionSecurityGroup'))]"
+                        "value": "[if(equals(parameters('provisionPublicIp'), 'Yes'), createArray(), variables('bastionSecurityGroup'))]"
                     },
                     "numberPublicExternalIpAddresses": {
                         "value": "[variables('numberPublicExternalIpAddresses')]"
@@ -1781,7 +1800,7 @@
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
-            "condition": "[not(parameters('provisionPublicIp'))]",
+            "condition": "[equals(parameters('provisionPublicIp'), 'No')]",
             "name": "bastionTemplate",
             "subscriptionId": "[parameters('f5SubscriptionId')]",
             "location": "[parameters('f5Location')]",
@@ -1912,7 +1931,7 @@
                         "value": "[variables('adminUsername')]"
                     },
                     "allowUsageAnalytics": {
-                        "value": "[parameters('allowUsageAnalytics')]"
+                        "value": "[equals(parameters('allowUsageAnalytics'), 'Yes')]"
                     },
                     "appInsights": {
                         "value": "[variables('appInsights')]"
@@ -1951,7 +1970,7 @@
                         "value": "[reference('dagTemplate').outputs.nsg0Id.value]"
                     },
                     "provisionPublicIp": {
-                        "value": "[if(parameters('provisionPublicIp'), variables('publicIpConfig'), createObject())]"
+                        "value": "[if(equals(parameters('provisionPublicIp'), 'Yes'), variables('publicIpConfig'), createObject())]"
                     },
                     "roleDefinitionId": {
                         "value": ""
@@ -2005,7 +2024,7 @@
                         "value": "[variables('throughputMetricName')]"
                     },
                     "useAvailabilityZones": {
-                        "value": "[parameters('useAvailabilityZones')]"
+                        "value": "[equals(parameters('useAvailabilityZones'), 'Yes')]"
                     },
                     "userAssignManagedIdentity": {
                         "value": "[if(not(variables('createManagedIdentity')), parameters('bigIpUserAssignManagedIdentity'), reference('accessTemplate').outputs.userAssignedIdentityId.value)]"
@@ -2735,7 +2754,6 @@
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').activityDiagnosticsPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').asbPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascPolicyDeploymentName)]",
-                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascGovPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').resourceDiagnosticsPolicyDeploymentName)]"
             ],
             "properties": {
@@ -2827,7 +2845,6 @@
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').resourceDiagnosticsPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').asbPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascPolicyDeploymentName)]",
-                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascGovPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ddosDeploymentName)]"
             ],
             "location": "[parameters('location')]",
@@ -2920,7 +2937,6 @@
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').resourceDiagnosticsPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').asbPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascPolicyDeploymentName)]",
-                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascGovPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ddosDeploymentName)]"
             ],
             "location": "[parameters('location')]",
@@ -2995,7 +3011,6 @@
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').resourceDiagnosticsPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').asbPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascPolicyDeploymentName)]",
-                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascGovPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ddosDeploymentName)]"
             ],
             "location": "[parameters('location')]",
@@ -3061,7 +3076,6 @@
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').activityDiagnosticsPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').asbPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascPolicyDeploymentName)]",
-                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascGovPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').resourceDiagnosticsPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').vnetConnectivityHubDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').vwanConnectivityHubDeploymentName)]",
@@ -4044,7 +4058,6 @@
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').policyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').activityDiagnosticsPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascPolicyDeploymentName)]",
-                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascGovPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').resourceDiagnosticsPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').identitySubscriptionPlacement)]"
             ],
@@ -4091,7 +4104,6 @@
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').policyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').activityDiagnosticsPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascPolicyDeploymentName)]",
-                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascGovPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').resourceDiagnosticsPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').identitySubscriptionPlacement)]"
             ],
@@ -4138,7 +4150,6 @@
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').policyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').activityDiagnosticsPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascPolicyDeploymentName)]",
-                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascGovPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').resourceDiagnosticsPolicyDeploymentName)]"
             ],
             "copy": {
@@ -4173,7 +4184,6 @@
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').policyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').activityDiagnosticsPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascPolicyDeploymentName)]",
-                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascGovPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').resourceDiagnosticsPolicyDeploymentName)]"
             ],
             "copy": {
@@ -4208,7 +4218,6 @@
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').policyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').activityDiagnosticsPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascPolicyDeploymentName)]",
-                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascGovPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').resourceDiagnosticsPolicyDeploymentName)]"
             ],
             "copy": {
@@ -4247,7 +4256,6 @@
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').policyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').activityDiagnosticsPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascPolicyDeploymentName)]",
-                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascGovPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').resourceDiagnosticsPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').vwanConnectivityHubLiteDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').vnetConnectivityHubLiteDeploymentName)]",
@@ -4626,7 +4634,6 @@
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').activityDiagnosticsPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').asbPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascPolicyDeploymentName)]",
-                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascGovPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').resourceDiagnosticsPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('esLitedeploymentNames').vnetConnectivityHubLiteDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('esLitedeploymentNames').vwanConnectivityHubLiteDeploymentName)]",
@@ -4734,7 +4741,6 @@
                 "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').platformLiteSubscriptionPlacement)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').asbPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascPolicyDeploymentName)]",
-                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascGovPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').ddosHubLitePolicyDeploymentName)]"
             ],
             "location": "[parameters('location')]",
@@ -4828,7 +4834,6 @@
                 "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').platformLiteSubscriptionPlacement)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').asbPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascPolicyDeploymentName)]",
-                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascGovPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').ddosHubLitePolicyDeploymentName)]"
             ],
             "location": "[parameters('location')]",
@@ -4904,7 +4909,6 @@
                 "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').platformLiteSubscriptionPlacement)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').asbPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascPolicyDeploymentName)]",
-                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').ascGovPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('esLiteDeploymentNames').ddosHubLitePolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').activityDiagnosticsPolicyDeploymentName)]",
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').resourceDiagnosticsPolicyDeploymentName)]"

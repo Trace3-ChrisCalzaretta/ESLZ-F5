@@ -2830,12 +2830,11 @@
                         "name": "enableF5Telemetry",
                         "type": "Microsoft.Common.OptionsGroup",
                         "label": "Send F5 telemetry to a log analytics workspace",
-                        "defaultValue": "No",
-                        "toolTip": "Select 'Yes' if you want F5 telemetry to be sent to a log analytics workspace.",
+                        "defaultValue": "Yes (recommended)",
                         "constraints": {
                             "allowedValues": [
                                 {
-                                    "label": "Yes",
+                                    "label": "Yes (recommended)",
                                     "value": "Yes"
                                 },
                                 {
@@ -2873,17 +2872,17 @@
                         "name": "allowUsageAnalytics",
                         "type": "Microsoft.Common.OptionsGroup",
                         "toolTip":"This setting configures whether F5 telemetry data will be sent to F5. Sending data helps F5 improve their products and services.",
-                        "label": "Allowusageanalytics",
-                        "defaultValue": true,
+                        "label": "Allow Usage Analytics",
+                        "defaultValue": "Yes (recommended)",
                         "constraints": {
                             "allowedValues": [
                                 {
-                                    "label": "Yes",
-                                    "value": true
+                                    "label": "Yes (recommended)",
+                                    "value": "Yes"
                                 },
                                 {
                                     "label": "No",
-                                    "value": false
+                                    "value": "No"
                                 }
                             ]
                         }
@@ -3090,17 +3089,17 @@
                         "name": "provisionExternalBigIpLoadBalancer",
                         "type": "Microsoft.Common.OptionsGroup",
                         "toolTip": "Choose whether to provision an external BIG-IP load balancer. This helps in distributing traffic externally.",
-                        "label": "Provisionexternalbigiploadbalancer",
-                        "defaultValue": true,
+                        "label": "Provision External BIG-IP Load Balancer",
+                        "defaultValue": "Yes (recommended)",
                         "constraints": {
                             "allowedValues": [
                                 {
-                                    "label": "Yes",
-                                    "value": true
+                                    "label": "Yes (recommended)",
+                                    "value": "Yes"
                                 },
                                 {
                                     "label": "No",
-                                    "value": false
+                                    "value": "No"
                                 }
                             ]
                         }
@@ -3109,17 +3108,17 @@
                         "name": "provisionInternalBigIpLoadBalancer",
                         "type": "Microsoft.Common.OptionsGroup",
                         "toolTip": "Choose whether to provision an internal BIG-IP load balancer. This helps in distributing traffic within the internal network.",
-                        "label": "Provisioninternalbigiploadbalancer",
-                        "defaultValue": false,
+                        "label": "Provision Internal BIG-IP Load Balancer",
+                        "defaultValue": "Yes (recommended)",
                         "constraints": {
                             "allowedValues": [
                                 {
-                                    "label": "Yes",
-                                    "value": true
+                                    "label": "Yes (recommended)",
+                                    "value": "Yes"
                                 },
                                 {
                                     "label": "No",
-                                    "value": false
+                                    "value": "No"
                                 }
                             ]
                         }
@@ -3128,17 +3127,17 @@
                         "name": "provisionPublicIp",
                         "type": "Microsoft.Common.OptionsGroup",
                         "toolTip": "Choose whether to provision a public IP address. This enables external access to the resources.",
-                        "label": "Provisionpublicip",
-                        "defaultValue": true,
+                        "label": "Provision Public IP",
+                        "defaultValue": "Yes (recommended)",
                         "constraints": {
                             "allowedValues": [
                                 {
-                                    "label": "Yes",
-                                    "value": true
+                                    "label": "Yes (recommended)",
+                                    "value": "Yes"
                                 },
                                 {
                                     "label": "No",
-                                    "value": false
+                                    "value": "No"
                                 }
                             ]
                         }
@@ -3231,7 +3230,7 @@
                         "name": "useAvailabilityZones",
                         "type": "Microsoft.Common.OptionsGroup",
                         "toolTip": "Choose whether to use availability zones for higher availability and fault tolerance. Availability zones are isolated locations within a region.",
-                        "label": "Useavailabilityzones",
+                        "label": "Use Availability Zones",
                         "defaultValue": false,
                         "constraints": {
                             "allowedValues": [
