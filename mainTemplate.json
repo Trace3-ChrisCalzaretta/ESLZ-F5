@@ -1054,10 +1054,8 @@
         "createNatGateway": "[and(equals(parameters('provisionPublicIp'), 'No'), equals(parameters('provisionExternalBigIpLoadBalancer'), 'No'))]",
         "numSubnets": 2,
         "vnetName": "[concat(variables('commonUniqueString'), '-vnet')]",
-        "provisionExternalBigIpLoadBalancer": "[equals(parameters('provisionExternalBigIpLoadBalancer'), 'Yes')]",
-        "provisionInternalBigIpLoadBalancer": "[equals(parameters('provisionInternalBigIpLoadBalancer'), 'Yes')]",
-        "externalLoadBalancerName": "[if(parameters('provisionExternalBigIpLoadBalancer'), concat(variables('commonUniqueString'), '-external-lb'), '')]",
-        "internalLoadBalancerName": "[if(parameters('provisionInternalBigIpLoadBalancer'), concat(variables('commonUniqueString'), '-internal-lb'), '')]",
+        "externalLoadBalancerName": "[if(equals(parameters('provisionExternalBigIpLoadBalancer'), 'Yes'), concat(variables('commonUniqueString'), '-external-lb'), '')]",
+        "internalLoadBalancerName": "[if(equals(parameters('provisionInternalBigIpLoadBalancer'), 'Yes'), concat(variables('commonUniqueString'), '-internal-lb'), '')]",
         "loadBalancerRulePorts": [ "80", "443" ],
         "mgmtSecurityGroup": [
             {
@@ -1765,10 +1763,10 @@
                         "value": "[variables('commonUniqueString')]"
                     },
                     "externalLoadBalancerName": {
-                        "value": "[if(variables('provisionExternalBigIpLoadBalancer'),variables('externalLoadBalancerName'), 'None')]"
+                        "value": "[if(equals(parameters('provisionExternalBigIpLoadBalancer'), 'Yes'),variables('externalLoadBalancerName'), 'None')]"
                     },
                     "internalLoadBalancerName": {
-                        "value": "[if(variables('provisionInternalBigIpLoadBalancer'), variables('internalLoadBalancerName'), 'None')]"
+                        "value": "[if(equals(parameters('provisionInternalBigIpLoadBalancer'), 'Yes'), variables('internalLoadBalancerName'), 'None')]"
                     },
                     "internalSubnetId": {
                         "value": "[reference('networkTemplate').outputs.subnets.value[1]]"
@@ -1952,19 +1950,19 @@
                         "value": "[variables('bigIpImage')]"
                     },
                     "inboundMgmtNatPoolId": {
-                        "value": "[if(and(variables('provisionExternalBigIpLoadBalancer'), greater(variables('numberPublicMgmtIpAddresses'), 0)), reference('dagTemplate').outputs.inboundMgmtNatPool.value, '')]"
+                        "value": "[if(and(equals(parameters('provisionExternalBigIpLoadBalancer'), 'Yes'), greater(variables('numberPublicMgmtIpAddresses'), 0)), reference('dagTemplate').outputs.inboundMgmtNatPool.value, '')]"
                     },
                     "inboundSshNatPoolId": {
-                        "value": "[if(and(variables('provisionExternalBigIpLoadBalancer'), greater(variables('numberPublicMgmtIpAddresses'), 0)), reference('dagTemplate').outputs.inboundSshNatPool.value, '')]"
+                        "value": "[if(and(equals(parameters('provisionExternalBigIpLoadBalancer'), 'Yes'), greater(variables('numberPublicMgmtIpAddresses'), 0)), reference('dagTemplate').outputs.inboundSshNatPool.value, '')]"
                     },
                     "instanceHealthProbeId": {
-                        "value": "[if(variables('provisionExternalBigIpLoadBalancer'), reference('dagTemplate').outputs.externalLoadBalancerProbesId.value[0], if(variables('provisionInternalBigIpLoadBalancer'), reference('dagTemplate').outputs.internalLoadBalancerProbesId.value[0], ''))]"
+                        "value": "[if(equals(parameters('provisionExternalBigIpLoadBalancer'), 'Yes'), reference('dagTemplate').outputs.externalLoadBalancerProbesId.value[0], if(equals(parameters('provisionInternalBigIpLoadBalancer'), 'Yes'), reference('dagTemplate').outputs.internalLoadBalancerProbesId.value[0], ''))]"
                     },
                     "instanceType": {
                         "value": "[variables('bigIpInstanceType')]"
                     },
                     "loadBalancerBackendAddressPoolsArray": {
-                        "value": "[if(variables('provisionExternalBigIpLoadBalancer'), if(variables('provisionInternalBigIpLoadBalancer'), createArray(createObject('id', reference('dagTemplate').outputs.externalBackEndLoadBalancerId.value), createObject('id', reference('dagTemplate').outputs.internalBackEndLoadBalancerId.value)), createArray(createObject('id', reference('dagTemplate').outputs.externalBackEndLoadBalancerId.value))), if(variables('provisionInternalBigIpLoadBalancer'), createArray(createObject('id', reference('dagTemplate').outputs.internalBackEndLoadBalancerId.value)), createArray()))]"
+                        "value": "[if(equals(parameters('provisionExternalBigIpLoadBalancer'), 'Yes'), if(equals(parameters('provisionInternalBigIpLoadBalancer'), 'Yes'), createArray(createObject('id', reference('dagTemplate').outputs.externalBackEndLoadBalancerId.value), createObject('id', reference('dagTemplate').outputs.internalBackEndLoadBalancerId.value)), createArray(createObject('id', reference('dagTemplate').outputs.externalBackEndLoadBalancerId.value))), if(equals(parameters('provisionInternalBigIpLoadBalancer'), 'Yes'), createArray(createObject('id', reference('dagTemplate').outputs.internalBackEndLoadBalancerId.value)), createArray()))]"
                     },
                     "nsgId": {
                         "value": "[reference('dagTemplate').outputs.nsg0Id.value]"
