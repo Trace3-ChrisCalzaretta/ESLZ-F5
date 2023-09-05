@@ -1301,13 +1301,13 @@
             "costOptimizationPolicyInitiative": "[uri(deployment().properties.templateLink.uri, 'managementGroupTemplates/policyAssignments/AUDIT-UnusedResourcesPolicyAssignment.json')]",
             "VMUnmanagedDiskPolicyAssignment": "[uri(deployment().properties.templateLink.uri, 'managementGroupTemplates/policyAssignments/DENY-VMUnmanagedDiskPolicyAssignment.json')]",
             "diagnosticSettingsforManagementGroups": "[uri(deployment().properties.templateLink.uri, 'managementGroupTemplates/diagSettingsMGs/diagSettingsMGs.json')]",
-            "f5Telemetry": "[uri(deployment().properties.templateLink.uri, 'modules/telemetry/telemetry.json')]",
-            "f5Access": "[uri(deployment().properties.templateLink.uri, 'modules/access/access.json')]",
-            "f5Network": "[uri(deployment().properties.templateLink.uri, 'modules/network/network.json')]",
-            "f5Dag": "[uri(deployment().properties.templateLink.uri, 'modules/dag/dag.json')]",
-            "f5Bastion": "[uri(deployment().properties.templateLink.uri, 'modules/bastion/bastion.json')]",
-            "f5Application": "[uri(deployment().properties.templateLink.uri, 'modules/application/application.json')]",
-            "f5BigIP": "[uri(deployment().properties.templateLink.uri, 'modules/bigip-autoscale/bigip.json')]"
+            "f5Telemetry": "[uri(deployment().properties.templateLink.uri, 'template/modules/telemetry/telemetry.json')]",
+            "f5Access": "[uri(deployment().properties.templateLink.uri, 'template/modules/access/access.json')]",
+            "f5Network": "[uri(deployment().properties.templateLink.uri, 'template/modules/network/network.json')]",
+            "f5Dag": "[uri(deployment().properties.templateLink.uri, 'template/modules/dag/dag.json')]",
+            "f5Bastion": "[uri(deployment().properties.templateLink.uri, 'template/modules/bastion/bastion.json')]",
+            "f5Application": "[uri(deployment().properties.templateLink.uri, 'template/modules/application/application.json')]",
+            "f5BigIP": "[uri(deployment().properties.templateLink.uri, 'template/modules/bigip-autoscale/bigip.json')]"
         },
         // Declaring deterministic deployment names
         "deploymentSuffix": "[concat('-', parameters('location'), '-', guid(parameters('enterpriseScaleCompanyPrefix'), parameters('currentDateTimeUtcNow')))]",
