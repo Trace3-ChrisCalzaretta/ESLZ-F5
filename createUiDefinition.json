@@ -3231,16 +3231,16 @@
                         "type": "Microsoft.Common.OptionsGroup",
                         "toolTip": "Choose whether to use availability zones for higher availability and fault tolerance. Availability zones are isolated locations within a region.",
                         "label": "Use Availability Zones",
-                        "defaultValue": false,
+                        "defaultValue": "Yes (recommended)",
                         "constraints": {
                             "allowedValues": [
                                 {
-                                    "label": "Yes",
-                                    "value": true
+                                    "label": "Yes (recommended)",
+                                    "value": "Yes"
                                 },
                                 {
                                     "label": "No",
-                                    "value": false
+                                    "value": "No"
                                 }
                             ]
                         }
