@@ -63,10 +63,6 @@
     "workbookName": {
       "type": "String",
       "value": "[parameters('workbookDisplayName')]"
-    },
-    "workbookId": {
-      "type": "String",
-      "value": "[resourceId(resourceGroup().name, 'Microsoft.Insights/workbooks', variables('resourceDeploymentName'))]"
     }
   }
 }
