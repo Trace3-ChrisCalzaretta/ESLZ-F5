@@ -1628,6 +1628,7 @@
             "condition": "[and(not(empty(parameters('existingWorkspaceId'))), equals(parameters('enableF5Telemetry'), 'Yes'))]",
             "name": "telemetryTemplate",
             "location": "[parameters('location')]",
+            "subscriptionId": "[parameters('managementSubscriptionId')]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
@@ -1635,8 +1636,11 @@
                     "contentVersion": "2.8.0.0"
                 },
                 "parameters": {
-                    "existingWorkspaceId": {
-                        "value": "[parameters('existingWorkspaceId')]"
+                    "rgName": {
+                        "value": "[variables('platformRgNames').mgmtRg]"
+                    },
+                    "workspaceName": {
+                        "value": "[variables('platformResourceNames').logAnalyticsWorkspace]"
                     },
                     "uniqueString": {
                         "value": "[variables('commonUniqueString')]"
