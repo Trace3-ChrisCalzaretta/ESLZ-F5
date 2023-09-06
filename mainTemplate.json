@@ -1632,6 +1632,11 @@
             "name": "telemetryTemplate",
             "location": "[parameters('location')]",
             "subscriptionId": "[variables('conditionalSubscriptionId')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').monitoringDeploymentName)]",
+                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').monitoringSolutionsDeploymentName)]",
+                "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').logAnalyticsPolicyDeploymentName)]"
+            ],
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
