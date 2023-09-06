@@ -1039,7 +1039,6 @@
         "f5SubscriptionPlacement": "[take(concat('alz-f5Sub', variables('deploymentSuffix')), 64)]",
         "f5RgDeploymentName": "[take(concat('alz-f5Rg', variables('deploymentSuffix')), 64)]",
         "appContainerName": "F5Container",
-        "contentVersion": "[deployment().properties.template.contentVersion]",
         "commonUniqueString": "[toLower(parameters('uniqueString'))]",
         "adminUsername": "azureuser",
         "createManagedIdentity": "[empty(parameters('bigIpUserAssignManagedIdentity'))]",
@@ -1587,7 +1586,11 @@
             "networkContributor": "4d97b98b-1d4f-4787-a291-c67834d212e7"
         },
         "cuaid": "35c42e79-00b3-42eb-a9ac-e542953efb3c",
-        "ztnPhase1CuaId": "f09f64b8-5cb3-4b16-900d-6ba1df8a597e"
+        "ztnPhase1CuaId": "f09f64b8-5cb3-4b16-900d-6ba1df8a597e",
+        "conditionalWorkspaceIdRG": "[if(empty(parameters('existingWorkspaceId')), variables('platformRgNames').mgmtRg, split(parameters('existingWorkspaceId'), '/')[4])]",
+        "conditionalWorkspaceIdName": "[if(empty(parameters('existingWorkspaceId')), variables('platformResourceNames').logAnalyticsWorkspace, last(split(parameters('existingWorkspaceId'), '/')))]",
+        "existingWorkspaceId": "[toLower(concat(subscription().id, '/resourceGroups/', variables('conditionalWorkspaceIdRG'), '/providers/Microsoft.OperationalInsights/workspaces/', variables('conditionalWorkspaceIdName')))]"
+
     },
     "resources": [
         //F5 DEPLOYMENT
@@ -1636,11 +1639,8 @@
                     "contentVersion": "2.8.0.0"
                 },
                 "parameters": {
-                    "rgName": {
-                        "value": "[variables('platformRgNames').mgmtRg]"
-                    },
-                    "workspaceName": {
-                        "value": "[variables('platformResourceNames').logAnalyticsWorkspace]"
+                    "existingWorkspaceId": {
+                        "value": "[variables('existingWorkspaceId')]"
                     },
                     "uniqueString": {
                         "value": "[variables('commonUniqueString')]"
