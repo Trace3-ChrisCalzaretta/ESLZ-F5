@@ -984,7 +984,7 @@
                 "description": "Log Analytics workspace ID used by Telemetry Streaming for sending logs"
             },
             "type": "string",
-            "defaultValue": "WORKSPACE_ID"
+            "defaultValue": ""
         },
         "appContainerName": {
             "defaultValue": "f5devcentral/f5-demo-app:latest",
