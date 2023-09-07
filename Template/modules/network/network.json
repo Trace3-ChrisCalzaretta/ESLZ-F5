@@ -56,22 +56,6 @@
         }
     },
     "variables": {
-        "copy": [
-            {
-                "count": "[parameters('numSubnets')]",
-                "input": {
-                    "name": "[concat('subnet-0', copyIndex('constructSubnetArray', 1))]",
-                    "properties": {
-                        "addressPrefix": "[concat(parameters('vnetAddressPrefix'), '.', copyIndex('constructSubnetArray'),'.0/24')]",
-                        "routeTable": {
-                            "id": "[resourceId('Microsoft.Network/routeTables', concat('route-table-subnet-0', copyIndex('constructSubnetArray', 1)))]"
-                        },
-                        "natGateway": "[if(and(equals(copyIndex('constructSubnetArray'), 0), parameters('createNatGateway')), json(concat('{\"id\": \"', resourceId('Microsoft.Network/natGateways', variables('natGatewayName')), '\"}')), json('null'))]"
-                    }
-                },
-                "name": "constructSubnetArray"
-            }
-        ],
         "natGatewayName": "[concat(parameters('vnetName'), '-vgw')]",
         "natGatewayPublicIpName": "[concat(parameters('vnetName'), '-vgw-pip-01')]",
         "resourceDeploymentName": "[take(concat(deployment().name, '-network'), 64)]"
@@ -153,8 +137,26 @@
                                     "addressPrefixes": [
                                         "[concat(parameters('vnetAddressPrefix'), '.0.0/', parameters('cidrNotation'))]"
                                     ]
+                                }
+                            }
+                        },
+                        {
+                            "type": "Microsoft.Network/virtualNetworks/subnets",
+                            "apiVersion": "2020-06-01",
+                            "dependsOn": [
+                                "[parameters('vnetName')]"
+                            ],
+                            "name": "[concat(parameters('vnetName'), '/subnet-0', copyIndex(1))]",
+                            "properties": {
+                                "addressPrefix": "[concat(parameters('vnetAddressPrefix'), '.', copyIndex('subnetCopy'), '.0/24')]",
+                                "routeTable": {
+                                    "id": "[resourceId('Microsoft.Network/routeTables', concat('route-table-subnet-0', copyIndex('subnetCopy', 1)))]"
                                 },
-                                "subnets": "[variables('constructSubnetArray')]"
+                                "natGateway": "[if(and(equals(copyIndex('subnetCopy'), 0), parameters('createNatGateway')), json(concat('{\"id\": \"', resourceId('Microsoft.Network/natGateways', variables('natGatewayName')), '\"}')), json('null'))]"
+                            },
+                            "copy": {
+                                "name": "subnetCopy",
+                                "count": "[parameters('numSubnets')]"
                             }
                         }
                     ],

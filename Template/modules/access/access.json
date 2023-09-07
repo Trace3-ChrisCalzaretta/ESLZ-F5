@@ -172,9 +172,9 @@
 			}
 		],
 		"keyVaultName": "[if(not(empty(parameters('secretId'))), variables('secretIdSplitArray')[1], concat(parameters('uniqueString'), 'kv'))]",
-		"assignableScopes": "[if(empty(parameters('customAssignableScopes')), createArray(resourceGroup().id), parameters('customAssignableScopes'))]",
+		"assignableScopes": "[if(empty(parameters('customAssignableScopes')), createArray(concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('f5ResourceGroup'))), parameters('customAssignableScopes'))]",
 		"resourceDeploymentName": "[take(concat(deployment().name, '-access'), 64)]",
-		"roleDefinitionName": "[guid(resourceGroup().id, string(parameters('customRolePermissions')), string(parameters('roleName')))]",
+		"roleDefinitionName": "[guid(concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('f5ResourceGroup')), string(parameters('customRolePermissions')), string(parameters('roleName')))]",
 		"secretIdSplitDelimiters": [ "https://", "[environment().suffixes.keyvaultDns]" ],
 		"secretIdSplitArray": "[split(parameters('secretId'),variables('secretIdSplitDelimiters'))]",
 		"tenantId": "[subscription().tenantId]",
