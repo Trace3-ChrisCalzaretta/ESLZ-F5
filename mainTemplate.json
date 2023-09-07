@@ -984,7 +984,7 @@
                 "description": "Log Analytics workspace ID used by Telemetry Streaming for sending logs"
             },
             "type": "string",
-            "defaultValue": "WORKSPACE_ID"
+            "defaultValue": ""
         },
         "appContainerName": {
             "defaultValue": "f5devcentral/f5-demo-app:latest",
@@ -1587,10 +1587,10 @@
         },
         "cuaid": "35c42e79-00b3-42eb-a9ac-e542953efb3c",
         "ztnPhase1CuaId": "f09f64b8-5cb3-4b16-900d-6ba1df8a597e",
-        "conditionalWorkspaceIdRG": "[if(equals(parameters('existingWorkspaceId'), 'WORKSPACE_ID'), variables('platformRgNames').mgmtRg, split(parameters('existingWorkspaceId'), '/')[4])]",
-        "conditionalWorkspaceIdName": "[if(equals(parameters('existingWorkspaceId'), 'WORKSPACE_ID'), variables('platformResourceNames').logAnalyticsWorkspace, last(split(parameters('existingWorkspaceId'), '/')))]",
-        "conditionalSubscriptionId": "[if(equals(parameters('existingWorkspaceId'), 'WORKSPACE_ID'), parameters('managementSubscriptionId'), split(parameters('existingWorkspaceId'), '/')[2])]",
-        "existingWorkspaceId": "[if(equals(parameters('existingWorkspaceId'), 'WORKSPACE_ID'), toLower(concat('/subscriptions/', variables('conditionalSubscriptionId'), '/resourceGroups/', variables('conditionalWorkspaceIdRG'), '/providers/Microsoft.OperationalInsights/workspaces/', variables('conditionalWorkspaceIdName'))), parameters('existingWorkspaceId'))]"
+        "conditionalWorkspaceIdRG": "[if(empty(parameters('existingWorkspaceId')), variables('platformRgNames').mgmtRg, split(parameters('existingWorkspaceId'), '/')[4])]",
+        "conditionalWorkspaceIdName": "[if(empty(parameters('existingWorkspaceId')), variables('platformResourceNames').logAnalyticsWorkspace, last(split(parameters('existingWorkspaceId'), '/')))]",
+        "conditionalSubscriptionId": "[if(empty(parameters('existingWorkspaceId')), parameters('managementSubscriptionId'), split(parameters('existingWorkspaceId'), '/')[2])]",
+        "existingWorkspaceId": "[if(empty(parameters('existingWorkspaceId')), toLower(concat('/subscriptions/', variables('conditionalSubscriptionId'), '/resourceGroups/', variables('conditionalWorkspaceIdRG'), '/providers/Microsoft.OperationalInsights/workspaces/', variables('conditionalWorkspaceIdName'))), parameters('existingWorkspaceId'))]"
     },
     "resources": [
         //F5 DEPLOYMENT

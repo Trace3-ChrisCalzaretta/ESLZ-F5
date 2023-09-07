@@ -2849,7 +2849,7 @@
                         "name": "existingWorkspaceId",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Existing Workspace ID",
-                        "defaultValue": "WORKSPACE_ID",
+                        "defaultValue": "",
                         "toolTip": "Enter the existing workspace ID if you have selected 'No' for deploying Log Analytics workspace.",
                         "constraints": {
                             "required": false
