@@ -81,7 +81,7 @@
                                 "name": "routeTableLoop",
                                 "count": "[parameters('numSubnets')]"
                             },
-                            "name": "[concat('route-table-subnet-0', copyIndex(1))]",
+                            "name": "[concat('route-table-subnet-0', copyIndex())]",
                             "location": "[resourceGroup().location]",
                             "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]"
                         },
@@ -146,7 +146,7 @@
                             "dependsOn": [
                                 "[parameters('vnetName')]"
                             ],
-                            "name": "[concat(parameters('vnetName'), '/subnet-0', copyIndex(1))]",
+                            "name": "[concat(parameters('vnetName'), '/subnet-0', copyIndex())]",
                             "properties": {
                                 "addressPrefix": "[concat(parameters('vnetAddressPrefix'), '.', copyIndex('subnetCopy'), '.0/24')]",
                                 "routeTable": {

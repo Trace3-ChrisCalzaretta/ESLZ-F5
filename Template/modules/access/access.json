@@ -6,6 +6,10 @@
 			"type": "string",
 			"defaultValue": "f5rg"
 		},
+		"f5Location": {
+			"type": "string",
+			"defaultValue": "[resourceGroup().location]",
+		},
 		"solutionType": {
 			"allowedValues": [
 				"standard",
@@ -178,7 +182,8 @@
 		"secretIdSplitDelimiters": [ "https://", "[environment().suffixes.keyvaultDns]" ],
 		"secretIdSplitArray": "[split(parameters('secretId'),variables('secretIdSplitDelimiters'))]",
 		"tenantId": "[subscription().tenantId]",
-		"userAssignedIdentityName": "[if(variables('createUserAssignedIdentity'), parameters('userAssignedIdentityName'), concat(parameters('uniqueString'), '-bigip-identity'))]"
+		"userAssignedIdentityName": "[if(variables('createUserAssignedIdentity'), parameters('userAssignedIdentityName'), concat(parameters('uniqueString'), '-bigip-identity'))]",
+		"f5ResourceGroupId": "[concat(subscription().id, '/resourceGroups/', parameters('f5ResourceGroup'))]"
 	},
 	"resources": [
 		{
@@ -209,7 +214,7 @@
 						},
 						{
 							"apiVersion": "2018-11-30",
-							"location": "[resourceGroup().location]",
+							"location": "[parameters('f5Location')]",
 							"name": "[variables('userAssignedIdentityName')]",
 							"tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
 							"type": "Microsoft.ManagedIdentity/userAssignedIdentities"
@@ -221,11 +226,11 @@
 								"[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]",
 								"[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitionName'))]"
 							],
-							"name": "[guid(resourceGroup().id, 'roleId')]",
+							"name": "[guid(variables('f5ResourceGroupId'), 'roleId')]",
 							"properties": {
 								"principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2018-11-30').principalId]",
 								"roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions/', variables('roleDefinitionName'))]",
-								"scope": "[resourceGroup().id]",
+								"scope": "[variables('f5ResourceGroupId')]",
 								"principalType": "ServicePrincipal"
 							},
 							"type": "Microsoft.Authorization/roleAssignments"
@@ -234,7 +239,7 @@
 							"apiVersion": "2022-07-01",
 							"condition": "[and(variables('createSecret'), variables('createUserAssignedIdentity'))]",
 							"name": "[variables('keyVaultName')]",
-							"location": "[resourceGroup().location]",
+							"location": "[parameters('f5Location')]",
 							"properties": {
 								"accessPolicies": [
 									{
