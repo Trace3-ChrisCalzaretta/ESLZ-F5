@@ -1676,6 +1676,9 @@
                     "f5ResourceGroup": {
                         "value": "[variables('f5Rg')]"
                     },
+                    "f5Location": {
+                        "value": "[parameters('f5Location')]"
+                    },
                     "uniqueString": {
                         "value": "[variables('commonUniqueString')]"
                     },
