@@ -8,7 +8,7 @@
 		},
 		"f5Location": {
 			"type": "string",
-			"defaultValue": "[resourceGroup().location]",
+			"defaultValue": "[resourceGroup().location]"
 		},
 		"solutionType": {
 			"allowedValues": [

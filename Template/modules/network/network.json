@@ -161,29 +161,21 @@
                         }
                     ],
                     "outputs": {
-                        "routeTables": {
-                            "condition": "[greaterOrEquals(parameters('numSubnets'), 1)]",
-                            "copy": {
-                                "count": "[parameters('numSubnets')]",
-                                "input": "[resourceId('Microsoft.Network/routeTables', concat('route-table-subnet-0', copyIndex(1)))]"
-                            },
-                            "type": "Array"
-                        },
                         "natGateway": {
                             "type": "string",
                             "value": "[resourceId('Microsoft.Network/natGateways', variables('natGatewayName'))]"
                         },
-                        "subnets": {
-                            "condition": "[greaterOrEquals(parameters('numSubnets'), 1)]",
-                            "copy": {
-                                "count": "[parameters('numSubnets')]",
-                                "input": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), concat('subnet-0', copyIndex(1)))]"
-                            },
-                            "type": "Array"
-                        },
                         "virtualNetwork": {
                             "type": "string",
                             "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+                        },
+                        "routeTables": {
+                            "type": "string",
+                            "value": "[resourceId('Microsoft.Network/routeTables', concat('route-table-subnet-0', parameters('numSubnets')))]"
+                        },
+                        "subnets": {
+                            "type": "string",
+                            "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), concat('subnet-0', parameters('numSubnets')))]"
                         }
                     }
                 }
