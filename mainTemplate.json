@@ -1729,6 +1729,9 @@
                     "f5ResourceGroup": {
                         "value": "[variables('f5Rg')]"
                     },
+                    "uniqueString": {
+                        "value": "[variables('commonUniqueString')]"
+                    },
                     "createNatGateway": {
                         "value": "[variables('createNatGateway')]"
                     },
