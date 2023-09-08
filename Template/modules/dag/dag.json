@@ -43,64 +43,6 @@
             },
             "type": "array"
         },
-        "nsg0": {
-            "defaultValue": [
-                {
-                    "destinationPortRanges": [ "22", "8443" ],
-                    "sourceAddressPrefix": "",
-                    "protocol": "Tcp"
-                },
-                {
-                    "destinationPortRanges": [ "80", "443" ],
-                    "sourceAddressPrefix": "",
-                    "protocol": "Tcp"
-                }
-            ],
-            "type": "array",
-            "metadata": {
-                "description": "Valid values include an array containing network security rule property objects, or an empty array. A non-empty array value creates a security group and inbound rules using the destinationPortRanges and sourceAddressPrefix values provided for each object."
-            }
-        },
-        "nsg1": {
-            "defaultValue": [
-                {
-                    "destinationPortRanges": [ "80", "443" ],
-                    "sourceAddressPrefix": "",
-                    "protocol": "Tcp"
-                }
-            ],
-            "type": "array",
-            "metadata": {
-                "description": "Valid values include an array containing network security rule property objects, or an empty array. A non-empty array value creates a security group and inbound rules using the destinationPortRanges and sourceAddressPrefix values provided for each object."
-            }
-        },
-        "nsg2": {
-            "defaultValue": [
-                {
-                    "destinationPortRanges": [ "80", "443" ],
-                    "sourceAddressPrefix": "",
-                    "protocol": "Tcp"
-                }
-            ],
-            "type": "array",
-            "metadata": {
-                "description": "Valid values include an array containing network security rule property objects, or an empty array. A non-empty array value creates a security group and inbound rules using the destinationPortRanges and sourceAddressPrefix values provided for each object."
-            }
-        },
-        "nsg3": {
-            "defaultValue": [],
-            "type": "array",
-            "metadata": {
-                "description": "Valid values include an array containing network security rule property objects, or an empty array. A non-empty array value creates a security group and inbound rules using the destinationPortRanges and sourceAddressPrefix values provided for each object."
-            }
-        },
-        "nsg4": {
-            "defaultValue": [],
-            "type": "array",
-            "metadata": {
-                "description": "Valid values include an array containing network security rule property objects, or an empty array. A non-empty array value creates a security group and inbound rules using the destinationPortRanges and sourceAddressPrefix values provided for each object."
-            }
-        },
         "numberPublicExternalIpAddresses": {
             "defaultValue": 1,
             "allowedValues": [
@@ -185,21 +127,6 @@
                     "loadBalancerRulePorts": {
                         "value": "[parameters('loadBalancerRulePorts')]"
                     },
-                    "nsg0": {
-                        "value": "[parameters('nsg0')]"
-                    },
-                    "nsg1": {
-                        "value": "[parameters('nsg1')]"
-                    },
-                    "nsg2": {
-                        "value": "[parameters('nsg2')]"
-                    },
-                    "nsg3": {
-                        "value": "[parameters('nsg3')]"
-                    },
-                    "nsg4": {
-                        "value": "[parameters('nsg4')]"
-                    },
                     "numberPublicExternalIpAddresses": {
                         "value": "[parameters('numberPublicExternalIpAddresses')]"
                     },
@@ -228,21 +155,6 @@
                             "type": "string"
                         },
                         "loadBalancerRulePorts": {
-                            "type": "array"
-                        },
-                        "nsg0": {
-                            "type": "array"
-                        },
-                        "nsg1": {
-                            "type": "array"
-                        },
-                        "nsg2": {
-                            "type": "array"
-                        },
-                        "nsg3": {
-                            "type": "array"
-                        },
-                        "nsg4": {
                             "type": "array"
                         },
                         "numberPublicExternalIpAddresses": {
@@ -341,100 +253,9 @@
                                     }
                                 },
                                 "name": "constructLoadBalancerProbesInternal"
-                            },
-                            {
-                                "count": "[variables('nsg0Length')]",
-                                "input": {
-                                    "name": "[concat('nsg_01_allow_', copyIndex('constructNsg0Array'))]",
-                                    "properties": {
-                                        "access": "Allow",
-                                        "description": "NSG1 Allow",
-                                        "destinationAddressPrefix": "*",
-                                        "destinationPortRanges": "[parameters('nsg0')[copyIndex('constructNsg0Array')].destinationPortRanges]",
-                                        "direction": "Inbound",
-                                        "priority": "[int(concat('10', copyIndex('constructNsg0Array')))]",
-                                        "protocol": "[parameters('nsg0')[copyIndex('constructNsg0Array')].protocol]",
-                                        "sourceAddressPrefix": "[parameters('nsg0')[copyIndex('constructNsg0Array')].sourceAddressPrefix]",
-                                        "sourcePortRange": "*"
-                                    }
-                                },
-                                "name": "constructNsg0Array"
-                            },
-                            {
-                                "count": "[variables('nsg1Length')]",
-                                "input": {
-                                    "name": "[concat('nsg_02_allow_', copyIndex('constructNsg1Array'))]",
-                                    "properties": {
-                                        "access": "Allow",
-                                        "description": "NSG2 Allow",
-                                        "destinationAddressPrefix": "*",
-                                        "destinationPortRanges": "[parameters('nsg1')[copyIndex('constructNsg1Array')].destinationPortRanges]",
-                                        "direction": "Inbound",
-                                        "priority": "[int(concat('10', copyIndex('constructNsg1Array')))]",
-                                        "protocol": "[parameters('nsg1')[copyIndex('constructNsg1Array')].protocol]",
-                                        "sourceAddressPrefix": "[parameters('nsg1')[copyIndex('constructNsg1Array')].sourceAddressPrefix]",
-                                        "sourcePortRange": "*"
-                                    }
-                                },
-                                "name": "constructNsg1Array"
-                            },
-                            {
-                                "count": "[variables('nsg2Length')]",
-                                "input": {
-                                    "name": "[concat('nsg_03_allow_', copyIndex('constructNsg2Array'))]",
-                                    "properties": {
-                                        "access": "Allow",
-                                        "description": "NSG3 Allow",
-                                        "destinationAddressPrefix": "*",
-                                        "destinationPortRanges": "[parameters('nsg2')[copyIndex('constructNsg2Array')].destinationPortRanges]",
-                                        "direction": "Inbound",
-                                        "priority": "[int(concat('10', copyIndex('constructNsg2Array')))]",
-                                        "protocol": "[parameters('nsg2')[copyIndex('constructNsg2Array')].protocol]",
-                                        "sourceAddressPrefix": "[parameters('nsg2')[copyIndex('constructNsg2Array')].sourceAddressPrefix]",
-                                        "sourcePortRange": "*"
-                                    }
-                                },
-                                "name": "constructNsg2Array"
-                            },
-                            {
-                                "count": "[variables('nsg3Length')]",
-                                "input": {
-                                    "name": "[concat('nsg_04_allow_', copyIndex('constructNsg3Array'))]",
-                                    "properties": {
-                                        "access": "Allow",
-                                        "description": "NSG4 Allow",
-                                        "destinationAddressPrefix": "*",
-                                        "destinationPortRanges": "[parameters('nsg3')[copyIndex('constructNsg3Array')].destinationPortRanges]",
-                                        "direction": "Inbound",
-                                        "priority": "[int(concat('10', copyIndex('constructNsg3Array')))]",
-                                        "protocol": "[parameters('nsg3')[copyIndex('constructNsg3Array')].protocol]",
-                                        "sourceAddressPrefix": "[parameters('nsg3')[copyIndex('constructNsg3Array')].sourceAddressPrefix]",
-                                        "sourcePortRange": "*"
-                                    }
-                                },
-                                "name": "constructNsg3Array"
-                            },
-                            {
-                                "count": "[variables('nsg4Length')]",
-                                "input": {
-                                    "name": "[concat('nsg_05_allow_', copyIndex('constructNsg4Array'))]",
-                                    "properties": {
-                                        "access": "Allow",
-                                        "description": "NSG5 Allow",
-                                        "destinationAddressPrefix": "*",
-                                        "destinationPortRanges": "[parameters('nsg4')[copyIndex('constructNsg4Array')].destinationPortRanges]",
-                                        "direction": "Inbound",
-                                        "priority": "[int(concat('10', copyIndex('constructNsg4Array')))]",
-                                        "protocol": "[parameters('nsg4')[copyIndex('constructNsg4Array')].protocol]",
-                                        "sourceAddressPrefix": "[parameters('nsg4')[copyIndex('constructNsg4Array')].sourceAddressPrefix]",
-                                        "sourcePortRange": "*"
-                                    }
-                                },
-                                "name": "constructNsg4Array"
                             }
                         ],
                         "uniqueString": "[toLower(parameters('uniqueString'))]",
-                        "emptyArray": [],
                         "inboundNatPoolsArray": [
                             {
                                 "name": "sshnatpool",
@@ -487,42 +308,6 @@
                                 }
                             }
                         ],
-                        "nsg0Array": "[variables('constructNsg0Array')]",
-                        "nsg0Id": "[if(greater(variables('nsg0Length'), 0), createArray(resourceId('Microsoft.Network/networkSecurityGroups', variables('nsg0Name'))), variables('emptyArray'))]",
-                        "nsg0Length": "[length(parameters('nsg0'))]",
-                        "nsg0Name": "[concat(variables('uniqueString'), '-nsg-01')]",
-                        "nsg1Array": "[variables('constructNsg1Array')]",
-                        "nsg1Id": "[if(greater(variables('nsg1Length'), 0), createArray(resourceId('Microsoft.Network/networkSecurityGroups', variables('nsg1Name'))), variables('emptyArray'))]",
-                        "nsg1Length": "[length(parameters('nsg1'))]",
-                        "nsg1Name": "[concat(variables('uniqueString'), '-nsg-02')]",
-                        "nsg2Array": "[variables('constructNsg2Array')]",
-                        "nsg2Id": "[if(greater(variables('nsg2Length'), 0), createArray(resourceId('Microsoft.Network/networkSecurityGroups', variables('nsg2Name'))), variables('emptyArray'))]",
-                        "nsg2Length": "[length(parameters('nsg2'))]",
-                        "nsg2Name": "[concat(variables('uniqueString'), '-nsg-03')]",
-                        "nsg3Array": "[variables('constructNsg3Array')]",
-                        "nsg3Id": "[if(greater(variables('nsg3Length'), 0), createArray(resourceId('Microsoft.Network/networkSecurityGroups', variables('nsg3Name'))), variables('emptyArray'))]",
-                        "nsg3Length": "[length(parameters('nsg3'))]",
-                        "nsg3Name": "[concat(variables('uniqueString'), '-nsg-04')]",
-                        "nsg4Array": "[variables('constructNsg4Array')]",
-                        "nsg4Id": "[if(greater(variables('nsg4Length'), 0), createArray(resourceId('Microsoft.Network/networkSecurityGroups', variables('nsg4Name'))), variables('emptyArray'))]",
-                        "nsg4Length": "[length(parameters('nsg4'))]",
-                        "nsg4Name": "[concat(variables('uniqueString'), '-nsg-05')]",
-                        "outboundNsgRule": [
-                            {
-                                "name": "allow_loadBalancer_traffic",
-                                "properties": {
-                                    "access": "Allow",
-                                    "description": "Outbound traffic through load balancer",
-                                    "destinationAddressPrefix": "AzureLoadBalancer",
-                                    "destinationPortRange": "*",
-                                    "direction": "Outbound",
-                                    "priority": 200,
-                                    "protocol": "Tcp",
-                                    "sourceAddressPrefix": "*",
-                                    "sourcePortRange": "*"
-                                }
-                            }
-                        ],
                         "outboundRuleConfigArray": [
                             {
                                 "name": "outboundRuleForInit",
@@ -541,61 +326,6 @@
                         ]
                     },
                     "resources": [
-                        {
-                            "type": "Microsoft.Network/networkSecurityGroups",
-                            "apiVersion": "2020-06-01",
-                            "name": "[variables('nsg0Name')]",
-                            "location": "[resourceGroup().location]",
-                            "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
-                            "properties": {
-                                "securityRules": "[variables('nsg0Array')]"
-                            },
-                            "condition": "[not(empty(parameters('nsg0')))]"
-                        },
-                        {
-                            "type": "Microsoft.Network/networkSecurityGroups",
-                            "apiVersion": "2020-06-01",
-                            "name": "[variables('nsg1Name')]",
-                            "location": "[resourceGroup().location]",
-                            "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
-                            "properties": {
-                                "securityRules": "[union(variables('nsg1Array'), variables('outboundNsgRule'))]"
-                            },
-                            "condition": "[not(empty(parameters('nsg1')))]"
-                        },
-                        {
-                            "type": "Microsoft.Network/networkSecurityGroups",
-                            "apiVersion": "2020-06-01",
-                            "name": "[variables('nsg2Name')]",
-                            "location": "[resourceGroup().location]",
-                            "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
-                            "properties": {
-                                "securityRules": "[union(variables('nsg2Array'), variables('outboundNsgRule'))]"
-                            },
-                            "condition": "[not(empty(parameters('nsg2')))]"
-                        },
-                        {
-                            "type": "Microsoft.Network/networkSecurityGroups",
-                            "apiVersion": "2020-06-01",
-                            "name": "[variables('nsg3Name')]",
-                            "location": "[resourceGroup().location]",
-                            "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
-                            "properties": {
-                                "securityRules": "[union(variables('nsg3Array'), variables('outboundNsgRule'))]"
-                            },
-                            "condition": "[not(empty(parameters('nsg3')))]"
-                        },
-                        {
-                            "type": "Microsoft.Network/networkSecurityGroups",
-                            "apiVersion": "2020-06-01",
-                            "name": "[variables('nsg4Name')]",
-                            "location": "[resourceGroup().location]",
-                            "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
-                            "properties": {
-                                "securityRules": "[union(variables('nsg4Array'), variables('outboundNsgRule'))]"
-                            },
-                            "condition": "[not(empty(parameters('nsg4')))]"
-                        },
                         {
                             "apiVersion": "2020-06-01",
                             "condition": "[not(equals(toLower(parameters('externalLoadBalancerName')), string('none')))]",
@@ -771,35 +501,6 @@
                                 "count": "[parameters('numberPublicMgmtIpAddresses')]",
                                 "input": "[reference(resourceId('Microsoft.Network/publicIPAddresses', concat(variables('uniqueString'), '-mgmt-pip-0', copyIndex(1)))).ipAddress]"
                             },
-                            "type": "array"
-                        },
-                        "nsg0Id": {
-                            "condition": "[not(empty(parameters('nsg0')))]",
-                            "type": "string",
-                            "value": "[variables('nsg0Id')[0]]"
-                        },
-                        "nsg1Id": {
-                            "condition": "[not(empty(parameters('nsg1')))]",
-                            "type": "string",
-                            "value": "[variables('nsg1Id')[0]]"
-                        },
-                        "nsg2Id": {
-                            "condition": "[not(empty(parameters('nsg2')))]",
-                            "type": "string",
-                            "value": "[variables('nsg2Id')[0]]"
-                        },
-                        "nsg3Id": {
-                            "condition": "[not(empty(parameters('nsg3')))]",
-                            "type": "string",
-                            "value": "[variables('nsg3Id')[0]]"
-                        },
-                        "nsg4Id": {
-                            "condition": "[not(empty(parameters('nsg4')))]",
-                            "type": "string",
-                            "value": "[variables('nsg4Id')[0]]"
-                        },
-                        "nsgIds": {
-                            "value": "[union(variables('nsg0Id'), variables('nsg1Id'), variables('nsg2Id'), variables('nsg3Id'), variables('nsg4Id'))]",
                             "type": "array"
                         }
                     }

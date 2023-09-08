@@ -1089,8 +1089,6 @@
         ],
         "numberPublicExternalIpAddresses": "[if(equals(parameters('provisionExternalBigIpLoadBalancer'), 'Yes'), 1, 0)]",
         "numberPublicMgmtIpAddresses": 0,
-        "bastionInstanceName": "[variables('commonUniqueString')]",
-        "bastionInstanceType": "Standard_D2_v4",
         "appInstanceName": "[variables('commonUniqueString')]",
         "appInstanceType": "Standard_D2_v4",
         "appVmScaleSetMaxCount": "[parameters('appScalingMaxSize')]",
@@ -1809,53 +1807,6 @@
         },
         {
             "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2021-04-01",
-            "condition": "[equals(parameters('provisionPublicIp'), 'No')]",
-            "name": "bastionTemplate",
-            "subscriptionId": "[parameters('f5SubscriptionId')]",
-            "location": "[parameters('f5Location')]",
-            "dependsOn": [
-                "bigIpTemplate"
-            ],
-            "properties": {
-                "mode": "Incremental",
-                "templateLink": {
-                    "uri": "[variables('deploymentUris').f5Bastion]",
-                    "contentVersion": "2.8.0.0"
-                },
-                "parameters": {
-                    "f5ResourceGroup": {
-                        "value": "[variables('f5Rg')]"
-                    },
-                    "adminUsername": {
-                        "value": "[variables('adminUsername')]"
-                    },
-                    "createAutoscaleGroup": {
-                        "value": "[variables('createAutoscaleGroup')]"
-                    },
-                    "instanceName": {
-                        "value": "[variables('bastionInstanceName')]"
-                    },
-                    "instanceType": {
-                        "value": "[variables('bastionInstanceType')]"
-                    },
-                    "nsgId": {
-                        "value": "[reference('dagTemplate').outputs.nsg2Id.value]"
-                    },
-                    "sshKey": {
-                        "value": "[parameters('sshKey')]"
-                    },
-                    "subnetId": {
-                        "value": "[reference('networkTemplate').outputs.subnets.value[1]]"
-                    },
-                    "tagValues": {
-                        "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualNetwork'), parameters('tagsByResource')['Microsoft.Network/virtualNetwork'], json('{}')) ]"
-                    }
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Resources/deployments",
             "condition": "[variables('provisionApp')]",
             "apiVersion": "2021-04-01",
             "name": "appTemplate",
@@ -1893,10 +1844,6 @@
                     "instanceType": {
                         "value": "[variables('appInstanceType')]"
                     },
-                    "nsgId": {
-                        "value": "[reference('dagTemplate').outputs.nsg1Id.value]"
-                    },
-
                     "sshKey": {
                         "value": "[parameters('sshKey')]"
                     },
@@ -1975,9 +1922,6 @@
                     },
                     "loadBalancerBackendAddressPoolsArray": {
                         "value": "[if(equals(parameters('provisionExternalBigIpLoadBalancer'), 'Yes'), if(equals(parameters('provisionInternalBigIpLoadBalancer'), 'Yes'), createArray(createObject('id', reference('dagTemplate').outputs.externalBackEndLoadBalancerId.value), createObject('id', reference('dagTemplate').outputs.internalBackEndLoadBalancerId.value)), createArray(createObject('id', reference('dagTemplate').outputs.externalBackEndLoadBalancerId.value))), if(equals(parameters('provisionInternalBigIpLoadBalancer'), 'Yes'), createArray(createObject('id', reference('dagTemplate').outputs.internalBackEndLoadBalancerId.value)), createArray()))]"
-                    },
-                    "nsgId": {
-                        "value": "[reference('dagTemplate').outputs.nsg0Id.value]"
                     },
                     "provisionPublicIp": {
                         "value": "[if(equals(parameters('provisionPublicIp'), 'Yes'), variables('publicIpConfig'), createObject())]"
