@@ -111,79 +111,7 @@
 		}
 	},
 	"variables": {
-		"createCustomRolePermissions": "[not(empty(parameters('customRolePermissions')))]",
-		"createFailover": "[equals(parameters('solutionType'), 'failover')]",
-		"createSecret": "[and(not(empty(parameters('secretValue'))), empty(parameters('secretId')))]",
-		"useSecret": "[and(not(empty(parameters('secretId'))), empty(parameters('secretValue')))]",
-		"doSecret": "[or(variables('createSecret'), variables('useSecret'))]",
-		"createUserAssignedIdentity": "[not(empty(parameters('userAssignedIdentityName')))]",
-		"actions": {
-			"standard": "[union(variables('standardActions'), variables('telemetryActions'))]",
-			"failover": "[union(variables('failoverActions'), variables('standardActions'), variables('telemetryActions'))]",
-			"logging": "[variables('telemetryActions')]"
-		},
-		"dataActions": {
-			"standard": "[union(variables('standardDataActions'), variables('telemetryDataActions'))]",
-			"failover": "[union(variables('failoverDataActions'), variables('standardDataActions'), variables('telemetryDataActions'))]",
-			"logging": "[variables('telemetryDataActions')]"
-		},
-		"standardActions": [
-			"Microsoft.Authorization/*/read",
-			"Microsoft.Compute/locations/*/read",
-			"Microsoft.Compute/virtualMachines/*/read",
-			"Microsoft.Compute/virtualMachineScaleSets/*/read",
-			"Microsoft.Compute/virtualMachineScaleSets/networkInterfaces/read",
-			"Microsoft.Network/networkInterfaces/read",
-			"Microsoft.Network/publicIPAddresses/read",
-			"Microsoft.Resources/subscriptions/resourceGroups/read"
-		],
-		"standardDataActions": [],
-		"telemetryActions": [
-			"*/read",
-			"Microsoft.Compute/virtualMachines/extensions/*",
-			"Microsoft.HybridCompute/machines/extensions/write",
-			"Microsoft.Insights/alertRules/*",
-			"Microsoft.Insights/diagnosticSettings/*",
-			"Microsoft.Insights/Register/Action",
-			"Microsoft.OperationalInsights/*",
-			"Microsoft.OperationsManagement/*",
-			"Microsoft.Resources/deployments/*",
-			"Microsoft.Resources/subscriptions/read",
-			"Microsoft.Resources/subscriptions/resourceGroups/deployments/*",
-			"Microsoft.Storage/storageAccounts/listKeys/action",
-			"Microsoft.Support/*"
-		],
-		"telemetryDataActions": [
-			"Microsoft.Insights/Metrics/Write",
-			"Microsoft.Insights/Telemetry/Write"
-		],
-		"failoverActions": [
-			"Microsoft.Network/*/join/action",
-			"Microsoft.Network/networkInterfaces/write",
-			"Microsoft.Network/publicIPAddresses/write",
-			"Microsoft.Network/routeTables/*/read",
-			"Microsoft.Network/routeTables/*/write",
-			"Microsoft.Storage/storageAccounts/listKeys/action",
-			"Microsoft.Storage/storageAccounts/read"
-		],
-		"failoverDataActions": [],
-		"solutionPermissions": [
-			{
-				"actions": "[variables('actions')[parameters('solutionType')]]",
-				"notActions": [],
-				"dataActions": "[variables('dataActions')[parameters('solutionType')]]",
-				"notDataActions": []
-			}
-		],
-		"keyVaultName": "[if(not(empty(parameters('secretId'))), variables('secretIdSplitArray')[1], concat(parameters('uniqueString'), 'kv'))]",
-		"assignableScopes": "[if(empty(parameters('customAssignableScopes')), createArray(concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('f5ResourceGroup'))), parameters('customAssignableScopes'))]",
-		"resourceDeploymentName": "[take(concat(deployment().name, '-access'), 64)]",
-		"roleDefinitionName": "[guid(concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('f5ResourceGroup')), string(parameters('customRolePermissions')), string(parameters('roleName')))]",
-		"secretIdSplitDelimiters": [ "https://", "[environment().suffixes.keyvaultDns]" ],
-		"secretIdSplitArray": "[split(parameters('secretId'),variables('secretIdSplitDelimiters'))]",
-		"tenantId": "[subscription().tenantId]",
-		"userAssignedIdentityName": "[if(variables('createUserAssignedIdentity'), parameters('userAssignedIdentityName'), concat(parameters('uniqueString'), '-bigip-identity'))]",
-		"f5ResourceGroupId": "[concat(subscription().id, '/resourceGroups/', parameters('f5ResourceGroup'))]"
+		"resourceDeploymentName": "[take(concat(deployment().name, '-access'), 64)]"
 	},
 	"resources": [
 		{
@@ -193,11 +121,176 @@
 			"resourceGroup": "[parameters('f5ResourceGroup')]",
 			"dependsOn": [],
 			"properties": {
+				"expressionEvaluationOptions": {
+					"scope": "inner"
+				},
+				"parameters": {
+					"f5Location": {
+						"value": "[parameters('f5Location')]"
+					},
+					"f5ResourceGroup": {
+						"value": "[parameters('f5ResourceGroup')]"
+					},
+					"solutionType": {
+						"value": "[parameters('solutionType')]"
+					},
+					"roleDescription": {
+						"value": "[parameters('roleDescription')]"
+					},
+					"roleName": {
+						"value": "[parameters('roleName')]"
+					},
+					"customRolePermissions": {
+						"value": "[parameters('customRolePermissions')]"
+					},
+					"customAssignableScopes": {
+						"value": "[parameters('customAssignableScopes')]"
+					},
+					"keyVaultPermissionsKeys": {
+						"value": "[parameters('keyVaultPermissionsKeys')]"
+					},
+					"keyVaultPermissionsSecrets": {
+						"value": "[parameters('keyVaultPermissionsSecrets')]"
+					},
+					"secretValue": {
+						"value": "[parameters('secretValue')]"
+					},
+					"secretId": {
+						"value": "[parameters('secretId')]"
+					},
+					"uniqueString": {
+						"value": "[parameters('uniqueString')]"
+					},
+					"userAssignedIdentityName": {
+						"value": "[parameters('userAssignedIdentityName')]"
+					},
+					"tagValues": {
+						"value": "[parameters('tagValues')]"
+					}
+				},
 				"mode": "Incremental",
 				"template": {
 					"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 					"contentVersion": "1.0.0.0",
-					"parameters": {},
+					"parameters": {
+						"f5Location": {
+							"type": "string"
+						},
+						"f5ResourceGroup": {
+							"type": "string"
+						},
+						"solutionType": {
+							"type": "string"
+						},
+						"roleDescription": {
+							"type": "string"
+						},
+						"roleName": {
+							"type": "string"
+						},
+						"customRolePermissions": {
+							"type": "array"
+						},
+						"customAssignableScopes": {
+							"type": "array"
+						},
+						"keyVaultPermissionsKeys": {
+							"type": "array"
+						},
+						"keyVaultPermissionsSecrets": {
+							"type": "array"
+						},
+						"secretValue": {
+							"type": "securestring"
+						},
+						"secretId": {
+							"type": "string"
+						},
+						"uniqueString": {
+							"type": "string"
+						},
+						"userAssignedIdentityName": {
+							"type": "string"
+						},
+						"tagValues": {
+							"type": "object"
+						}
+					},
+					"variables": {
+						"createCustomRolePermissions": "[not(empty(parameters('customRolePermissions')))]",
+						"createFailover": "[equals(parameters('solutionType'), 'failover')]",
+						"createSecret": "[and(not(empty(parameters('secretValue'))), empty(parameters('secretId')))]",
+						"useSecret": "[and(not(empty(parameters('secretId'))), empty(parameters('secretValue')))]",
+						"doSecret": "[or(variables('createSecret'), variables('useSecret'))]",
+						"createUserAssignedIdentity": "[not(empty(parameters('userAssignedIdentityName')))]",
+						"actions": {
+							"standard": "[union(variables('standardActions'), variables('telemetryActions'))]",
+							"failover": "[union(variables('failoverActions'), variables('standardActions'), variables('telemetryActions'))]",
+							"logging": "[variables('telemetryActions')]"
+						},
+						"dataActions": {
+							"standard": "[union(variables('standardDataActions'), variables('telemetryDataActions'))]",
+							"failover": "[union(variables('failoverDataActions'), variables('standardDataActions'), variables('telemetryDataActions'))]",
+							"logging": "[variables('telemetryDataActions')]"
+						},
+						"standardActions": [
+							"Microsoft.Authorization/*/read",
+							"Microsoft.Compute/locations/*/read",
+							"Microsoft.Compute/virtualMachines/*/read",
+							"Microsoft.Compute/virtualMachineScaleSets/*/read",
+							"Microsoft.Compute/virtualMachineScaleSets/networkInterfaces/read",
+							"Microsoft.Network/networkInterfaces/read",
+							"Microsoft.Network/publicIPAddresses/read",
+							"Microsoft.Resources/subscriptions/resourceGroups/read"
+						],
+						"standardDataActions": [],
+						"telemetryActions": [
+							"*/read",
+							"Microsoft.Compute/virtualMachines/extensions/*",
+							"Microsoft.HybridCompute/machines/extensions/write",
+							"Microsoft.Insights/alertRules/*",
+							"Microsoft.Insights/diagnosticSettings/*",
+							"Microsoft.Insights/Register/Action",
+							"Microsoft.OperationalInsights/*",
+							"Microsoft.OperationsManagement/*",
+							"Microsoft.Resources/deployments/*",
+							"Microsoft.Resources/subscriptions/read",
+							"Microsoft.Resources/subscriptions/resourceGroups/deployments/*",
+							"Microsoft.Storage/storageAccounts/listKeys/action",
+							"Microsoft.Support/*"
+						],
+						"telemetryDataActions": [
+							"Microsoft.Insights/Metrics/Write",
+							"Microsoft.Insights/Telemetry/Write"
+						],
+						"failoverActions": [
+							"Microsoft.Network/*/join/action",
+							"Microsoft.Network/networkInterfaces/write",
+							"Microsoft.Network/publicIPAddresses/write",
+							"Microsoft.Network/routeTables/*/read",
+							"Microsoft.Network/routeTables/*/write",
+							"Microsoft.Storage/storageAccounts/listKeys/action",
+							"Microsoft.Storage/storageAccounts/read"
+						],
+						"failoverDataActions": [],
+						"solutionPermissions": [
+							{
+								"actions": "[variables('actions')[parameters('solutionType')]]",
+								"notActions": [],
+								"dataActions": "[variables('dataActions')[parameters('solutionType')]]",
+								"notDataActions": []
+							}
+						],
+						"keyVaultName": "[if(not(empty(parameters('secretId'))), variables('secretIdSplitArray')[1], concat(parameters('uniqueString'), 'kv'))]",
+						"assignableScopes": "[if(empty(parameters('customAssignableScopes')), createArray(concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('f5ResourceGroup'))), parameters('customAssignableScopes'))]",
+						"roleDefinitionName": "[guid(concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', parameters('f5ResourceGroup')), string(parameters('customRolePermissions')), string(parameters('roleName')))]",
+						"secretIdSplitDelimiters": [ "https://", "[environment().suffixes.keyvaultDns]" ],
+						"secretIdSplitArray": "[split(parameters('secretId'),variables('secretIdSplitDelimiters'))]",
+						"tenantId": "[subscription().tenantId]",
+						"userAssignedIdentityName": "[if(variables('createUserAssignedIdentity'), parameters('userAssignedIdentityName'), concat(parameters('uniqueString'), '-bigip-identity'))]",
+						"f5ResourceGroupId": "[concat(subscription().id, '/resourceGroups/', parameters('f5ResourceGroup'))]"
+					},
+
 					"resources": [
 						{
 							"apiVersion": "2018-07-01",
@@ -223,8 +316,8 @@
 							"apiVersion": "2021-04-01-preview",
 							"condition": "[variables('createUserAssignedIdentity')]",
 							"dependsOn": [
-								"[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]",
-								"[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitionName'))]"
+								"[variables('roleDefinitionName')]",
+								"[variables('userAssignedIdentityName')]"
 							],
 							"name": "[guid(variables('f5ResourceGroupId'), 'roleId')]",
 							"properties": {
