@@ -328,6 +328,28 @@
                     "resources": [
                         {
                             "apiVersion": "2020-06-01",
+                            "condition": "[greater(parameters('numberPublicExternalIpAddresses'), 0)]",
+                            "copy": {
+                                "count": "[parameters('numberPublicExternalIpAddresses')]",
+                                "name": "apppipcopy"
+                            },
+                            "location": "[resourceGroup().location]",
+                            "name": "[concat(variables('uniqueString'), '-app-pip-0', copyIndex(1))]",
+                            "properties": {
+                                "dnsSettings": {
+                                    "domainNameLabel": "[concat(variables('uniqueString'), '-app', copyIndex(0))]"
+                                },
+                                "idleTimeoutInMinutes": 30,
+                                "publicIPAllocationMethod": "Static"
+                            },
+                            "sku": {
+                                "name": "Standard"
+                            },
+                            "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
+                            "type": "Microsoft.Network/publicIPAddresses"
+                        },
+                        {
+                            "apiVersion": "2020-06-01",
                             "condition": "[not(equals(toLower(parameters('externalLoadBalancerName')), string('none')))]",
                             "dependsOn": [
                                 "apppipcopy"
