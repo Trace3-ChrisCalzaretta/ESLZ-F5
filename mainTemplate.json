@@ -1788,7 +1788,7 @@
                         "value": "[if(equals(parameters('provisionInternalBigIpLoadBalancer'), 'Yes'), variables('internalLoadBalancerName'), 'None')]"
                     },
                     "internalSubnetId": {
-                        "value": "[reference('networkTemplate-network').outputs.subnets.value[1]]"
+                        "value": "[reference('networkTemplate').outputs.subnets.value[1]]"
                     },
                     "loadBalancerRulePorts": {
                         "value": "[variables('loadBalancerRulePorts')]"
