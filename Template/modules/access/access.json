@@ -435,6 +435,25 @@
 		"deployment": {
 			"type": "string",
 			"value": "[concat(deployment().name, ' has successfully deployed.')]"
+		},
+		"roleDefinitionId": {
+			"type": "string",
+			"value": "[reference('dagTemplate-dag').outputs.roleDefinitionId.value]"
+		},
+		"keyVaultName": {
+			"condition": "[and(not(empty(parameters('secretValue'))), empty(parameters('secretId')))]",
+			"type": "string",
+			"value": "[reference('dagTemplate-dag').outputs.keyVaultName.value]"
+		},
+		"secretId": {
+			"condition": "[or(and(not(empty(parameters('secretValue'))), empty(parameters('secretId'))), and(not(empty(parameters('secretId'))), empty(parameters('secretValue'))))]",
+			"type": "string",
+			"value": "[reference('dagTemplate-dag').outputs.secretId.value]"
+		},
+		"userAssignedIdentityId": {
+			"condition": "[not(empty(parameters('userAssignedIdentityName')))]",
+			"type": "string",
+			"value": "[reference('dagTemplate-dag').outputs.userAssignedIdentityId.value]"
 		}
 	}
 }
