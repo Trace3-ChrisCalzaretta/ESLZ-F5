@@ -536,78 +536,97 @@
             "value": "[concat(deployment().name, ' has successfully deployed.')]"
         },
         "externalIpIds": {
+            "condition": "[greater(parameters('numberPublicExternalIpAddresses'), 0)]",
             "type": "array",
             "value": "[reference('dagTemplate-dag').outputs.externalIpIds.value]"
         },
         "externalIps": {
+            "condition": "[greater(parameters('numberPublicExternalIpAddresses'), 0)]",
             "type": "array",
             "value": "[reference('dagTemplate-dag').outputs.externalIps.value]"
         },
         "externalIpDns": {
+            "condition": "[greater(parameters('numberPublicExternalIpAddresses'), 0)]",
             "type": "array",
             "value": "[reference('dagTemplate-dag').outputs.externalIpDns.value]"
         },
         "externalBackEndLoadBalancerId": {
+            "condition": "[not(equals(toLower(parameters('externalLoadBalancerName')), string('none')))]",
             "type": "string",
             "value": "[reference('dagTemplate-dag').outputs.externalBackEndLoadBalancerId.value]"
         },
         "externalBackEndMgmtLoadBalancerId": {
+            "condition": "[and(not(equals(toLower(parameters('externalLoadBalancerName')), string('none'))), greater(parameters('numberPublicMgmtIpAddresses'), 0))]",
             "type": "string",
             "value": "[reference('dagTemplate-dag').outputs.externalBackEndMgmtLoadBalancerId.value]"
         },
         "externalFrontEndLoadBalancerId": {
+            "condition": "[not(equals(toLower(parameters('externalLoadBalancerName')), string('none')))]",
             "type": "array",
             "value": "[reference('dagTemplate-dag').outputs.externalFrontEndLoadBalancerId.value]"
         },
         "externalFrontEndLoadBalancerInboundId": {
+            "condition": "[and(not(equals(toLower(parameters('externalLoadBalancerName')), string('none'))), equals(parameters('numberPublicMgmtIpAddresses'), 0))]",
             "type": "string",
             "value": "[reference('dagTemplate-dag').outputs.externalFrontEndLoadBalancerInboundId.value]"
         },
         "externalFrontEndMgmtLoadBalancerId": {
+            "condition": "[and(not(equals(toLower(parameters('externalLoadBalancerName')), string('none'))), greater(parameters('numberPublicMgmtIpAddresses'), 0))]",
             "type": "string",
             "value": "[reference('dagTemplate-dag').outputs.externalFrontEndMgmtLoadBalancerId.value]"
         },
         "externalLoadBalancer": {
+            "condition": "[not(equals(toLower(parameters('externalLoadBalancerName')), string('none')))]",
             "type": "string",
             "value": "[reference('dagTemplate-dag').outputs.externalLoadBalancer.value]"
         },
         "externalLoadBalancerProbesId": {
+            "condition": "[not(equals(toLower(parameters('externalLoadBalancerName')), string('none')))]",
             "type": "array",
             "value": "[reference('dagTemplate-dag').outputs.externalLoadBalancerProbesId.value]"
         },
         "externalLoadBalancerRulesId": {
+            "condition": "[not(equals(toLower(parameters('externalLoadBalancerName')), string('none')))]",
             "type": "array",
             "value": "[reference('dagTemplate-dag').outputs.externalLoadBalancerRulesId.value]"
         },
         "inboundMgmtNatPool": {
+            "condition": "[and(not(equals(toLower(parameters('externalLoadBalancerName')), string('none'))), greater(parameters('numberPublicMgmtIpAddresses'), 0))]",
             "type": "string",
             "value": "[reference('dagTemplate-dag').outputs.inboundMgmtNatPool.value]"
         },
         "inboundSshNatPool": {
+            "condition": "[and(not(equals(toLower(parameters('externalLoadBalancerName')), string('none'))), greater(parameters('numberPublicMgmtIpAddresses'), 0))]",
             "type": "string",
             "value": "[reference('dagTemplate-dag').outputs.inboundSshNatPool.value]"
         },
         "internalBackEndLoadBalancerId": {
+            "condition": "[not(equals(toLower(parameters('internalLoadBalancerName')), string('none')))]",
             "type": "string",
             "value": "[reference('dagTemplate-dag').outputs.internalBackEndLoadBalancerId.value]"
         },
         "internalFrontEndLoadBalancerIp": {
+            "condition": "[not(equals(toLower(parameters('internalLoadBalancerName')), string('none')))]",
             "type": "string",
             "value": "[reference('dagTemplate-dag').outputs.internalFrontEndLoadBalancerIp.value]"
         },
         "internalLoadBalancerProbesId": {
+            "condition": "[not(equals(toLower(parameters('internalLoadBalancerName')), string('none')))]",
             "type": "array",
             "value": "[reference('dagTemplate-dag').outputs.internalLoadBalancerProbesId.value]"
         },
         "internalLoadBalancer": {
+            "condition": "[not(equals(toLower(parameters('internalLoadBalancerName')), string('none')))]",
             "type": "string",
             "value": "[reference('dagTemplate-dag').outputs.internalLoadBalancer.value]"
         },
         "mgmtIpIds": {
+            "condition": "[greater(parameters('numberPublicMgmtIpAddresses'), 0)]",
             "type": "array",
             "value": "[reference('dagTemplate-dag').outputs.mgmtIpIds.value]"
         },
         "mgmtIps": {
+            "condition": "[greater(parameters('numberPublicMgmtIpAddresses'), 0)]",
             "type": "array",
             "value": "[reference('dagTemplate-dag').outputs.mgmtIps.value]"
         }
