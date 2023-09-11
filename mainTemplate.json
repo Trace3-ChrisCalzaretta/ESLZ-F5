@@ -1747,6 +1747,12 @@
                     "cidrNotation": {
                         "value": "[parameters('f5CidrNotation')]"
                     },
+                    "nsg0": {
+                        "value": "[variables('mgmtSecurityGroup')]"
+                    },
+                    "nsg1": {
+                        "value": "[variables('appSecurityGroup')]"
+                    },
                     "tagValues": {
                         "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualNetwork'), parameters('tagsByResource')['Microsoft.Network/virtualNetwork'], json('{}')) ]"
                     }
@@ -1786,15 +1792,6 @@
                     },
                     "loadBalancerRulePorts": {
                         "value": "[variables('loadBalancerRulePorts')]"
-                    },
-                    "nsg0": {
-                        "value": "[variables('mgmtSecurityGroup')]"
-                    },
-                    "nsg1": {
-                        "value": "[variables('appSecurityGroup')]"
-                    },
-                    "nsg2": {
-                        "value": "[if(equals(parameters('provisionPublicIp'), 'Yes'), createArray(), variables('bastionSecurityGroup'))]"
                     },
                     "numberPublicExternalIpAddresses": {
                         "value": "[variables('numberPublicExternalIpAddresses')]"
