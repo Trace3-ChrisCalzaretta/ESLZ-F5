@@ -537,79 +537,79 @@
         },
         "externalIpIds": {
             "type": "array",
-            "value": "[reference('networkTemplate').outputs.externalIpIds.value]"
+            "value": "[reference('dagTemplate-dag').outputs.externalIpIds.value]"
         },
         "externalIps": {
             "type": "array",
-            "value": "[reference('networkTemplate').outputs.externalIps.value]"
+            "value": "[reference('dagTemplate-dag').outputs.externalIps.value]"
         },
         "externalIpDns": {
             "type": "array",
-            "value": "[reference('networkTemplate').outputs.externalIpDns.value]"
+            "value": "[reference('dagTemplate-dag').outputs.externalIpDns.value]"
         },
         "externalBackEndLoadBalancerId": {
             "type": "string",
-            "value": "[reference('networkTemplate').outputs.externalBackEndLoadBalancerId.value]"
+            "value": "[reference('dagTemplate-dag').outputs.externalBackEndLoadBalancerId.value]"
         },
         "externalBackEndMgmtLoadBalancerId": {
             "type": "string",
-            "value": "[reference('networkTemplate').outputs.externalBackEndMgmtLoadBalancerId.value]"
+            "value": "[reference('dagTemplate-dag').outputs.externalBackEndMgmtLoadBalancerId.value]"
         },
         "externalFrontEndLoadBalancerId": {
             "type": "array",
-            "value": "[reference('networkTemplate').outputs.externalFrontEndLoadBalancerId.value]"
+            "value": "[reference('dagTemplate-dag').outputs.externalFrontEndLoadBalancerId.value]"
         },
         "externalFrontEndLoadBalancerInboundId": {
             "type": "string",
-            "value": "[reference('networkTemplate').outputs.externalFrontEndLoadBalancerInboundId.value]"
+            "value": "[reference('dagTemplate-dag').outputs.externalFrontEndLoadBalancerInboundId.value]"
         },
         "externalFrontEndMgmtLoadBalancerId": {
             "type": "string",
-            "value": "[reference('networkTemplate').outputs.externalFrontEndMgmtLoadBalancerId.value]"
+            "value": "[reference('dagTemplate-dag').outputs.externalFrontEndMgmtLoadBalancerId.value]"
         },
         "externalLoadBalancer": {
             "type": "string",
-            "value": "[reference('networkTemplate').outputs.externalLoadBalancer.value]"
+            "value": "[reference('dagTemplate-dag').outputs.externalLoadBalancer.value]"
         },
         "externalLoadBalancerProbesId": {
             "type": "array",
-            "value": "[reference('networkTemplate').outputs.externalLoadBalancerProbesId.value]"
+            "value": "[reference('dagTemplate-dag').outputs.externalLoadBalancerProbesId.value]"
         },
         "externalLoadBalancerRulesId": {
             "type": "array",
-            "value": "[reference('networkTemplate').outputs.externalLoadBalancerRulesId.value]"
+            "value": "[reference('dagTemplate-dag').outputs.externalLoadBalancerRulesId.value]"
         },
         "inboundMgmtNatPool": {
             "type": "string",
-            "value": "[reference('networkTemplate').outputs.inboundMgmtNatPool.value]"
+            "value": "[reference('dagTemplate-dag').outputs.inboundMgmtNatPool.value]"
         },
         "inboundSshNatPool": {
             "type": "string",
-            "value": "[reference('networkTemplate').outputs.inboundSshNatPool.value]"
+            "value": "[reference('dagTemplate-dag').outputs.inboundSshNatPool.value]"
         },
         "internalBackEndLoadBalancerId": {
             "type": "string",
-            "value": "[reference('networkTemplate').outputs.internalBackEndLoadBalancerId.value]"
+            "value": "[reference('dagTemplate-dag').outputs.internalBackEndLoadBalancerId.value]"
         },
         "internalFrontEndLoadBalancerIp": {
             "type": "string",
-            "value": "[reference('networkTemplate').outputs.internalFrontEndLoadBalancerIp.value]"
+            "value": "[reference('dagTemplate-dag').outputs.internalFrontEndLoadBalancerIp.value]"
         },
         "internalLoadBalancerProbesId": {
             "type": "array",
-            "value": "[reference('networkTemplate').outputs.internalLoadBalancerProbesId.value]"
+            "value": "[reference('dagTemplate-dag').outputs.internalLoadBalancerProbesId.value]"
         },
         "internalLoadBalancer": {
             "type": "string",
-            "value": "[reference('networkTemplate').outputs.internalLoadBalancer.value]"
+            "value": "[reference('dagTemplate-dag').outputs.internalLoadBalancer.value]"
         },
         "mgmtIpIds": {
             "type": "array",
-            "value": "[reference('networkTemplate').outputs.mgmtIpIds.value]"
+            "value": "[reference('dagTemplate-dag').outputs.mgmtIpIds.value]"
         },
         "mgmtIps": {
             "type": "array",
-            "value": "[reference('networkTemplate').outputs.mgmtIps.value]"
+            "value": "[reference('dagTemplate-dag').outputs.mgmtIps.value]"
         }
     }
 }
