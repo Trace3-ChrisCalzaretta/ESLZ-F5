@@ -96,23 +96,7 @@
         }
     },
     "variables": {
-        "cloudInit": "[concat('#include\n',parameters('cloudInitUrl'))]",
-        "commandToExecute": "[concat('sleep 60; apt-get update -y; apt-get -y install docker.io; docker run --name f5demo -p 80:80 -p 443:443 -d ', parameters('appContainerName'), '')]",
-        "imageReference": {
-            "offer": "0001-com-ubuntu-server-focal",
-            "publisher": "Canonical",
-            "sku": "20_04-lts",
-            "version": "latest"
-        },
-        "nicName": "[concat(variables('vmName'), '-nic-01')]",
-        "networkSecurityGroup": {
-            "id": "[parameters('nsgId')]"
-        },
-        "resourceDeploymentName": "[take(concat(deployment().name, '-application'), 64)]",
-        "storageAccountType": "Standard_LRS",
-        "storageName": "[concat(uniqueString(resourceGroup().name, resourceGroup().id, deployment().name), 'stapp')]",
-        "vmName": "[concat(parameters('instanceName'), '-app-vm-01')]",
-        "vmssName": "[concat(parameters('instanceName'), '-app-vmss')]"
+        "resourceDeploymentName": "[take(concat(deployment().name, '-application'), 64)]"
     },
     "resources": [
         {
@@ -122,11 +106,107 @@
             "resourceGroup": "[parameters('f5ResourceGroup')]",
             "dependsOn": [],
             "properties": {
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "parameters": {
+                    "adminUsername": {
+                        "value": "[parameters('adminUsername')]"
+                    },
+                    "sshKey": {
+                        "value": "[parameters('sshKey')]"
+                    },
+                    "createAutoscaleGroup": {
+                        "value": "[parameters('createAutoscaleGroup')]"
+                    },
+                    "instanceName": {
+                        "value": "[parameters('instanceName')]"
+                    },
+                    "instanceType": {
+                        "value": "[parameters('instanceType')]"
+                    },
+                    "subnetId": {
+                        "value": "[parameters('subnetId')]"
+                    },
+                    "nsgId": {
+                        "value": "[parameters('nsgId')]"
+                    },
+                    "appContainerName": {
+                        "value": "[parameters('appContainerName')]"
+                    },
+                    "cloudInitUrl": {
+                        "value": "[parameters('cloudInitUrl')]"
+                    },
+                    "tagValues": {
+                        "value": "[parameters('tagValues')]"
+                    },
+                    "vmScaleSetMaxCount": {
+                        "value": "[parameters('vmScaleSetMaxCount')]"
+                    },
+                    "vmScaleSetMinCount": {
+                        "value": "[parameters('vmScaleSetMinCount')]"
+                    }
+                },
                 "mode": "Incremental",
                 "template": {
                     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                     "contentVersion": "1.0.0.0",
-                    "parameters": {},
+                    "parameters": {
+                        "adminUsername": {
+                            "type": "string"
+                        },
+                        "sshKey": {
+                            "type": "string"
+                        },
+                        "createAutoscaleGroup": {
+                            "type": "bool"
+                        },
+                        "instanceName": {
+                            "type": "string"
+                        },
+                        "instanceType": {
+                            "type": "string"
+                        },
+                        "subnetId": {
+                            "type": "string"
+                        },
+                        "nsgId": {
+                            "type": "string"
+                        },
+                        "appContainerName": {
+                            "type": "string"
+                        },
+                        "cloudInitUrl": {
+                            "type": "string"
+                        },
+                        "tagValues": {
+                            "type": "object"
+                        },
+                        "vmScaleSetMaxCount": {
+                            "type": "int"
+                        },
+                        "vmScaleSetMinCount": {
+                            "type": "int"
+                        }
+                    },
+                "variables": {
+                    "cloudInit": "[concat('#include\n',parameters('cloudInitUrl'))]",
+                    "commandToExecute": "[concat('sleep 60; apt-get update -y; apt-get -y install docker.io; docker run --name f5demo -p 80:80 -p 443:443 -d ', parameters('appContainerName'), '')]",
+                    "imageReference": {
+                        "offer": "0001-com-ubuntu-server-focal",
+                        "publisher": "Canonical",
+                        "sku": "20_04-lts",
+                        "version": "latest"
+                    },
+                    "nicName": "[concat(variables('vmName'), '-nic-01')]",
+                    "networkSecurityGroup": {
+                        "id": "[parameters('nsgId')]"
+                    },
+                    "storageAccountType": "Standard_LRS",
+                    "storageName": "[concat(uniqueString(resourceGroup().name, resourceGroup().id, deployment().name), 'stapp')]",
+                    "vmName": "[concat(parameters('instanceName'), '-app-vm-01')]",
+                    "vmssName": "[concat(parameters('instanceName'), '-app-vmss')]"
+                },
                     "resources": [
                         {
                             "apiVersion": "2022-09-01",

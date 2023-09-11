@@ -534,6 +534,82 @@
         "deployment": {
             "type": "string",
             "value": "[concat(deployment().name, ' has successfully deployed.')]"
+        },
+        "externalIpIds": {
+            "type": "array",
+            "value": "[reference('networkTemplate').outputs.externalIpIds.value]"
+        },
+        "externalIps": {
+            "type": "array",
+            "value": "[reference('networkTemplate').outputs.externalIps.value]"
+        },
+        "externalIpDns": {
+            "type": "array",
+            "value": "[reference('networkTemplate').outputs.externalIpDns.value]"
+        },
+        "externalBackEndLoadBalancerId": {
+            "type": "string",
+            "value": "[reference('networkTemplate').outputs.externalBackEndLoadBalancerId.value]"
+        },
+        "externalBackEndMgmtLoadBalancerId": {
+            "type": "string",
+            "value": "[reference('networkTemplate').outputs.externalBackEndMgmtLoadBalancerId.value]"
+        },
+        "externalFrontEndLoadBalancerId": {
+            "type": "array",
+            "value": "[reference('networkTemplate').outputs.externalFrontEndLoadBalancerId.value]"
+        },
+        "externalFrontEndLoadBalancerInboundId": {
+            "type": "string",
+            "value": "[reference('networkTemplate').outputs.externalFrontEndLoadBalancerInboundId.value]"
+        },
+        "externalFrontEndMgmtLoadBalancerId": {
+            "type": "string",
+            "value": "[reference('networkTemplate').outputs.externalFrontEndMgmtLoadBalancerId.value]"
+        },
+        "externalLoadBalancer": {
+            "type": "string",
+            "value": "[reference('networkTemplate').outputs.externalLoadBalancer.value]"
+        },
+        "externalLoadBalancerProbesId": {
+            "type": "array",
+            "value": "[reference('networkTemplate').outputs.externalLoadBalancerProbesId.value]"
+        },
+        "externalLoadBalancerRulesId": {
+            "type": "array",
+            "value": "[reference('networkTemplate').outputs.externalLoadBalancerRulesId.value]"
+        },
+        "inboundMgmtNatPool": {
+            "type": "string",
+            "value": "[reference('networkTemplate').outputs.inboundMgmtNatPool.value]"
+        },
+        "inboundSshNatPool": {
+            "type": "string",
+            "value": "[reference('networkTemplate').outputs.inboundSshNatPool.value]"
+        },
+        "internalBackEndLoadBalancerId": {
+            "type": "string",
+            "value": "[reference('networkTemplate').outputs.internalBackEndLoadBalancerId.value]"
+        },
+        "internalFrontEndLoadBalancerIp": {
+            "type": "string",
+            "value": "[reference('networkTemplate').outputs.internalFrontEndLoadBalancerIp.value]"
+        },
+        "internalLoadBalancerProbesId": {
+            "type": "array",
+            "value": "[reference('networkTemplate').outputs.internalLoadBalancerProbesId.value]"
+        },
+        "internalLoadBalancer": {
+            "type": "string",
+            "value": "[reference('networkTemplate').outputs.internalLoadBalancer.value]"
+        },
+        "mgmtIpIds": {
+            "type": "array",
+            "value": "[reference('networkTemplate').outputs.mgmtIpIds.value]"
+        },
+        "mgmtIps": {
+            "type": "array",
+            "value": "[reference('networkTemplate').outputs.mgmtIps.value]"
         }
     }
 }
