@@ -832,7 +832,7 @@
               },
               "tags": "[union(variables('runtimeInitTag'), parameters('tagValues'))]",
               "type": "Microsoft.Compute/virtualMachineScaleSets",
-              "zones": "[if(parameters('useAvailabilityZones'), createArray(1, 2, 3), json('null'))]"
+              "zones": "[if(equals(parameters('useAvailabilityZones'), 'Yes'), createArray(1, 2, 3), json('null'))]"
             },
             {
               "apiVersion": "2022-09-01",

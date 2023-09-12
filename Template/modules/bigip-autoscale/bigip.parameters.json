@@ -6,7 +6,7 @@
       "value": "azureuser"
     },
     "allowUsageAnalytics": {
-      "value": true
+      "value": "Yes"
     },
     "appInsights": {
       "value": ""
