@@ -1888,7 +1888,7 @@
                         "value": "[variables('adminUsername')]"
                     },
                     "allowUsageAnalytics": {
-                        "value": "[equals(parameters('allowUsageAnalytics'), 'Yes')]"
+                        "value": "[parameters('allowUsageAnalytics')]"
                     },
                     "appInsights": {
                         "value": "[variables('appInsights')]"
