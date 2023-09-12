@@ -438,22 +438,22 @@
 		},
 		"roleDefinitionId": {
 			"type": "string",
-			"value": "[reference('access-access').outputs.roleDefinitionId.value]"
+			"value": "[reference('accessTemplate-access').outputs.roleDefinitionId.value]"
 		},
 		"keyVaultName": {
 			"condition": "[and(not(empty(parameters('secretValue'))), empty(parameters('secretId')))]",
 			"type": "string",
-			"value": "[reference('access-access').outputs.keyVaultName.value]"
+			"value": "[reference('accessTemplate-access').outputs.keyVaultName.value]"
 		},
 		"secretId": {
 			"condition": "[or(and(not(empty(parameters('secretValue'))), empty(parameters('secretId'))), and(not(empty(parameters('secretId'))), empty(parameters('secretValue'))))]",
 			"type": "string",
-			"value": "[reference('access-access').outputs.secretId.value]"
+			"value": "[reference('accessTemplate-access').outputs.secretId.value]"
 		},
 		"userAssignedIdentityId": {
 			"condition": "[not(empty(parameters('userAssignedIdentityName')))]",
 			"type": "string",
-			"value": "[reference('access-access').outputs.userAssignedIdentityId.value]"
+			"value": "[reference('accessTemplate-access').outputs.userAssignedIdentityId.value]"
 		}
 	}
 }
