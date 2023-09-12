@@ -1626,7 +1626,7 @@
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
-            "condition": "[and(not(empty(parameters('existingWorkspaceId'))), equals(parameters('enableF5Telemetry'), 'Yes'))]",
+            "condition": "[and(not(empty(variables('existingWorkspaceId'))), equals(parameters('enableF5Telemetry'), 'Yes'))]",
             "name": "telemetryTemplate",
             "location": "[parameters('location')]",
             "subscriptionId": "[variables('conditionalSubscriptionId')]",
@@ -1993,7 +1993,7 @@
                         "value": "[variables('vmssName')]"
                     },
                     "workspaceId": {
-                        "value": "[parameters('existingWorkspaceId')]"
+                        "value": "[variables('existingWorkspaceId')]"
                     }
                 }
             }
