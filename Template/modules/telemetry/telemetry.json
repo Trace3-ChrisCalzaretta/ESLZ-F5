@@ -102,7 +102,7 @@
           },
           "resources": [
             {
-              "name": "f5Workbook",
+              "name": "[guid(resourceGroup().id,variables('uniqueString'),'waf-view-workbook')]",
               "type": "Microsoft.Insights/workbooks",
               "apiVersion": "2020-10-20",
               "kind": "shared",
@@ -117,6 +117,10 @@
             }
           ],
           "outputs": {
+            "workbookName": {
+              "type": "String",
+              "value": "[parameters('workbookDisplayName')]"
+            },
             "workspaceResourceId": {
               "type": "String",
               "value": "[parameters('existingWorkspaceId')]"
@@ -130,6 +134,10 @@
     "workspaceResourceId": {
       "type": "String",
       "value": "[reference('telemetryTemplate-workbook').outputs.workspaceResourceId.value]"
+    },
+        "workbookName": {
+      "type": "String",
+      "value": "[reference('telemetryTemplate-workbook').outputs.workbookName.value]"
     },
     "deployment": {
       "type": "string",
