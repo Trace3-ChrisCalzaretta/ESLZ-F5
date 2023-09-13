@@ -120,14 +120,6 @@
             "workspaceResourceId": {
               "type": "String",
               "value": "[parameters('existingWorkspaceId')]"
-            },
-            "workbookName": {
-              "type": "String",
-              "value": "[parameters('workbookDisplayName')]"
-            },
-            "workbookId": {
-              "type": "String",
-              "value": "[resourceId(resourceGroup().name, 'Microsoft.Insights/workbooks', parameters('workbookDisplayName'))]"
             }
           }
         }
@@ -138,14 +130,6 @@
     "workspaceResourceId": {
       "type": "String",
       "value": "[reference('telemetryTemplate-workbook').outputs.workspaceResourceId.value]"
-    },
-    "workbookName": {
-      "type": "String",
-      "value": "[reference('telemetryTemplate-workbook').outputs.workbookName.value]"
-    },
-    "workbookId": {
-      "type": "String",
-      "value": "[reference('telemetryTemplate-workbook').outputs.workbookId.value]"
     },
     "deployment": {
       "type": "string",
