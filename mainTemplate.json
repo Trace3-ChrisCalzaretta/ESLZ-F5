@@ -1628,7 +1628,7 @@
             "apiVersion": "2021-04-01",
             "condition": "[and(not(empty(variables('existingWorkspaceId'))), equals(parameters('enableF5Telemetry'), 'Yes'))]",
             "name": "telemetryTemplate",
-            "location": "[parameters('location')]",
+            "location": "[parameters('f5Location')]",
             "subscriptionId": "[parameters('f5SubscriptionId')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Resources/deployments', variables('deploymentNames').monitoringDeploymentName)]",
@@ -1644,6 +1644,9 @@
                 "parameters": {
                     "f5ResourceGroup": {
                         "value": "[variables('f5Rg')]"
+                    },
+                    "f5Location": {
+                        "value": "[parameters('f5Location')]"
                     },
                     "existingWorkspaceId": {
                         "value": "[variables('existingWorkspaceId')]"
