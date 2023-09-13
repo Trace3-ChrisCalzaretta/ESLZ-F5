@@ -1887,6 +1887,9 @@
                     "contentVersion": "2.8.0.0"
                 },
                 "parameters": {
+                    "f5SubscriptionId": {
+                        "value": "[parameters('f5SubscriptionId')]"
+                    },
                     "f5ResourceGroup": {
                         "value": "[variables('f5Rg')]"
                     },
