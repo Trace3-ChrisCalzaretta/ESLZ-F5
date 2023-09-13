@@ -2,9 +2,21 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "2.8.0.0",
   "parameters": {
+    "f5SubscriptionId": {
+      "type": "string",
+      "defaultValue": "",
+      "maxLength": 36,
+      "metadata": {
+        "description": "Provide the subscription id of an existing, empty subscription you want to dedicate for networking."
+      }
+    },
     "f5ResourceGroup": {
       "type": "string",
       "defaultValue": "f5rg"
+    },
+    "f5Location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
     },
     "adminUsername": {
       "defaultValue": "azureuser",
@@ -328,6 +340,15 @@
           "scope": "inner"
         },
         "parameters": {
+          "f5SubscriptionId": {
+            "value": "[parameters('f5SubscriptionId')]"
+          },
+          "f5ResourceGroup": {
+            "value": "[parameters('f5ResourceGroup')]"
+          },
+          "f5Location": {
+            "value": "[parameters('f5Location')]"
+          },
           "adminUsername": {
             "value": "[parameters('adminUsername')]"
           },
@@ -454,6 +475,15 @@
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
           "parameters": {
+            "f5SubscriptionId": {
+              "type": "string"
+            },
+            "f5ResourceGroup": {
+              "type": "string"
+            },
+            "f5Location": {
+              "type": "string"
+            },
             "adminUsername": {
               "type": "string"
             },
@@ -739,11 +769,12 @@
             "useInboundMgmtNatPool": "[if(contains(tolower(parameters('inboundMgmtNatPoolId')), 'inboundnatpools'), variables('inboundMgmtNatPool'), parameters('inboundMgmtNatPoolId'))]",
             "useInboundSshNatPool": "[if(contains(tolower(parameters('inboundSshNatPoolId')), 'inboundnatpools'), variables('inboundSshNatPool'), parameters('inboundSshNatPoolId'))]",
             "versionToUse": "[if(variables('useCustomImage'), json('null'), variables('image')[3])]",
-            "vmssId": "[reference(resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName')))]",
+            "vmssId": "[toLower(concat('/subscriptions/', parameters('f5SubscriptionId'), '/resourceGroups/', parameters('f5ResourceGroup'), 'Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName')))]",
             "runtimeInitTag": {
               "workspaceId": "[parameters('workspaceId')]",
               "uniqueString": "[parameters('uniqueString')]"
             }
+
           },
           "resources": [
             {
@@ -753,7 +784,7 @@
                 "[variables('diagnosticsStorageAccountName')]"
               ],
               "identity": "[if(and(empty(parameters('userAssignManagedIdentity')), empty(parameters('roleDefinitionId'))), json('null'), variables('identity'))]",
-              "location": "[resourceGroup().location]",
+              "location": "[parameters('f5Location')]",
               "name": "[parameters('vmssName')]",
               "plan": "[if(variables('useCustomImage'), json('null'), variables('imagePlan'))]",
               "properties": {
@@ -837,7 +868,7 @@
             {
               "apiVersion": "2022-09-01",
               "kind": "Storage",
-              "location": "[resourceGroup().location]",
+              "location": "[parameters('f5Location')]",
               "name": "[variables('diagnosticsStorageAccountName')]",
               "properties": {
                 "allowBlobPublicAccess": false,
@@ -853,9 +884,9 @@
             {
               "apiVersion": "2015-04-01",
               "dependsOn": [
-                "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]"
+                "[variables('vmssId')]"
               ],
-              "location": "[resourceGroup().location]",
+              "location": "[parameters('f5Location')]",
               "name": "[concat(parameters('uniqueString'), '-bigip-vmss-autoscale-settings')]",
               "properties": {
                 "enabled": true,
@@ -881,6 +912,7 @@
                     "rules": "[if(empty(parameters('customAutoscaleRules')), variables('autoscaleRules'), parameters('customAutoscaleRules'))]"
                   }
                 ],
+                "targetResourceLocation": "[parameters('f5Location')]",
                 "targetResourceUri": "[variables('vmssId')]"
               },
               "type": "Microsoft.Insights/autoscaleSettings"
@@ -889,7 +921,7 @@
               "apiVersion": "2020-02-02",
               "condition": "[not(equals(variables('appInsightsName'), 'NOT_USED'))]",
               "kind": "other",
-              "location": "[resourceGroup().location]",
+              "location": "[parameters('f5Location')]",
               "name": "[variables('appInsightsName')]",
               "properties": {
                 "ApplicationId": "[variables('appInsightsName')]",
@@ -926,7 +958,7 @@
                   "[parameters('userAssignManagedIdentity')]": {}
                 }
               },
-              "location": "[resourceGroup().location]",
+              "location": "[parameters('f5Location')]",
               "kind": "AzureCLI",
               "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
               "properties": {
