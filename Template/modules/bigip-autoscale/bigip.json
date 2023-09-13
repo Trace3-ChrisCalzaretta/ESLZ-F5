@@ -739,7 +739,7 @@
             "useInboundMgmtNatPool": "[if(contains(tolower(parameters('inboundMgmtNatPoolId')), 'inboundnatpools'), variables('inboundMgmtNatPool'), parameters('inboundMgmtNatPoolId'))]",
             "useInboundSshNatPool": "[if(contains(tolower(parameters('inboundSshNatPoolId')), 'inboundnatpools'), variables('inboundSshNatPool'), parameters('inboundSshNatPoolId'))]",
             "versionToUse": "[if(variables('useCustomImage'), json('null'), variables('image')[3])]",
-            "vmssId": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]",
+            "vmssId": "[reference(resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName')))]",
             "runtimeInitTag": {
               "workspaceId": "[parameters('workspaceId')]",
               "uniqueString": "[parameters('uniqueString')]"
