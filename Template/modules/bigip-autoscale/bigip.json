@@ -939,7 +939,7 @@
               ],
               "name": "[guid(resourceGroup().id, 'roleId')]",
               "properties": {
-                "principalId": "[reference(variables('vmssId'), '2019-12-01', 'Full').identity.principalId]",
+                "principalId": "[reference(variables('vmssId2'), '2019-12-01', 'Full').identity.principalId]",
                 "roleDefinitionId": "[parameters('roleDefinitionId')]",
                 "scope": "[resourceGroup().id]"
               },
