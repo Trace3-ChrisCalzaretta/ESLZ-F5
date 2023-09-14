@@ -770,6 +770,7 @@
             "useInboundSshNatPool": "[if(contains(tolower(parameters('inboundSshNatPoolId')), 'inboundnatpools'), variables('inboundSshNatPool'), parameters('inboundSshNatPoolId'))]",
             "versionToUse": "[if(variables('useCustomImage'), json('null'), variables('image')[3])]",
             "vmssId": "[toLower(concat('/subscriptions/', parameters('f5SubscriptionId'), '/resourceGroups/', parameters('f5ResourceGroup'), '/Microsoft.Compute/virtualMachineScaleSets/', parameters('vmssName')))]",
+            "vmssId2": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]",
             "runtimeInitTag": {
               "workspaceId": "[parameters('workspaceId')]",
               "uniqueString": "[parameters('uniqueString')]"
@@ -884,7 +885,7 @@
             {
               "apiVersion": "2015-04-01",
               "dependsOn": [
-                "[variables('vmssId')]"
+                "[variables('vmssId2')]"
               ],
               "location": "[parameters('f5Location')]",
               "name": "[concat(parameters('uniqueString'), '-bigip-vmss-autoscale-settings')]",
@@ -913,7 +914,7 @@
                   }
                 ],
                 "targetResourceLocation": "[parameters('f5Location')]",
-                "targetResourceUri": "[parameters('vmssName')]"
+                "targetResourceUri": "[variables('vmssId')]"
               },
               "type": "Microsoft.Insights/autoscaleSettings"
             },
@@ -934,7 +935,7 @@
               "apiVersion": "2021-04-01-preview",
               "condition": "[not(empty(parameters('roleDefinitionId')))]",
               "dependsOn": [
-                "[variables('vmssId')]"
+                "[variables('vmssId2')]"
               ],
               "name": "[guid(resourceGroup().id, 'roleId')]",
               "properties": {
