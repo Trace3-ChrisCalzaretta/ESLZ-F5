@@ -785,7 +785,7 @@
                 "[variables('diagnosticsStorageAccountName')]"
               ],
               "identity": "[if(and(empty(parameters('userAssignManagedIdentity')), empty(parameters('roleDefinitionId'))), json('null'), variables('identity'))]",
-              "location": "[parameters('f5Location')]",
+              "location": "[resourceGroup().location]",
               "name": "[parameters('vmssName')]",
               "plan": "[if(variables('useCustomImage'), json('null'), variables('imagePlan'))]",
               "properties": {
@@ -864,12 +864,12 @@
               },
               "tags": "[union(variables('runtimeInitTag'), parameters('tagValues'))]",
               "type": "Microsoft.Compute/virtualMachineScaleSets",
-              "zones": "[if(equals(parameters('useAvailabilityZones'), 'Yes'), createArray(1, 2, 3), json('null'))]"
+              "zones": "[if(parameters('useAvailabilityZones'), createArray(1, 2, 3), json('null'))]"
             },
             {
               "apiVersion": "2022-09-01",
               "kind": "Storage",
-              "location": "[parameters('f5Location')]",
+              "location": "[resourceGroup().location]",
               "name": "[variables('diagnosticsStorageAccountName')]",
               "properties": {
                 "allowBlobPublicAccess": false,
@@ -885,9 +885,9 @@
             {
               "apiVersion": "2015-04-01",
               "dependsOn": [
-                "[variables('vmssId2')]"
+                "[variables('vmssId')]"
               ],
-              "location": "[parameters('f5Location')]",
+              "location": "[resourceGroup().location]",
               "name": "[concat(parameters('uniqueString'), '-bigip-vmss-autoscale-settings')]",
               "properties": {
                 "enabled": true,
@@ -913,8 +913,7 @@
                     "rules": "[if(empty(parameters('customAutoscaleRules')), variables('autoscaleRules'), parameters('customAutoscaleRules'))]"
                   }
                 ],
-                "targetResourceLocation": "[parameters('f5Location')]",
-                "targetResourceUri": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', parameters('vmSSName'))]"
+                "targetResourceUri": "[variables('vmssId')]"
               },
               "type": "Microsoft.Insights/autoscaleSettings"
             },
@@ -922,7 +921,7 @@
               "apiVersion": "2020-02-02",
               "condition": "[not(equals(variables('appInsightsName'), 'NOT_USED'))]",
               "kind": "other",
-              "location": "[parameters('f5Location')]",
+              "location": "[resourceGroup().location]",
               "name": "[variables('appInsightsName')]",
               "properties": {
                 "ApplicationId": "[variables('appInsightsName')]",
@@ -935,11 +934,11 @@
               "apiVersion": "2021-04-01-preview",
               "condition": "[not(empty(parameters('roleDefinitionId')))]",
               "dependsOn": [
-                "[variables('vmssId2')]"
+                "[variables('vmssId')]"
               ],
               "name": "[guid(resourceGroup().id, 'roleId')]",
               "properties": {
-                "principalId": "[reference(variables('vmssId2'), '2019-12-01', 'Full').identity.principalId]",
+                "principalId": "[reference(variables('vmssId'), '2019-12-01', 'Full').identity.principalId]",
                 "roleDefinitionId": "[parameters('roleDefinitionId')]",
                 "scope": "[resourceGroup().id]"
               },
@@ -959,7 +958,7 @@
                   "[parameters('userAssignManagedIdentity')]": {}
                 }
               },
-              "location": "[parameters('f5Location')]",
+              "location": "[resourceGroup().location]",
               "kind": "AzureCLI",
               "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
               "properties": {
