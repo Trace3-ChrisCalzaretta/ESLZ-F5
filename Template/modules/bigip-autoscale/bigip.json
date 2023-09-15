@@ -14,6 +14,14 @@
       "type": "string",
       "defaultValue": "f5rg"
     },
+    "f5ResourceGroupId": {
+      "type": "string",
+      "defaultValue": "",
+      "maxLength": 36,
+      "metadata": {
+        "description": "Provide the resource group id the resource group used."
+      }
+    },
     "f5Location": {
       "type": "string",
       "defaultValue": "[resourceGroup().location]"
@@ -410,7 +418,7 @@
     "secretId": "[if(empty(parameters('secretId')), '', last(split(parameters('secretId'), '/secrets/')))]",
     "deploymentScript": "[resourceId('Microsoft.Resources/deploymentScripts', variables('deploymentScriptName'))]",
     "deploymentScriptName": "[concat(variables('appInsightsName'), '-metric-deployment-script')]",
-    "diagnosticsStorageAccountName": "[concat(uniqueString(parameters('uniqueString'), resourceGroup().id, deployment().name), 'stbigip')]",
+    "diagnosticsStorageAccountName": "[concat(uniqueString(parameters('uniqueString'), parameters('f5ResourceGroupId'), deployment().name), 'stbigip')]",
     "extSettingsRef": {
       "commandToExecute": "[concat('echo -e ', variables('customData'), ' > /var/lib/waagent/CustomData; bash -c \"base64 -d /var/lib/waagent/CustomData | bash\"')]"
     },
@@ -670,11 +678,11 @@
               "dependsOn": [
                 "[variables('vmssId')]"
               ],
-              "name": "[guid(resourceGroup().id, 'roleId')]",
+              "name": "[guid(parameters('f5ResourceGroupId'), 'roleId')]",
               "properties": {
                 "principalId": "[reference(variables('vmssId'), '2019-12-01', 'Full').identity.principalId]",
                 "roleDefinitionId": "[parameters('roleDefinitionId')]",
-                "scope": "[resourceGroup().id]"
+                "scope": "[parameters('f5ResourceGroupId')]"
               },
               "type": "Microsoft.Authorization/roleAssignments"
             },
@@ -692,7 +700,7 @@
                   "[parameters('userAssignManagedIdentity')]": {}
                 }
               },
-              "location": "[resourceGroup().location]",
+              "location": "[parameters('f5Location')]",
               "kind": "AzureCLI",
               "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
               "properties": {

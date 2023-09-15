@@ -1893,6 +1893,9 @@
                     "f5ResourceGroup": {
                         "value": "[variables('f5Rg')]"
                     },
+                    "f5ResourceGroupId": {
+                        "value": "[reference(variables('f5RgDeploymentName')).outputs.resourceGroupId.value]"
+                    },
                     "f5Location": {
                         "value": "[parameters('f5Location')]"
                     },

@@ -24,5 +24,10 @@
             "location": "[parameters('location')]"
         }
     ],
-    "outputs": {}
+    "outputs": {
+        "resourceGroupId": {
+            "type": "string",
+            "value": "[resourceId('Microsoft.Resources/resourceGroups', parameters('rgName'))]"
+        }
+    }
 }
