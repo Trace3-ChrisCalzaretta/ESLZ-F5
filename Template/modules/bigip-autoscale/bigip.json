@@ -326,6 +326,175 @@
     }
   },
   "variables": {
+    "appInsightsName": "[if(empty(parameters('appInsights')), 'NOT_USED', parameters('appInsights'))]",
+    "autoscaleRules": [
+      {
+        "metricTrigger": {
+          "metricName": "[parameters('cpuMetricName')]",
+          "metricNamespace": "",
+          "metricResourceUri": "[variables('metricResourceUri')]",
+          "operator": "GreaterThan",
+          "statistic": "Average",
+          "threshold": "[parameters('scaleOutCpuThreshold')]",
+          "timeAggregation": "Average",
+          "timeGrain": "PT1M",
+          "timeWindow": "[variables('scaleOutTimeWindow')]"
+        },
+        "scaleAction": {
+          "cooldown": "PT1M",
+          "direction": "Increase",
+          "type": "ChangeCount",
+          "value": "1"
+        }
+      },
+      {
+        "metricTrigger": {
+          "metricName": "[parameters('cpuMetricName')]",
+          "metricNamespace": "",
+          "metricResourceUri": "[variables('metricResourceUri')]",
+          "operator": "LessThan",
+          "statistic": "Average",
+          "threshold": "[parameters('scaleInCpuThreshold')]",
+          "timeAggregation": "Average",
+          "timeGrain": "PT1M",
+          "timeWindow": "[variables('scaleInTimeWindow')]"
+        },
+        "scaleAction": {
+          "cooldown": "PT1M",
+          "direction": "Decrease",
+          "type": "ChangeCount",
+          "value": "1"
+        }
+      },
+      {
+        "metricTrigger": {
+          "metricName": "[parameters('throughputMetricName')]",
+          "metricNamespace": "",
+          "metricResourceUri": "[variables('metricResourceUri')]",
+          "operator": "GreaterThan",
+          "statistic": "Average",
+          "threshold": "[parameters('scaleOutThroughputThreshold')]",
+          "timeAggregation": "Average",
+          "timeGrain": "PT1M",
+          "timeWindow": "[variables('scaleOutTimeWindow')]"
+        },
+        "scaleAction": {
+          "cooldown": "PT1M",
+          "direction": "Increase",
+          "type": "ChangeCount",
+          "value": "1"
+        }
+      },
+      {
+        "metricTrigger": {
+          "metricName": "[parameters('throughputMetricName')]",
+          "metricNamespace": "",
+          "metricResourceUri": "[variables('metricResourceUri')]",
+          "operator": "LessThan",
+          "statistic": "Average",
+          "threshold": "[parameters('scaleInThroughputThreshold')]",
+          "timeAggregation": "Average",
+          "timeGrain": "PT1M",
+          "timeWindow": "[variables('scaleInTimeWindow')]"
+        },
+        "scaleAction": {
+          "cooldown": "PT1M",
+          "direction": "Decrease",
+          "type": "ChangeCount",
+          "value": "1"
+        }
+      }
+    ],
+    "customData": "[base64(concat('#!/bin/bash -x\n\n# Log to local file and serial console\nmkdir -p /var/log/cloud /config/cloud /var/config/rest/downloads\nLOG_FILE=/var/log/cloud/startup-script.log\ntouch ${LOG_FILE}\nnpipe=/tmp/$$.tmp\ntrap \"rm -f $npipe\" EXIT\nmknod $npipe p\ntee <$npipe -a ${LOG_FILE} /dev/ttyS0 &\nexec 1>&-\nexec 1>$npipe\nexec 2>&1\n\necho \"$(date  +\"%Y-%m-%dT%H:%M:%S.%3NZ\") : Startup Script Start\"\n# Optional optimizations required as early in boot as possible before mcpd starts\n/usr/bin/setdb provision.extramb 1000\n/usr/bin/setdb restjavad.useextramb true\n/usr/bin/setdb iapplxrpm.timeout 300 || true\n/usr/bin/setdb icrd.timeout 180 || true\n/usr/bin/setdb restjavad.timeout 180 || true\n/usr/bin/setdb restnoded.timeout 180 || true\n\n# VARS FROM TEMPLATE\nVAULT_URL=', variables('singleQuote'), variables('keyVault'), variables('singleQuote'), '\nSECRET_ID=', variables('singleQuote'), variables('secretId'), variables('singleQuote'), '\nPACKAGE_URL=', variables('singleQuote'), parameters('bigIpRuntimeInitPackageUrl'), variables('singleQuote'), '\nRUNTIME_CONFIG=',  variables('singleQuote'), parameters('bigIpRuntimeInitConfig'), variables('singleQuote'), '\n\n# Save variables to file\necho $VAULT_URL > /config/cloud/vault_url\necho $SECRET_ID > /config/cloud/secret_id\n\n# Render or download f5-bigip-runtime-init config\nif [[ \"${RUNTIME_CONFIG}\" =~ ^http.* ]]; then\n    for i in {1..30}; do\n        curl -sfv --retry 1 --connect-timeout 5 -L \"${RUNTIME_CONFIG}\" -o /config/cloud/runtime-init.conf && break || sleep 10;\n    done\nelse\n  printf ', variables('singleQuote'), '%s\\n', variables('singleQuote'), ' \"${RUNTIME_CONFIG}\" | jq . > /config/cloud/runtime-init.conf\nfi\n\n# Download and install f5-bigip-runtime-init package\nif [[ ! -s \"/var/config/rest/downloads/${PACKAGE_URL##*/}\" ]]; then\n  for i in {1..30}; do\n    curl -fv --retry 1 --connect-timeout 5 -L \"${PACKAGE_URL}\" -o \"/var/config/rest/downloads/${PACKAGE_URL##*/}\" && break || sleep 10\n  done\nfi\nbash \"/var/config/rest/downloads/${PACKAGE_URL##*/}\" -- ', variables('singleQuote'), '--cloud azure --telemetry-params templateName:v2.8.0.0/examples/modules/bigip-autoscale/bigip.json', variables('singleQuote'), '\n\n# Run\nf5-bigip-runtime-init --config-file /config/cloud/runtime-init.conf ', variables('singleQuote'), variables('skipTelemetry'), variables('singleQuote'), '\n'))]",
+    "keyVault": "[if(empty(parameters('secretId')), '', first(split(parameters('secretId'), '/secrets/')))]",
+    "secretId": "[if(empty(parameters('secretId')), '', last(split(parameters('secretId'), '/secrets/')))]",
+    "deploymentScript": "[resourceId('Microsoft.Resources/deploymentScripts', variables('deploymentScriptName'))]",
+    "deploymentScriptName": "[concat(variables('appInsightsName'), '-metric-deployment-script')]",
+    "diagnosticsStorageAccountName": "[concat(uniqueString(parameters('uniqueString'), resourceGroup().id, deployment().name), 'stbigip')]",
+    "extSettingsRef": {
+      "commandToExecute": "[concat('echo -e ', variables('customData'), ' > /var/lib/waagent/CustomData; bash -c \"base64 -d /var/lib/waagent/CustomData | bash\"')]"
+    },
+    "healthProbe": {
+      "id": "[parameters('instanceHealthProbeId')]"
+    },
+    "identity": "[if(empty(parameters('userAssignManagedIdentity')), variables('identitySys'), variables('identitySysUser'))]",
+    "identitySys": {
+      "type": "SystemAssigned"
+    },
+    "identitySysUser": {
+      "type": "[if(empty(parameters('roleDefinitionId')), 'UserAssigned', 'SystemAssigned, UserAssigned')]",
+      "userAssignedIdentities": {
+        "[parameters('userAssignManagedIdentity')]": {}
+      }
+    },
+    "image": "[if(variables('useCustomImage'), parameters('image'), split(parameters('image'), ':'))]",
+    "imagePlan": {
+      "name": "[variables('skuToUse')]",
+      "product": "[variables('offerToUse')]",
+      "publisher": "f5-networks"
+    },
+    "imageReference": {
+      "offer": "[variables('offerToUse')]",
+      "publisher": "f5-networks",
+      "sku": "[variables('skuToUse')]",
+      "version": "[variables('versionToUse')]"
+    },
+    "inboundMgmtNatPool": [
+      {
+        "id": "[parameters('inboundMgmtNatPoolId')]"
+      }
+    ],
+    "inboundSshNatPool": [
+      {
+        "id": "[parameters('inboundSshNatPoolId')]"
+      }
+    ],
+    "metricResourceUri": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', parameters('vmssName'))]",
+    "networkSecurityGroup": {
+      "id": "[parameters('nsgId')]"
+    },
+    "offerToUse": "[if(variables('useCustomImage'), json('null'), variables('image')[1])]",
+    "rollingUpgrade": "[not(empty(parameters('instanceHealthProbeId')))]",
+    "scaleInTimeWindow": "[concat('PT', parameters('scaleInTimeWindow'), 'M')]",
+    "scaleOutTimeWindow": "[concat('PT', parameters('scaleOutTimeWindow'), 'M')]",
+    "singleQuote": "'",
+    "skipTelemetry": "[if(equals(parameters('allowUsageAnalytics'), 'Yes'), '', '--skip-telemetry')]",
+    "skuToUse": "[if(variables('useCustomImage'), json('null'), variables('image')[2])]",
+    "storageProfileArray": {
+      "customImage": {
+        "imageReference": {
+          "id": "[variables('image')]"
+        }
+      },
+      "platformImage": {
+        "imageReference": "[variables('imageReference')]",
+        "osDisk": {
+          "createOption": "FromImage"
+        }
+      }
+    },
+    "upgradePolicyManual": {
+      "mode": "Manual"
+    },
+    "upgradePolicyRolling": {
+      "mode": "Rolling",
+      "rollingUpgradePolicy": {
+        "maxBatchInstancePercent": "[parameters('maxBatchInstancePercent')]",
+        "maxUnhealthyInstancePercent": "[parameters('maxUnhealthyInstancePercent')]",
+        "maxUnhealthyUpgradedInstancePercent": "[parameters('maxUnhealthyUpgradedInstancePercent')]",
+        "pauseTimeBetweenBatches": "[concat('PT', parameters('pauseTimeBetweenBatches'), 'S')]"
+      }
+    },
+    "useCustomImage": "[contains(tolower(parameters('image')), 'microsoft.compute')]",
+    "useInboundMgmtNatPool": "[if(contains(tolower(parameters('inboundMgmtNatPoolId')), 'inboundnatpools'), variables('inboundMgmtNatPool'), parameters('inboundMgmtNatPoolId'))]",
+    "useInboundSshNatPool": "[if(contains(tolower(parameters('inboundSshNatPoolId')), 'inboundnatpools'), variables('inboundSshNatPool'), parameters('inboundSshNatPoolId'))]",
+    "versionToUse": "[if(variables('useCustomImage'), json('null'), variables('image')[3])]",
+    "vmssId2": "[toLower(concat('/subscriptions/', parameters('f5SubscriptionId'), '/resourceGroups/', parameters('f5ResourceGroup'), '/Microsoft.Compute/virtualMachineScaleSets/', parameters('vmssName')))]",
+    "vmssId": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]",
+    "runtimeInitTag": {
+      "workspaceId": "[parameters('workspaceId')]",
+      "uniqueString": "[parameters('uniqueString')]"
+    },
     "resourceDeploymentName": "[take(concat(deployment().name, '-bigip'), 64)]"
   },
   "resources": [
@@ -336,447 +505,12 @@
       "resourceGroup": "[parameters('f5ResourceGroup')]",
       "dependsOn": [],
       "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "parameters": {
-          "f5SubscriptionId": {
-            "value": "[parameters('f5SubscriptionId')]"
-          },
-          "f5ResourceGroup": {
-            "value": "[parameters('f5ResourceGroup')]"
-          },
-          "f5Location": {
-            "value": "[parameters('f5Location')]"
-          },
-          "adminUsername": {
-            "value": "[parameters('adminUsername')]"
-          },
-          "allowUsageAnalytics": {
-            "value": "[parameters('allowUsageAnalytics')]"
-          },
-          "appInsights": {
-            "value": "[parameters('appInsights')]"
-          },
-          "bigIpRuntimeInitPackageUrl": {
-            "value": "[parameters('bigIpRuntimeInitPackageUrl')]"
-          },
-          "cpuMetricName": {
-            "value": "[parameters('cpuMetricName')]"
-          },
-          "customAutoscaleRules": {
-            "value": "[parameters('customAutoscaleRules')]"
-          },
-          "customEmail": {
-            "value": "[parameters('customEmail')]"
-          },
-          "image": {
-            "value": "[parameters('image')]"
-          },
-          "inboundMgmtNatPoolId": {
-            "value": "[parameters('inboundMgmtNatPoolId')]"
-          },
-          "inboundSshNatPoolId": {
-            "value": "[parameters('inboundSshNatPoolId')]"
-          },
-          "instanceHealthProbeId": {
-            "value": "[parameters('instanceHealthProbeId')]"
-          },
-          "instanceType": {
-            "value": "[parameters('instanceType')]"
-          },
-          "loadBalancerBackendAddressPoolsArray": {
-            "value": "[parameters('loadBalancerBackendAddressPoolsArray')]"
-          },
-          "maxBatchInstancePercent": {
-            "value": "[parameters('maxBatchInstancePercent')]"
-          },
-          "maxUnhealthyInstancePercent": {
-            "value": "[parameters('maxUnhealthyInstancePercent')]"
-          },
-          "maxUnhealthyUpgradedInstancePercent": {
-            "value": "[parameters('maxUnhealthyUpgradedInstancePercent')]"
-          },
-          "pauseTimeBetweenBatches": {
-            "value": "[parameters('pauseTimeBetweenBatches')]"
-          },
-          "nsgId": {
-            "value": "[parameters('nsgId')]"
-          },
-          "provisionPublicIp": {
-            "value": "[parameters('provisionPublicIp')]"
-          },
-          "roleDefinitionId": {
-            "value": "[parameters('roleDefinitionId')]"
-          },
-          "bigIpRuntimeInitConfig": {
-            "value": "[parameters('bigIpRuntimeInitConfig')]"
-          },
-          "scaleInCpuThreshold": {
-            "value": "[parameters('scaleInCpuThreshold')]"
-          },
-          "scaleInThroughputThreshold": {
-            "value": "[parameters('scaleInThroughputThreshold')]"
-          },
-          "scaleInTimeWindow": {
-            "value": "[parameters('scaleInTimeWindow')]"
-          },
-          "scaleOutCpuThreshold": {
-            "value": "[parameters('scaleOutCpuThreshold')]"
-          },
-          "scaleOutThroughputThreshold": {
-            "value": "[parameters('scaleOutThroughputThreshold')]"
-          },
-          "scaleOutTimeWindow": {
-            "value": "[parameters('scaleOutTimeWindow')]"
-          },
-          "secretId": {
-            "value": "[parameters('secretId')]"
-          },
-          "sshKey": {
-            "value": "[parameters('sshKey')]"
-          },
-          "subnetId": {
-            "value": "[parameters('subnetId')]"
-          },
-          "tagValues": {
-            "value": "[parameters('tagValues')]"
-          },
-          "throughputMetricName": {
-            "value": "[parameters('throughputMetricName')]"
-          },
-          "uniqueString": {
-            "value": "[parameters('uniqueString')]"
-          },
-          "updateTag": {
-            "value": "[parameters('updateTag')]"
-          },
-          "useAvailabilityZones": {
-            "value": "[parameters('useAvailabilityZones')]"
-          },
-          "userAssignManagedIdentity": {
-            "value": "[parameters('userAssignManagedIdentity')]"
-          },
-          "vmScaleSetMaxCount": {
-            "value": "[parameters('vmScaleSetMaxCount')]"
-          },
-          "vmScaleSetMinCount": {
-            "value": "[parameters('vmScaleSetMinCount')]"
-          },
-          "vmssName": {
-            "value": "[parameters('vmssName')]"
-          },
-          "workspaceId": {
-            "value": "[parameters('workspaceId')]"
-          }
-        },
         "mode": "Incremental",
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
-          "parameters": {
-            "f5SubscriptionId": {
-              "type": "string"
-            },
-            "f5ResourceGroup": {
-              "type": "string"
-            },
-            "f5Location": {
-              "type": "string"
-            },
-            "adminUsername": {
-              "type": "string"
-            },
-            "allowUsageAnalytics": {
-              "type": "string"
-            },
-            "appInsights": {
-              "type": "string"
-            },
-            "bigIpRuntimeInitPackageUrl": {
-              "type": "string"
-            },
-            "cpuMetricName": {
-              "type": "string"
-            },
-            "customAutoscaleRules": {
-              "type": "array"
-            },
-            "customEmail": {
-              "type": "array"
-            },
-            "image": {
-              "type": "string"
-            },
-            "inboundMgmtNatPoolId": {
-              "type": "string"
-            },
-            "inboundSshNatPoolId": {
-              "type": "string"
-            },
-            "instanceHealthProbeId": {
-              "type": "string"
-            },
-            "instanceType": {
-              "type": "string"
-            },
-            "loadBalancerBackendAddressPoolsArray": {
-              "type": "array"
-            },
-            "maxBatchInstancePercent": {
-              "type": "int"
-            },
-            "maxUnhealthyInstancePercent": {
-              "type": "int"
-            },
-            "maxUnhealthyUpgradedInstancePercent": {
-              "type": "int"
-            },
-            "pauseTimeBetweenBatches": {
-              "type": "int"
-            },
-            "nsgId": {
-              "type": "string"
-            },
-            "provisionPublicIp": {
-              "type": "object"
-            },
-            "roleDefinitionId": {
-              "type": "string"
-            },
-            "bigIpRuntimeInitConfig": {
-              "type": "string"
-            },
-            "scaleInCpuThreshold": {
-              "type": "int"
-            },
-            "scaleInThroughputThreshold": {
-              "type": "int"
-            },
-            "scaleInTimeWindow": {
-              "type": "int"
-            },
-            "scaleOutCpuThreshold": {
-              "type": "int"
-            },
-            "scaleOutThroughputThreshold": {
-              "type": "int"
-            },
-            "scaleOutTimeWindow": {
-              "type": "int"
-            },
-            "secretId": {
-              "type": "string"
-            },
-            "sshKey": {
-              "type": "string"
-            },
-            "subnetId": {
-              "type": "string"
-            },
-            "tagValues": {
-              "type": "object"
-            },
-            "throughputMetricName": {
-              "type": "string"
-            },
-            "uniqueString": {
-              "type": "string"
-            },
-            "updateTag": {
-              "type": "string"
-            },
-            "useAvailabilityZones": {
-              "type": "string"
-            },
-            "userAssignManagedIdentity": {
-              "type": "string"
-            },
-            "vmScaleSetMaxCount": {
-              "type": "int"
-            },
-            "vmScaleSetMinCount": {
-              "type": "int"
-            },
-            "vmssName": {
-              "type": "string"
-            },
-            "workspaceId": {
-              "type": "string"
-            }
-          },
-          "variables": {
-            "appInsightsName": "[if(empty(parameters('appInsights')), 'NOT_USED', parameters('appInsights'))]",
-            "autoscaleRules": [
-              {
-                "metricTrigger": {
-                  "metricName": "[parameters('cpuMetricName')]",
-                  "metricNamespace": "",
-                  "metricResourceUri": "[variables('metricResourceUri')]",
-                  "operator": "GreaterThan",
-                  "statistic": "Average",
-                  "threshold": "[parameters('scaleOutCpuThreshold')]",
-                  "timeAggregation": "Average",
-                  "timeGrain": "PT1M",
-                  "timeWindow": "[variables('scaleOutTimeWindow')]"
-                },
-                "scaleAction": {
-                  "cooldown": "PT1M",
-                  "direction": "Increase",
-                  "type": "ChangeCount",
-                  "value": "1"
-                }
-              },
-              {
-                "metricTrigger": {
-                  "metricName": "[parameters('cpuMetricName')]",
-                  "metricNamespace": "",
-                  "metricResourceUri": "[variables('metricResourceUri')]",
-                  "operator": "LessThan",
-                  "statistic": "Average",
-                  "threshold": "[parameters('scaleInCpuThreshold')]",
-                  "timeAggregation": "Average",
-                  "timeGrain": "PT1M",
-                  "timeWindow": "[variables('scaleInTimeWindow')]"
-                },
-                "scaleAction": {
-                  "cooldown": "PT1M",
-                  "direction": "Decrease",
-                  "type": "ChangeCount",
-                  "value": "1"
-                }
-              },
-              {
-                "metricTrigger": {
-                  "metricName": "[parameters('throughputMetricName')]",
-                  "metricNamespace": "",
-                  "metricResourceUri": "[variables('metricResourceUri')]",
-                  "operator": "GreaterThan",
-                  "statistic": "Average",
-                  "threshold": "[parameters('scaleOutThroughputThreshold')]",
-                  "timeAggregation": "Average",
-                  "timeGrain": "PT1M",
-                  "timeWindow": "[variables('scaleOutTimeWindow')]"
-                },
-                "scaleAction": {
-                  "cooldown": "PT1M",
-                  "direction": "Increase",
-                  "type": "ChangeCount",
-                  "value": "1"
-                }
-              },
-              {
-                "metricTrigger": {
-                  "metricName": "[parameters('throughputMetricName')]",
-                  "metricNamespace": "",
-                  "metricResourceUri": "[variables('metricResourceUri')]",
-                  "operator": "LessThan",
-                  "statistic": "Average",
-                  "threshold": "[parameters('scaleInThroughputThreshold')]",
-                  "timeAggregation": "Average",
-                  "timeGrain": "PT1M",
-                  "timeWindow": "[variables('scaleInTimeWindow')]"
-                },
-                "scaleAction": {
-                  "cooldown": "PT1M",
-                  "direction": "Decrease",
-                  "type": "ChangeCount",
-                  "value": "1"
-                }
-              }
-            ],
-            "customData": "[base64(concat('#!/bin/bash -x\n\n# Log to local file and serial console\nmkdir -p /var/log/cloud /config/cloud /var/config/rest/downloads\nLOG_FILE=/var/log/cloud/startup-script.log\ntouch ${LOG_FILE}\nnpipe=/tmp/$$.tmp\ntrap \"rm -f $npipe\" EXIT\nmknod $npipe p\ntee <$npipe -a ${LOG_FILE} /dev/ttyS0 &\nexec 1>&-\nexec 1>$npipe\nexec 2>&1\n\necho \"$(date  +\"%Y-%m-%dT%H:%M:%S.%3NZ\") : Startup Script Start\"\n# Optional optimizations required as early in boot as possible before mcpd starts\n/usr/bin/setdb provision.extramb 1000\n/usr/bin/setdb restjavad.useextramb true\n/usr/bin/setdb iapplxrpm.timeout 300 || true\n/usr/bin/setdb icrd.timeout 180 || true\n/usr/bin/setdb restjavad.timeout 180 || true\n/usr/bin/setdb restnoded.timeout 180 || true\n\n# VARS FROM TEMPLATE\nVAULT_URL=', variables('singleQuote'), variables('keyVault'), variables('singleQuote'), '\nSECRET_ID=', variables('singleQuote'), variables('secretId'), variables('singleQuote'), '\nPACKAGE_URL=', variables('singleQuote'), parameters('bigIpRuntimeInitPackageUrl'), variables('singleQuote'), '\nRUNTIME_CONFIG=',  variables('singleQuote'), parameters('bigIpRuntimeInitConfig'), variables('singleQuote'), '\n\n# Save variables to file\necho $VAULT_URL > /config/cloud/vault_url\necho $SECRET_ID > /config/cloud/secret_id\n\n# Render or download f5-bigip-runtime-init config\nif [[ \"${RUNTIME_CONFIG}\" =~ ^http.* ]]; then\n    for i in {1..30}; do\n        curl -sfv --retry 1 --connect-timeout 5 -L \"${RUNTIME_CONFIG}\" -o /config/cloud/runtime-init.conf && break || sleep 10;\n    done\nelse\n  printf ', variables('singleQuote'), '%s\\n', variables('singleQuote'), ' \"${RUNTIME_CONFIG}\" | jq . > /config/cloud/runtime-init.conf\nfi\n\n# Download and install f5-bigip-runtime-init package\nif [[ ! -s \"/var/config/rest/downloads/${PACKAGE_URL##*/}\" ]]; then\n  for i in {1..30}; do\n    curl -fv --retry 1 --connect-timeout 5 -L \"${PACKAGE_URL}\" -o \"/var/config/rest/downloads/${PACKAGE_URL##*/}\" && break || sleep 10\n  done\nfi\nbash \"/var/config/rest/downloads/${PACKAGE_URL##*/}\" -- ', variables('singleQuote'), '--cloud azure --telemetry-params templateName:v2.8.0.0/examples/modules/bigip-autoscale/bigip.json', variables('singleQuote'), '\n\n# Run\nf5-bigip-runtime-init --config-file /config/cloud/runtime-init.conf ', variables('singleQuote'), variables('skipTelemetry'), variables('singleQuote'), '\n'))]",
-            "keyVault": "[if(empty(parameters('secretId')), '', first(split(parameters('secretId'), '/secrets/')))]",
-            "secretId": "[if(empty(parameters('secretId')), '', last(split(parameters('secretId'), '/secrets/')))]",
-            "deploymentScript": "[resourceId('Microsoft.Resources/deploymentScripts', variables('deploymentScriptName'))]",
-            "deploymentScriptName": "[concat(variables('appInsightsName'), '-metric-deployment-script')]",
-            "diagnosticsStorageAccountName": "[concat(uniqueString(parameters('uniqueString'), resourceGroup().id, deployment().name), 'stbigip')]",
-            "extSettingsRef": {
-              "commandToExecute": "[concat('echo -e ', variables('customData'), ' > /var/lib/waagent/CustomData; bash -c \"base64 -d /var/lib/waagent/CustomData | bash\"')]"
-            },
-            "healthProbe": {
-              "id": "[parameters('instanceHealthProbeId')]"
-            },
-            "identity": "[if(empty(parameters('userAssignManagedIdentity')), variables('identitySys'), variables('identitySysUser'))]",
-            "identitySys": {
-              "type": "SystemAssigned"
-            },
-            "identitySysUser": {
-              "type": "[if(empty(parameters('roleDefinitionId')), 'UserAssigned', 'SystemAssigned, UserAssigned')]",
-              "userAssignedIdentities": {
-                "[parameters('userAssignManagedIdentity')]": {}
-              }
-            },
-            "image": "[if(variables('useCustomImage'), parameters('image'), split(parameters('image'), ':'))]",
-            "imagePlan": {
-              "name": "[variables('skuToUse')]",
-              "product": "[variables('offerToUse')]",
-              "publisher": "f5-networks"
-            },
-            "imageReference": {
-              "offer": "[variables('offerToUse')]",
-              "publisher": "f5-networks",
-              "sku": "[variables('skuToUse')]",
-              "version": "[variables('versionToUse')]"
-            },
-            "inboundMgmtNatPool": [
-              {
-                "id": "[parameters('inboundMgmtNatPoolId')]"
-              }
-            ],
-            "inboundSshNatPool": [
-              {
-                "id": "[parameters('inboundSshNatPoolId')]"
-              }
-            ],
-            "metricResourceUri": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', parameters('vmssName'))]",
-            "networkSecurityGroup": {
-              "id": "[parameters('nsgId')]"
-            },
-            "offerToUse": "[if(variables('useCustomImage'), json('null'), variables('image')[1])]",
-            "rollingUpgrade": "[not(empty(parameters('instanceHealthProbeId')))]",
-            "scaleInTimeWindow": "[concat('PT', parameters('scaleInTimeWindow'), 'M')]",
-            "scaleOutTimeWindow": "[concat('PT', parameters('scaleOutTimeWindow'), 'M')]",
-            "singleQuote": "'",
-            "skipTelemetry": "[if(equals(parameters('allowUsageAnalytics'), 'Yes'), '', '--skip-telemetry')]",
-            "skuToUse": "[if(variables('useCustomImage'), json('null'), variables('image')[2])]",
-            "storageProfileArray": {
-              "customImage": {
-                "imageReference": {
-                  "id": "[variables('image')]"
-                }
-              },
-              "platformImage": {
-                "imageReference": "[variables('imageReference')]",
-                "osDisk": {
-                  "createOption": "FromImage"
-                }
-              }
-            },
-            "upgradePolicyManual": {
-              "mode": "Manual"
-            },
-            "upgradePolicyRolling": {
-              "mode": "Rolling",
-              "rollingUpgradePolicy": {
-                "maxBatchInstancePercent": "[parameters('maxBatchInstancePercent')]",
-                "maxUnhealthyInstancePercent": "[parameters('maxUnhealthyInstancePercent')]",
-                "maxUnhealthyUpgradedInstancePercent": "[parameters('maxUnhealthyUpgradedInstancePercent')]",
-                "pauseTimeBetweenBatches": "[concat('PT', parameters('pauseTimeBetweenBatches'), 'S')]"
-              }
-            },
-            "useCustomImage": "[contains(tolower(parameters('image')), 'microsoft.compute')]",
-            "useInboundMgmtNatPool": "[if(contains(tolower(parameters('inboundMgmtNatPoolId')), 'inboundnatpools'), variables('inboundMgmtNatPool'), parameters('inboundMgmtNatPoolId'))]",
-            "useInboundSshNatPool": "[if(contains(tolower(parameters('inboundSshNatPoolId')), 'inboundnatpools'), variables('inboundSshNatPool'), parameters('inboundSshNatPoolId'))]",
-            "versionToUse": "[if(variables('useCustomImage'), json('null'), variables('image')[3])]",
-            "vmssId2": "[toLower(concat('/subscriptions/', parameters('f5SubscriptionId'), '/resourceGroups/', parameters('f5ResourceGroup'), '/Microsoft.Compute/virtualMachineScaleSets/', parameters('vmssName')))]",
-            "vmssId": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]",
-            "runtimeInitTag": {
-              "workspaceId": "[parameters('workspaceId')]",
-              "uniqueString": "[parameters('uniqueString')]"
-            }
-
-          },
+          "parameters": {},
+          "variables": {},
           "resources": [
             {
               "apiVersion": "2019-12-01",
@@ -785,7 +519,7 @@
                 "[variables('diagnosticsStorageAccountName')]"
               ],
               "identity": "[if(and(empty(parameters('userAssignManagedIdentity')), empty(parameters('roleDefinitionId'))), json('null'), variables('identity'))]",
-              "location": "[resourceGroup().location]",
+              "location": "[parameters('f5Location')]",
               "name": "[parameters('vmssName')]",
               "plan": "[if(variables('useCustomImage'), json('null'), variables('imagePlan'))]",
               "properties": {
@@ -869,7 +603,7 @@
             {
               "apiVersion": "2022-09-01",
               "kind": "Storage",
-              "location": "[resourceGroup().location]",
+              "location": "[parameters('f5Location')]",
               "name": "[variables('diagnosticsStorageAccountName')]",
               "properties": {
                 "allowBlobPublicAccess": false,
@@ -887,7 +621,7 @@
               "dependsOn": [
                 "[variables('vmssId')]"
               ],
-              "location": "[resourceGroup().location]",
+              "location": "[parameters('f5Location')]",
               "name": "[concat(parameters('uniqueString'), '-bigip-vmss-autoscale-settings')]",
               "properties": {
                 "enabled": true,
@@ -921,7 +655,7 @@
               "apiVersion": "2020-02-02",
               "condition": "[not(equals(variables('appInsightsName'), 'NOT_USED'))]",
               "kind": "other",
-              "location": "[resourceGroup().location]",
+              "location": "[parameters('f5Location')]",
               "name": "[variables('appInsightsName')]",
               "properties": {
                 "ApplicationId": "[variables('appInsightsName')]",
@@ -1013,6 +747,33 @@
     "deployment": {
       "type": "string",
       "value": "[concat(deployment().name, ' has successfully deployed.')]"
+    },
+    "appInsightsComponentId": {
+      "condition": "[not(equals(variables('appInsightsName'), 'NOT_USED'))]",
+      "type": "string",
+      "value": "[reference('bigipTemplate-bigip').outputs.appInsightsComponentId.value]"
+    },
+    "appInsightsInstrumentationKey": {
+      "condition": "[not(equals(variables('appInsightsName'), 'NOT_USED'))]",
+      "type": "string",
+      "value": "[reference('bigipTemplate-bigip').outputs.appInsightsInstrumentationKey.value]"
+    },
+    "roleAssignmentId": {
+      "condition": "[not(empty(parameters('roleDefinitionId')))]",
+      "type": "string",
+      "value": "[reference('bigipTemplate-bigip').outputs.roleAssignmentId.value]"
+    },
+    "autoscaleSettingsId": {
+      "type": "string",
+      "value": "[reference('bigipTemplate-bigip').outputs.autoscaleSettingsId.value]"
+    },
+    "vmssId": {
+      "type": "string",
+      "value": "[reference('bigipTemplate-bigip').outputs.vmssId.value]"
+    },
+    "vmssName": {
+      "type": "string",
+      "value": "[reference('bigipTemplate-bigip').outputs.vmssName.value]"
     }
   }
 }
