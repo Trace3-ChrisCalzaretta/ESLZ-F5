@@ -678,11 +678,11 @@
               "dependsOn": [
                 "[variables('vmssId')]"
               ],
-              "name": "[guid(parameters('f5ResourceGroupId'), 'roleId')]",
+              "name": "[guid(resourceGroup().id, 'roleId')]",
               "properties": {
                 "principalId": "[reference(variables('vmssId'), '2019-12-01', 'Full').identity.principalId]",
                 "roleDefinitionId": "[parameters('roleDefinitionId')]",
-                "scope": "[parameters('f5ResourceGroupId')]"
+                "scope": "[resourceGroup().id]"
               },
               "type": "Microsoft.Authorization/roleAssignments"
             },
