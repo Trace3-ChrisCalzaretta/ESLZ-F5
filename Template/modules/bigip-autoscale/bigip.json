@@ -418,7 +418,7 @@
     "secretId": "[if(empty(parameters('secretId')), '', last(split(parameters('secretId'), '/secrets/')))]",
     "deploymentScript": "[resourceId('Microsoft.Resources/deploymentScripts', variables('deploymentScriptName'))]",
     "deploymentScriptName": "[concat(variables('appInsightsName'), '-metric-deployment-script')]",
-    "diagnosticsStorageAccountName": "[concat(uniqueString(parameters('uniqueString'), parameters('f5ResourceGroupId'), deployment().name), 'stbigip')]",
+    "diagnosticsStorageAccountName": "[concat(uniqueString(parameters('uniqueString'), substring(parameters('f5ResourceGroupId'), lastIndexOf(parameters('f5ResourceGroupId'), '/') + 1), deployment().name), 'stbigip')]",
     "extSettingsRef": {
       "commandToExecute": "[concat('echo -e ', variables('customData'), ' > /var/lib/waagent/CustomData; bash -c \"base64 -d /var/lib/waagent/CustomData | bash\"')]"
     },
