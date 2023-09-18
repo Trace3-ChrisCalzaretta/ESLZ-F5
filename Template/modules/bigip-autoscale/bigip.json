@@ -725,7 +725,7 @@
                 "id": "[parameters('inboundSshNatPoolId')]"
               }
             ],
-            "metricResourceUri": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', parameters('vmssName'))]",
+            "metricResourceUri": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]",
             "networkSecurityGroup": {
               "id": "[parameters('nsgId')]"
             },
