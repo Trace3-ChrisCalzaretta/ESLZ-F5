@@ -456,7 +456,7 @@
         "id": "[parameters('inboundSshNatPoolId')]"
       }
     ],
-    "metricResourceUri": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  parameters('f5ResourceGroup'), '/providers/Microsoft.Compute/virtualMachineScaleSets/', parameters('vmssName'))]",
+    "metricResourceUri": "[concat('/subscriptions/', parameters('f5SubscriptionId'), '/resourceGroups/',  parameters('f5ResourceGroup'), '/providers/Microsoft.Compute/virtualMachineScaleSets/', parameters('vmssName'))]",
     "networkSecurityGroup": {
       "id": "[parameters('nsgId')]"
     },
@@ -720,7 +720,7 @@
             "appInsightsComponentId": {
               "condition": "[not(equals(variables('appInsightsName'), 'NOT_USED'))]",
               "type": "string",
-              "value": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  parameters('f5ResourceGroup'), '/providers/microsoft.insights/components/', parameters('appInsights'))]"
+              "value": "[concat('/subscriptions/',parameters('f5SubscriptionId'), '/resourceGroups/',  parameters('f5ResourceGroup'), '/providers/microsoft.insights/components/', parameters('appInsights'))]"
             },
             "appInsightsInstrumentationKey": {
               "condition": "[not(equals(variables('appInsightsName'), 'NOT_USED'))]",
@@ -730,15 +730,15 @@
             "roleAssignmentId": {
               "condition": "[not(empty(parameters('roleDefinitionId')))]",
               "type": "string",
-              "value": "[concat('/subscriptions/',subscription().subscriptionId, '/resourcegroups/',  parameters('f5ResourceGroup'), '/providers/Microsoft.Authorization/roleAssignments/', guid(parameters('f5ResourceGroupId'), 'roleId'))]"
+              "value": "[concat('/subscriptions/',parameters('f5SubscriptionId'), '/resourcegroups/',  parameters('f5ResourceGroup'), '/providers/Microsoft.Authorization/roleAssignments/', guid(parameters('f5ResourceGroupId'), 'roleId'))]"
             },
             "autoscaleSettingsId": {
               "type": "string",
-              "value": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  parameters('f5ResourceGroup'), '/providers/microsoft.insights/autoscalesettings/', concat(parameters('uniqueString'), '-bigip-vmss-autoscale-settings'))]"
+              "value": "[concat('/subscriptions/',parameters('f5SubscriptionId'), '/resourceGroups/',  parameters('f5ResourceGroup'), '/providers/microsoft.insights/autoscalesettings/', concat(parameters('uniqueString'), '-bigip-vmss-autoscale-settings'))]"
             },
             "vmssId": {
               "type": "string",
-              "value": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  parameters('f5ResourceGroup'), '/providers/Microsoft.Compute/virtualMachineScaleSets/', parameters('vmssName'))]"
+              "value": "[concat('/subscriptions/',parameters('f5SubscriptionId'), '/resourceGroups/',  parameters('f5ResourceGroup'), '/providers/Microsoft.Compute/virtualMachineScaleSets/', parameters('vmssName'))]"
             },
             "vmssName": {
               "type": "string",
