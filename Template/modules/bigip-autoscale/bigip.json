@@ -496,8 +496,8 @@
     "useInboundMgmtNatPool": "[if(contains(tolower(parameters('inboundMgmtNatPoolId')), 'inboundnatpools'), variables('inboundMgmtNatPool'), parameters('inboundMgmtNatPoolId'))]",
     "useInboundSshNatPool": "[if(contains(tolower(parameters('inboundSshNatPoolId')), 'inboundnatpools'), variables('inboundSshNatPool'), parameters('inboundSshNatPoolId'))]",
     "versionToUse": "[if(variables('useCustomImage'), json('null'), variables('image')[3])]",
-    "vmssId2": "[toLower(concat('/subscriptions/', parameters('f5SubscriptionId'), '/resourceGroups/', parameters('f5ResourceGroup'), '/Microsoft.Compute/virtualMachineScaleSets/', parameters('vmssName')))]",
-    "vmssId": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]",
+    "vmssId": "[toLower(concat('/subscriptions/', parameters('f5SubscriptionId'), '/resourceGroups/', parameters('f5ResourceGroup'), '/Microsoft.Compute/virtualMachineScaleSets/', parameters('vmssName')))]",
+    "vmssId2": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]",
     "runtimeInitTag": {
       "workspaceId": "[parameters('workspaceId')]",
       "uniqueString": "[parameters('uniqueString')]"
@@ -731,7 +731,7 @@
             "roleAssignmentId": {
               "condition": "[not(empty(parameters('roleDefinitionId')))]",
               "type": "string",
-              "value": "[concat('/subscriptions/',subscription().subscriptionId, '/resourcegroups/',  parameters('f5ResourceGroup'), '/providers/Microsoft.Authorization/roleAssignments/', guid(resourceGroup().id, 'roleId'))]"
+              "value": "[concat('/subscriptions/',subscription().subscriptionId, '/resourcegroups/',  parameters('f5ResourceGroup'), '/providers/Microsoft.Authorization/roleAssignments/', guid(parameters('f5ResourceGroupId'), 'roleId'))]"
             },
             "autoscaleSettingsId": {
               "type": "string",
