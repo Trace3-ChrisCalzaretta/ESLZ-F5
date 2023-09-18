@@ -680,7 +680,7 @@
               "properties": {
                 "principalId": "[reference(variables('vmssId'), '2019-12-01', 'Full').identity.principalId]",
                 "roleDefinitionId": "[parameters('roleDefinitionId')]",
-                "scope": "[parameters('f5ResourceGroupId')]"
+                "scope": "[resourceGroup().id]"
               },
               "type": "Microsoft.Authorization/roleAssignments"
             },
