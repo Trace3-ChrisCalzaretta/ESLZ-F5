@@ -707,7 +707,7 @@
                 "environmentVariables": [
                   {
                     "name": "INSTRUMENTATION_KEY",
-                    "secureValue": "[reference(resourceId(parameters('f5ResourceGroup'), 'Microsoft.Insights/components', variables('appInsightsName')), '2020-02-02').InstrumentationKey]"                    
+                    "secureValue": "[reference(concat('/subscriptions/', parameters('f5SubscriptionId'), '/resourceGroups/', parameters('f5ResourceGroup'), '/', variables('appInsightsName')), '2020-02-02').InstrumentationKey]"                    
                   }
                 ],
                 "scriptContent": "NOW=$(date); METRICS=(\"F5_system_cpu\" \"F5_system_tmmCpu\" \"F5_system_memory\" \"F5_system_tmmMemory\" \"F5_throughputIn_sys/performance/throughput/In_Current\"); for METRIC in \"${METRICS[@]}\"; do curl -d '{\"name\":\"MetricData\",\"time\":\"'\"${NOW}\"'\",\"iKey\":\"'\"${INSTRUMENTATION_KEY}\"'\",\"data\":{\"baseType\":\"MetricData\",\"baseData\":{\"metrics\":[{\"name\":\"'\"${METRIC}\"'\",\"value\":0,\"count\":0}]}}}' https://dc.services.visualstudio.com/v2/track; sleep 2; done",
