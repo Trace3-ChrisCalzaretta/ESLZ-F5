@@ -496,8 +496,8 @@
     "useInboundMgmtNatPool": "[if(contains(tolower(parameters('inboundMgmtNatPoolId')), 'inboundnatpools'), variables('inboundMgmtNatPool'), parameters('inboundMgmtNatPoolId'))]",
     "useInboundSshNatPool": "[if(contains(tolower(parameters('inboundSshNatPoolId')), 'inboundnatpools'), variables('inboundSshNatPool'), parameters('inboundSshNatPoolId'))]",
     "versionToUse": "[if(variables('useCustomImage'), json('null'), variables('image')[3])]",
-    "vmssId": "[toLower(concat('/subscriptions/', parameters('f5SubscriptionId'), '/resourceGroups/', parameters('f5ResourceGroup'), '/Microsoft.Compute/virtualMachineScaleSets/', parameters('vmssName')))]",
-    "vmssId2": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]",
+    "vmssId2": "[toLower(concat('/subscriptions/', parameters('f5SubscriptionId'), '/resourceGroups/', parameters('f5ResourceGroup'), '/Microsoft.Compute/virtualMachineScaleSets/', parameters('vmssName')))]",
+    "vmssId": "[resourceId(parameters('f5ResourceGroup'), 'Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]",
     "runtimeInitTag": {
       "workspaceId": "[parameters('workspaceId')]",
       "uniqueString": "[parameters('uniqueString')]"
@@ -708,7 +708,7 @@
                 "environmentVariables": [
                   {
                     "name": "INSTRUMENTATION_KEY",
-                    "secureValue": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightsName')), '2020-02-02').InstrumentationKey]"
+                    "secureValue": "[reference(resourceId(parameters('f5ResourceGroup'), 'Microsoft.Insights/components', variables('appInsightsName')), '2020-02-02').InstrumentationKey]"                    
                   }
                 ],
                 "scriptContent": "NOW=$(date); METRICS=(\"F5_system_cpu\" \"F5_system_tmmCpu\" \"F5_system_memory\" \"F5_system_tmmMemory\" \"F5_throughputIn_sys/performance/throughput/In_Current\"); for METRIC in \"${METRICS[@]}\"; do curl -d '{\"name\":\"MetricData\",\"time\":\"'\"${NOW}\"'\",\"iKey\":\"'\"${INSTRUMENTATION_KEY}\"'\",\"data\":{\"baseType\":\"MetricData\",\"baseData\":{\"metrics\":[{\"name\":\"'\"${METRIC}\"'\",\"value\":0,\"count\":0}]}}}' https://dc.services.visualstudio.com/v2/track; sleep 2; done",
