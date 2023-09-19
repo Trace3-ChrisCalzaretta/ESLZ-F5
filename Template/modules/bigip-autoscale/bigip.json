@@ -608,7 +608,7 @@
                 "metricTrigger": {
                   "metricName": "[parameters('cpuMetricName')]",
                   "metricNamespace": "",
-                  "metricResourceUri": "[variables('metricResourceUri')]",
+                  "metricResourceUri": "[variables('vmssId')]",
                   "operator": "GreaterThan",
                   "statistic": "Average",
                   "threshold": "[parameters('scaleOutCpuThreshold')]",
@@ -627,7 +627,7 @@
                 "metricTrigger": {
                   "metricName": "[parameters('cpuMetricName')]",
                   "metricNamespace": "",
-                  "metricResourceUri": "[variables('metricResourceUri')]",
+                  "metricResourceUri": "[variables('vmssId')]",
                   "operator": "LessThan",
                   "statistic": "Average",
                   "threshold": "[parameters('scaleInCpuThreshold')]",
@@ -646,7 +646,7 @@
                 "metricTrigger": {
                   "metricName": "[parameters('throughputMetricName')]",
                   "metricNamespace": "",
-                  "metricResourceUri": "[variables('metricResourceUri')]",
+                  "metricResourceUri": "[variables('vmssId')]",
                   "operator": "GreaterThan",
                   "statistic": "Average",
                   "threshold": "[parameters('scaleOutThroughputThreshold')]",
@@ -665,7 +665,7 @@
                 "metricTrigger": {
                   "metricName": "[parameters('throughputMetricName')]",
                   "metricNamespace": "",
-                  "metricResourceUri": "[variables('metricResourceUri')]",
+                  "metricResourceUri": "[variables('vmssId')]",
                   "operator": "LessThan",
                   "statistic": "Average",
                   "threshold": "[parameters('scaleInThroughputThreshold')]",
@@ -725,7 +725,6 @@
                 "id": "[parameters('inboundSshNatPoolId')]"
               }
             ],
-            "metricResourceUri": "[reference(resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))).id]",
             "networkSecurityGroup": {
               "id": "[parameters('nsgId')]"
             },
@@ -765,7 +764,7 @@
             "useInboundMgmtNatPool": "[if(contains(tolower(parameters('inboundMgmtNatPoolId')), 'inboundnatpools'), variables('inboundMgmtNatPool'), parameters('inboundMgmtNatPoolId'))]",
             "useInboundSshNatPool": "[if(contains(tolower(parameters('inboundSshNatPoolId')), 'inboundnatpools'), variables('inboundSshNatPool'), parameters('inboundSshNatPoolId'))]",
             "versionToUse": "[if(variables('useCustomImage'), json('null'), variables('image')[3])]",
-            "vmssId": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]",
+            "vmssId": "[concat('/subscriptions/',subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', parameters('vmssName'))]",
             "runtimeInitTag": {
               "workspaceId": "[parameters('workspaceId')]",
               "uniqueString": "[parameters('uniqueString')]"
@@ -879,7 +878,7 @@
             {
               "apiVersion": "2015-04-01",
               "dependsOn": [
-                "[variables('vmssId')]"
+                "[parameters('vmssName')]"
               ],
               "location": "[resourceGroup().location]",
               "name": "[concat(parameters('uniqueString'), '-bigip-vmss-autoscale-settings')]",
@@ -928,7 +927,7 @@
               "apiVersion": "2021-04-01-preview",
               "condition": "[not(empty(parameters('roleDefinitionId')))]",
               "dependsOn": [
-                "[variables('vmssId')]"
+                "[parameters('vmssName')]"
               ],
               "name": "[guid(resourceGroup().id, 'roleId')]",
               "properties": {
