@@ -1007,9 +1007,7 @@
           "resources": [
             {
               "apiVersion": "2015-04-01",
-              "dependsOn": [
-                "[parameters('vmssName')]"
-              ],
+              "dependsOn": [],
               "location": "[resourceGroup().location]",
               "name": "[concat(parameters('uniqueString'), '-bigip-vmss-autoscale-settings')]",
               "properties": {
