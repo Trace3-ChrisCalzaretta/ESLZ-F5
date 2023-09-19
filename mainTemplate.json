@@ -1038,7 +1038,6 @@
         "f5Rg": "[concat(parameters('enterpriseScaleCompanyPrefix'), '-f5-', parameters('f5Location'))]",
         "f5SubscriptionPlacement": "[take(concat('alz-f5Sub', variables('deploymentSuffix')), 64)]",
         "f5RgDeploymentName": "[take(concat('alz-f5Rg', variables('deploymentSuffix')), 64)]",
-        "appContainerName": "F5Container",
         "commonUniqueString": "[toLower(parameters('uniqueString'))]",
         "adminUsername": "azureuser",
         "createManagedIdentity": "[empty(parameters('bigIpUserAssignManagedIdentity'))]",
@@ -1829,7 +1828,7 @@
                         "value": "[variables('adminUsername')]"
                     },
                     "appContainerName": {
-                        "value": "[variables('appContainerName')]"
+                        "value": "[parameters('appContainerName')]"
                     },
                     "cloudInitUrl": {
                         "value": "[variables('cloudInitUrl')]"
