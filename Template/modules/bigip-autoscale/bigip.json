@@ -1002,7 +1002,7 @@
             ],
             "scaleInTimeWindow": "[concat('PT', parameters('scaleInTimeWindow'), 'M')]",
             "scaleOutTimeWindow": "[concat('PT', parameters('scaleOutTimeWindow'), 'M')]",
-            "vmssId": "[concat('/subscriptions/',subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', parameters('vmssName'))]"
+            "vmssId": "/subscriptions/2708559d-7479-4e01-b12b-0476fb36ac3d/resourceGroups/allsaas-f5-eastus/providers/Microsoft.Compute/virtualMachineScaleSets/cgf5lab-bigip-vmss"
           },
           "resources": [
             {
