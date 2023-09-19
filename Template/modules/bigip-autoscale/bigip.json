@@ -334,7 +334,8 @@
   },
   "variables": {
     "appInsightsName": "[if(empty(parameters('appInsights')), 'NOT_USED', parameters('appInsights'))]",
-    "resourceDeploymentName": "[take(concat(deployment().name, '-bigip'), 64)]"
+    "resourceDeploymentName": "[take(concat(deployment().name, '-bigip'), 64)]",
+    "resourceDeploymentNameAutoScaleSettings": "[take(concat(deployment().name, '-autoScale'), 64)]"
   },
   "resources": [
     {
@@ -348,9 +349,6 @@
           "scope": "inner"
         },
         "parameters": {
-          "f5ResourceGroup": {
-            "value": "[parameters('f5ResourceGroup')]"
-          },
           "adminUsername": {
             "value": "[parameters('adminUsername')]"
           },
@@ -363,14 +361,8 @@
           "bigIpRuntimeInitPackageUrl": {
             "value": "[parameters('bigIpRuntimeInitPackageUrl')]"
           },
-          "cpuMetricName": {
-            "value": "[parameters('cpuMetricName')]"
-          },
           "customAutoscaleRules": {
             "value": "[parameters('customAutoscaleRules')]"
-          },
-          "customEmail": {
-            "value": "[parameters('customEmail')]"
           },
           "image": {
             "value": "[parameters('image')]"
@@ -414,24 +406,6 @@
           "bigIpRuntimeInitConfig": {
             "value": "[parameters('bigIpRuntimeInitConfig')]"
           },
-          "scaleInCpuThreshold": {
-            "value": "[parameters('scaleInCpuThreshold')]"
-          },
-          "scaleInThroughputThreshold": {
-            "value": "[parameters('scaleInThroughputThreshold')]"
-          },
-          "scaleInTimeWindow": {
-            "value": "[parameters('scaleInTimeWindow')]"
-          },
-          "scaleOutCpuThreshold": {
-            "value": "[parameters('scaleOutCpuThreshold')]"
-          },
-          "scaleOutThroughputThreshold": {
-            "value": "[parameters('scaleOutThroughputThreshold')]"
-          },
-          "scaleOutTimeWindow": {
-            "value": "[parameters('scaleOutTimeWindow')]"
-          },
           "secretId": {
             "value": "[parameters('secretId')]"
           },
@@ -444,9 +418,6 @@
           "tagValues": {
             "value": "[parameters('tagValues')]"
           },
-          "throughputMetricName": {
-            "value": "[parameters('throughputMetricName')]"
-          },
           "uniqueString": {
             "value": "[parameters('uniqueString')]"
           },
@@ -458,9 +429,6 @@
           },
           "userAssignManagedIdentity": {
             "value": "[parameters('userAssignManagedIdentity')]"
-          },
-          "vmScaleSetMaxCount": {
-            "value": "[parameters('vmScaleSetMaxCount')]"
           },
           "vmScaleSetMinCount": {
             "value": "[parameters('vmScaleSetMinCount')]"
@@ -477,9 +445,6 @@
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
           "parameters": {
-            "f5ResourceGroup": {
-              "type": "string"
-            },
             "adminUsername": {
               "type": "string"
             },
@@ -492,13 +457,7 @@
             "bigIpRuntimeInitPackageUrl": {
               "type": "string"
             },
-            "cpuMetricName": {
-              "type": "string"
-            },
             "customAutoscaleRules": {
-              "type": "array"
-            },
-            "customEmail": {
               "type": "array"
             },
             "image": {
@@ -543,24 +502,6 @@
             "bigIpRuntimeInitConfig": {
               "type": "string"
             },
-            "scaleInCpuThreshold": {
-              "type": "int"
-            },
-            "scaleInThroughputThreshold": {
-              "type": "int"
-            },
-            "scaleInTimeWindow": {
-              "type": "int"
-            },
-            "scaleOutCpuThreshold": {
-              "type": "int"
-            },
-            "scaleOutThroughputThreshold": {
-              "type": "int"
-            },
-            "scaleOutTimeWindow": {
-              "type": "int"
-            },
             "secretId": {
               "type": "string"
             },
@@ -572,9 +513,6 @@
             },
             "tagValues": {
               "type": "object"
-            },
-            "throughputMetricName": {
-              "type": "string"
             },
             "uniqueString": {
               "type": "string"
@@ -588,9 +526,6 @@
             "userAssignManagedIdentity": {
               "type": "string"
             },
-            "vmScaleSetMaxCount": {
-              "type": "int"
-            },
             "vmScaleSetMinCount": {
               "type": "int"
             },
@@ -603,84 +538,6 @@
           },
           "variables": {
             "appInsightsName": "[if(empty(parameters('appInsights')), 'NOT_USED', parameters('appInsights'))]",
-            "autoscaleRules": [
-              {
-                "metricTrigger": {
-                  "metricName": "[parameters('cpuMetricName')]",
-                  "metricNamespace": "",
-                  "metricResourceUri": "[variables('vmssId')]",
-                  "operator": "GreaterThan",
-                  "statistic": "Average",
-                  "threshold": "[parameters('scaleOutCpuThreshold')]",
-                  "timeAggregation": "Average",
-                  "timeGrain": "PT1M",
-                  "timeWindow": "[variables('scaleOutTimeWindow')]"
-                },
-                "scaleAction": {
-                  "cooldown": "PT1M",
-                  "direction": "Increase",
-                  "type": "ChangeCount",
-                  "value": "1"
-                }
-              },
-              {
-                "metricTrigger": {
-                  "metricName": "[parameters('cpuMetricName')]",
-                  "metricNamespace": "",
-                  "metricResourceUri": "[variables('vmssId')]",
-                  "operator": "LessThan",
-                  "statistic": "Average",
-                  "threshold": "[parameters('scaleInCpuThreshold')]",
-                  "timeAggregation": "Average",
-                  "timeGrain": "PT1M",
-                  "timeWindow": "[variables('scaleInTimeWindow')]"
-                },
-                "scaleAction": {
-                  "cooldown": "PT1M",
-                  "direction": "Decrease",
-                  "type": "ChangeCount",
-                  "value": "1"
-                }
-              },
-              {
-                "metricTrigger": {
-                  "metricName": "[parameters('throughputMetricName')]",
-                  "metricNamespace": "",
-                  "metricResourceUri": "[variables('vmssId')]",
-                  "operator": "GreaterThan",
-                  "statistic": "Average",
-                  "threshold": "[parameters('scaleOutThroughputThreshold')]",
-                  "timeAggregation": "Average",
-                  "timeGrain": "PT1M",
-                  "timeWindow": "[variables('scaleOutTimeWindow')]"
-                },
-                "scaleAction": {
-                  "cooldown": "PT1M",
-                  "direction": "Increase",
-                  "type": "ChangeCount",
-                  "value": "1"
-                }
-              },
-              {
-                "metricTrigger": {
-                  "metricName": "[parameters('throughputMetricName')]",
-                  "metricNamespace": "",
-                  "metricResourceUri": "[variables('vmssId')]",
-                  "operator": "LessThan",
-                  "statistic": "Average",
-                  "threshold": "[parameters('scaleInThroughputThreshold')]",
-                  "timeAggregation": "Average",
-                  "timeGrain": "PT1M",
-                  "timeWindow": "[variables('scaleInTimeWindow')]"
-                },
-                "scaleAction": {
-                  "cooldown": "PT1M",
-                  "direction": "Decrease",
-                  "type": "ChangeCount",
-                  "value": "1"
-                }
-              }
-            ],
             "customData": "[base64(concat('#!/bin/bash -x\n\n# Log to local file and serial console\nmkdir -p /var/log/cloud /config/cloud /var/config/rest/downloads\nLOG_FILE=/var/log/cloud/startup-script.log\ntouch ${LOG_FILE}\nnpipe=/tmp/$$.tmp\ntrap \"rm -f $npipe\" EXIT\nmknod $npipe p\ntee <$npipe -a ${LOG_FILE} /dev/ttyS0 &\nexec 1>&-\nexec 1>$npipe\nexec 2>&1\n\necho \"$(date  +\"%Y-%m-%dT%H:%M:%S.%3NZ\") : Startup Script Start\"\n# Optional optimizations required as early in boot as possible before mcpd starts\n/usr/bin/setdb provision.extramb 1000 || true\n/usr/bin/setdb provision.restjavad.extramb 1384 || /usr/bin/setdb restjavad.useextramb true || true\n/usr/bin/setdb iapplxrpm.timeout 300 || true\n/usr/bin/setdb icrd.timeout 180 || true\n/usr/bin/setdb restjavad.timeout 180 || true\n/usr/bin/setdb restnoded.timeout 180 || true\n\n# VARS FROM TEMPLATE\nVAULT_URL=', variables('singleQuote'), variables('keyVault'), variables('singleQuote'), '\nSECRET_ID=', variables('singleQuote'), variables('secretId'), variables('singleQuote'), '\nPACKAGE_URL=', variables('singleQuote'), parameters('bigIpRuntimeInitPackageUrl'), variables('singleQuote'), '\nRUNTIME_CONFIG=',  variables('singleQuote'), parameters('bigIpRuntimeInitConfig'), variables('singleQuote'), '\n\n# Save variables to file\necho $VAULT_URL > /config/cloud/vault_url\necho $SECRET_ID > /config/cloud/secret_id\n\n# Render or download f5-bigip-runtime-init config\nif [[ \"${RUNTIME_CONFIG}\" =~ ^http.* ]]; then\n    for i in {1..30}; do\n        curl -sfv --retry 1 --connect-timeout 5 -L \"${RUNTIME_CONFIG}\" -o /config/cloud/runtime-init.conf && break || sleep 10;\n    done\nelse\n  printf ', variables('singleQuote'), '%s\\n', variables('singleQuote'), ' \"${RUNTIME_CONFIG}\" | jq . > /config/cloud/runtime-init.conf\nfi\n\n# Download and install f5-bigip-runtime-init package\nif [[ ! -s \"/var/config/rest/downloads/${PACKAGE_URL##*/}\" ]]; then\n  for i in {1..30}; do\n    curl -fv --retry 1 --connect-timeout 5 -L \"${PACKAGE_URL}\" -o \"/var/config/rest/downloads/${PACKAGE_URL##*/}\" && break || sleep 10\n  done\nfi\nbash \"/var/config/rest/downloads/${PACKAGE_URL##*/}\" -- ', variables('singleQuote'), '--cloud azure --telemetry-params templateName:v2.9.0.0/examples/modules/bigip-autoscale/bigip.json', variables('singleQuote'), '\n\n# Run\nf5-bigip-runtime-init --config-file /config/cloud/runtime-init.conf ', variables('singleQuote'), variables('skipTelemetry'), variables('singleQuote'), '\n'))]",
             "keyVault": "[if(empty(parameters('secretId')), '', first(split(parameters('secretId'), '/secrets/')))]",
             "secretId": "[if(empty(parameters('secretId')), '', last(split(parameters('secretId'), '/secrets/')))]",
@@ -730,8 +587,6 @@
             },
             "offerToUse": "[if(variables('useCustomImage'), json('null'), variables('image')[1])]",
             "rollingUpgrade": "[not(empty(parameters('instanceHealthProbeId')))]",
-            "scaleInTimeWindow": "[concat('PT', parameters('scaleInTimeWindow'), 'M')]",
-            "scaleOutTimeWindow": "[concat('PT', parameters('scaleOutTimeWindow'), 'M')]",
             "singleQuote": "'",
             "skipTelemetry": "[if(equals(parameters('allowUsageAnalytics'),'yes'), '', '--skip-telemetry')]",
             "skuToUse": "[if(variables('useCustomImage'), json('null'), variables('image')[2])]",
@@ -876,41 +731,6 @@
               "type": "Microsoft.Storage/storageAccounts"
             },
             {
-              "apiVersion": "2015-04-01",
-              "dependsOn": [
-                "[parameters('vmssName')]"
-              ],
-              "location": "[resourceGroup().location]",
-              "name": "[concat(parameters('uniqueString'), '-bigip-vmss-autoscale-settings')]",
-              "properties": {
-                "enabled": true,
-                "name": "[concat(parameters('uniqueString'), '-bigip-vmss-autoscale-settings')]",
-                "notifications": [
-                  {
-                    "email": {
-                      "customEmails": "[parameters('customEmail')]",
-                      "sendToSubscriptionAdministrator": false,
-                      "sendToSubscriptionCoAdministrators": false
-                    },
-                    "operation": "Scale"
-                  }
-                ],
-                "profiles": [
-                  {
-                    "capacity": {
-                      "default": "[parameters('vmScaleSetMinCount')]",
-                      "maximum": "[parameters('vmScaleSetMaxCount')]",
-                      "minimum": "[parameters('vmScaleSetMinCount')]"
-                    },
-                    "name": "Profile1",
-                    "rules": "[if(empty(parameters('customAutoscaleRules')), variables('autoscaleRules'), parameters('customAutoscaleRules'))]"
-                  }
-                ],
-                "targetResourceUri": "[variables('vmssId')]"
-              },
-              "type": "Microsoft.Insights/autoscaleSettings"
-            },
-            {
               "apiVersion": "2020-02-02",
               "condition": "[not(equals(variables('appInsightsName'), 'NOT_USED'))]",
               "kind": "other",
@@ -985,10 +805,6 @@
               "type": "string",
               "value": "[concat('/subscriptions/',subscription().subscriptionId, '/resourcegroups/',  resourceGroup().name, '/providers/Microsoft.Authorization/roleAssignments/', guid(resourceGroup().id, 'roleId'))]"
             },
-            "autoscaleSettingsId": {
-              "type": "string",
-              "value": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/microsoft.insights/autoscalesettings/', concat(parameters('uniqueString'), '-bigip-vmss-autoscale-settings'))]"
-            },
             "vmssId": {
               "type": "string",
               "value": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', parameters('vmssName'))]"
@@ -996,6 +812,239 @@
             "vmssName": {
               "type": "string",
               "value": "[parameters('vmssName')]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[variables('resourceDeploymentNameAutoScaleSettings')]",
+      "resourceGroup": "[parameters('f5ResourceGroup')]",
+      "dependsOn": [
+        "[variables('resourceDeploymentName')]"
+      ],
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "parameters": {
+          "cpuMetricName": {
+            "value": "[parameters('cpuMetricName')]"
+          },
+          "customAutoscaleRules": {
+            "value": "[parameters('customAutoscaleRules')]"
+          },
+          "customEmail": {
+            "value": "[parameters('customEmail')]"
+          },
+          "scaleInCpuThreshold": {
+            "value": "[parameters('scaleInCpuThreshold')]"
+          },
+          "scaleInThroughputThreshold": {
+            "value": "[parameters('scaleInThroughputThreshold')]"
+          },
+          "scaleInTimeWindow": {
+            "value": "[parameters('scaleInTimeWindow')]"
+          },
+          "scaleOutCpuThreshold": {
+            "value": "[parameters('scaleOutCpuThreshold')]"
+          },
+          "scaleOutThroughputThreshold": {
+            "value": "[parameters('scaleOutThroughputThreshold')]"
+          },
+          "scaleOutTimeWindow": {
+            "value": "[parameters('scaleOutTimeWindow')]"
+          },
+          "throughputMetricName": {
+            "value": "[parameters('throughputMetricName')]"
+          },
+          "uniqueString": {
+            "value": "[parameters('uniqueString')]"
+          },
+          "vmScaleSetMaxCount": {
+            "value": "[parameters('vmScaleSetMaxCount')]"
+          },
+          "vmScaleSetMinCount": {
+            "value": "[parameters('vmScaleSetMinCount')]"
+          },
+          "vmssName": {
+            "value": "[parameters('vmssName')]"
+          }
+        },
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "cpuMetricName": {
+              "type": "string"
+            },
+            "customAutoscaleRules": {
+              "type": "array"
+            },
+            "customEmail": {
+              "type": "array"
+            },
+            "scaleInCpuThreshold": {
+              "type": "int"
+            },
+            "scaleInThroughputThreshold": {
+              "type": "int"
+            },
+            "scaleInTimeWindow": {
+              "type": "int"
+            },
+            "scaleOutCpuThreshold": {
+              "type": "int"
+            },
+            "scaleOutThroughputThreshold": {
+              "type": "int"
+            },
+            "scaleOutTimeWindow": {
+              "type": "int"
+            },
+            "throughputMetricName": {
+              "type": "string"
+            },
+            "uniqueString": {
+              "type": "string"
+            },
+            "vmScaleSetMaxCount": {
+              "type": "int"
+            },
+            "vmScaleSetMinCount": {
+              "type": "int"
+            },
+            "vmssName": {
+              "type": "string"
+            }
+          },
+          "variables": {
+            "autoscaleRules": [
+              {
+                "metricTrigger": {
+                  "metricName": "[parameters('cpuMetricName')]",
+                  "metricNamespace": "",
+                  "metricResourceUri": "[variables('vmssId')]",
+                  "operator": "GreaterThan",
+                  "statistic": "Average",
+                  "threshold": "[parameters('scaleOutCpuThreshold')]",
+                  "timeAggregation": "Average",
+                  "timeGrain": "PT1M",
+                  "timeWindow": "[variables('scaleOutTimeWindow')]"
+                },
+                "scaleAction": {
+                  "cooldown": "PT1M",
+                  "direction": "Increase",
+                  "type": "ChangeCount",
+                  "value": "1"
+                }
+              },
+              {
+                "metricTrigger": {
+                  "metricName": "[parameters('cpuMetricName')]",
+                  "metricNamespace": "",
+                  "metricResourceUri": "[variables('vmssId')]",
+                  "operator": "LessThan",
+                  "statistic": "Average",
+                  "threshold": "[parameters('scaleInCpuThreshold')]",
+                  "timeAggregation": "Average",
+                  "timeGrain": "PT1M",
+                  "timeWindow": "[variables('scaleInTimeWindow')]"
+                },
+                "scaleAction": {
+                  "cooldown": "PT1M",
+                  "direction": "Decrease",
+                  "type": "ChangeCount",
+                  "value": "1"
+                }
+              },
+              {
+                "metricTrigger": {
+                  "metricName": "[parameters('throughputMetricName')]",
+                  "metricNamespace": "",
+                  "metricResourceUri": "[variables('vmssId')]",
+                  "operator": "GreaterThan",
+                  "statistic": "Average",
+                  "threshold": "[parameters('scaleOutThroughputThreshold')]",
+                  "timeAggregation": "Average",
+                  "timeGrain": "PT1M",
+                  "timeWindow": "[variables('scaleOutTimeWindow')]"
+                },
+                "scaleAction": {
+                  "cooldown": "PT1M",
+                  "direction": "Increase",
+                  "type": "ChangeCount",
+                  "value": "1"
+                }
+              },
+              {
+                "metricTrigger": {
+                  "metricName": "[parameters('throughputMetricName')]",
+                  "metricNamespace": "",
+                  "metricResourceUri": "[variables('vmssId')]",
+                  "operator": "LessThan",
+                  "statistic": "Average",
+                  "threshold": "[parameters('scaleInThroughputThreshold')]",
+                  "timeAggregation": "Average",
+                  "timeGrain": "PT1M",
+                  "timeWindow": "[variables('scaleInTimeWindow')]"
+                },
+                "scaleAction": {
+                  "cooldown": "PT1M",
+                  "direction": "Decrease",
+                  "type": "ChangeCount",
+                  "value": "1"
+                }
+              }
+            ],
+            "scaleInTimeWindow": "[concat('PT', parameters('scaleInTimeWindow'), 'M')]",
+            "scaleOutTimeWindow": "[concat('PT', parameters('scaleOutTimeWindow'), 'M')]",
+            "vmssId": "[concat('/subscriptions/',subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', parameters('vmssName'))]"
+          },
+          "resources": [
+            {
+              "apiVersion": "2015-04-01",
+              "dependsOn": [
+                "[parameters('vmssName')]"
+              ],
+              "location": "[resourceGroup().location]",
+              "name": "[concat(parameters('uniqueString'), '-bigip-vmss-autoscale-settings')]",
+              "properties": {
+                "enabled": true,
+                "name": "[concat(parameters('uniqueString'), '-bigip-vmss-autoscale-settings')]",
+                "notifications": [
+                  {
+                    "email": {
+                      "customEmails": "[parameters('customEmail')]",
+                      "sendToSubscriptionAdministrator": false,
+                      "sendToSubscriptionCoAdministrators": false
+                    },
+                    "operation": "Scale"
+                  }
+                ],
+                "profiles": [
+                  {
+                    "capacity": {
+                      "default": "[parameters('vmScaleSetMinCount')]",
+                      "maximum": "[parameters('vmScaleSetMaxCount')]",
+                      "minimum": "[parameters('vmScaleSetMinCount')]"
+                    },
+                    "name": "Profile1",
+                    "rules": "[if(empty(parameters('customAutoscaleRules')), variables('autoscaleRules'), parameters('customAutoscaleRules'))]"
+                  }
+                ],
+                "targetResourceUri": "[variables('vmssId')]"
+              },
+              "type": "Microsoft.Insights/autoscaleSettings"
+            }
+          ],
+          "outputs": {
+            "autoscaleSettingsId": {
+              "type": "string",
+              "value": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/microsoft.insights/autoscalesettings/', concat(parameters('uniqueString'), '-bigip-vmss-autoscale-settings'))]"
             }
           }
         }
