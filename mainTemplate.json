@@ -1080,13 +1080,6 @@
                 "protocol": "Tcp"
             }
         ],
-        "bastionSecurityGroup": [
-            {
-                "destinationPortRanges": [ "22" ],
-                "sourceAddressPrefix": "[parameters('restrictedSrcAddressMgmt')]",
-                "protocol": "Tcp"
-            }
-        ],
         "numberPublicExternalIpAddresses": "[if(equals(parameters('provisionExternalBigIpLoadBalancer'), 'Yes'), 1, 0)]",
         "numberPublicMgmtIpAddresses": 0,
         "appInstanceName": "[variables('commonUniqueString')]",
@@ -1097,7 +1090,7 @@
         "createAutoscaleGroup": true,
         "provisionApp": "[not(empty(parameters('appContainerName')))]",
         "appInsights": "[concat(variables('commonUniqueString'), '-app-insights')]",
-        "appInsightsId": "[resourceId('Microsoft.Insights/components', variables('appInsights'))]",
+        "appInsightsId": "[concat('/subscriptions/', parameters('f5SubscriptionId'), '/resourceGroups/',  variables('f5Rg'), '/providers/Microsoft.Compute/virtualMachineScaleSets/', variables('vmssName'))]",
         "bigIpImage": "[parameters('bigIpImage')]",
         "bigIpInstanceType": "[parameters('bigIpInstanceType')]",
         "bigIpVmScaleSetMaxCount": "[parameters('bigIpScalingMaxSize')]",
