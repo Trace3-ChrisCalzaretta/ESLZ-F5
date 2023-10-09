@@ -648,6 +648,7 @@
             "defaultValue": "No",
             "allowedValues": [
                 "Yes",
+                "Audit",
                 "No"
             ]
         },
