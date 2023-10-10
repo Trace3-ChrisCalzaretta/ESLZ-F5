@@ -3412,7 +3412,8 @@
             "enableF5Telemetry": "[steps('f5Parameters').enableF5Telemetry]",
             "existingWorkspaceId": "[steps('f5Parameters').existingWorkspaceId]",
             "f5AddressPrefix": "[steps('f5Parameters').f5AddressPrefix]",
-            "f5CidrNotation": "[steps('f5Parameters').f5CidrNotation]",
+            "f5VnetCidrNotation": "[steps('f5Parameters').f5VnetCidrNotation]",
+            "f5SubnetCidrNotation": "[steps('f5Parameters').f5SubnetCidrNotation]",
             "location": "[location()]"
         }
     }
