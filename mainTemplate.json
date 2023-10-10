@@ -1024,7 +1024,7 @@
                 "description": "Enter the the value for the CIDR notation (ex. 16 for /16, 24 for /24) that will be applied to the subnets created within the virtual network."
             }
         },
-        "f5SubnetCidrNotation": {
+        "f5SubnetMask": {
             "defaultValue": "24",
             "type": "string",
             "metadata": {
@@ -1754,8 +1754,8 @@
                     "vnetCidrNotation": {
                         "value": "[parameters('f5VnetCidrNotation')]"
                     },
-                    "subnetCidrNotation": {
-                        "value": "[parameters('f5SubnetCidrNotation')]"
+                    "subnetMask": {
+                        "value": "[parameters('f5SubnetMask')]"
                     },
                     "nsg0": {
                         "value": "[variables('mgmtSecurityGroup')]"

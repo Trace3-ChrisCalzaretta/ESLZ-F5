@@ -47,7 +47,7 @@
                 "description": "Enter the the value for the CIDR notation (ex. 16 for /16, 24 for /24) that will be applied to the subnets created within the virtual network."
             }
         },
-        "subnetCidrNotation": {
+        "subnetMask": {
             "defaultValue": "24",
             "type": "string",
             "metadata": {
@@ -132,8 +132,8 @@
                     "vnetCidrNotation": {
                         "value": "[parameters('vnetCidrNotation')]"
                     },
-                    "subnetCidrNotation": {
-                        "value": "[parameters('subnetCidrNotation')]"
+                    "subnetMask": {
+                        "value": "[parameters('subnetMask')]"
                     },
                     "tagValues": {
                         "value": "[parameters('tagValues')]"
@@ -168,7 +168,7 @@
                         "vnetCidrNotation": {
                             "type": "string"
                         },
-                        "subnetCidrNotation": {
+                        "subnetMask": {
                             "type": "string"
                         },
                         "tagValues": {
@@ -188,7 +188,7 @@
                                 "input": {
                                     "name": "[concat('subnet-0', copyIndex('constructSubnetArray', 1))]",
                                     "properties": {
-                                        "addressPrefix": "[concat(parameters('vnetAddressPrefix'), '.', copyIndex('constructSubnetArray'),'.0/', parameters('subnetCidrNotation'))]",
+                                        "addressPrefix": "[concat(parameters('vnetAddressPrefix'), '.', copyIndex('constructSubnetArray'),'.0/', parameters('subnetMask'))]",
                                         "routeTable": {
                                             "id": "[resourceId('Microsoft.Network/routeTables', concat('route-table-subnet-0', copyIndex('constructSubnetArray', 1)))]"
                                         },

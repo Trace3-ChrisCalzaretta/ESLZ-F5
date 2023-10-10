@@ -3227,12 +3227,12 @@
                         "visible": true
                     },
                     {
-                        "name": "f5SubnetCidrNotation",
+                        "name": "f5SubnetMask",
                         "type": "Microsoft.Common.TextBox",
                         "label": "Subnet network address space prefix",
                         "placeholder": "24",
                         "defaultValue": "24",
-                        "toolTip": "Enter the value for the CIDR notation (ex. 24 for /24, 29 for /29) that will be applied to the two subnets created within the F5 virtual network. The subnets must be a size that is small enough to support two subnets of equal size within the virtual network address space defined above.",
+                        "toolTip": "Enter the value for the subnet mask (ex. 24 for /24, 29 for /29) that will be applied to the two subnets created within the F5 virtual network. The subnets must be a size that is small enough to support two subnets of equal size within the virtual network address space defined above.",
                         "constraints": {
                             "required": true,
                             "validations": [
@@ -3413,7 +3413,7 @@
             "existingWorkspaceId": "[steps('f5Parameters').existingWorkspaceId]",
             "f5AddressPrefix": "[steps('f5Parameters').f5AddressPrefix]",
             "f5VnetCidrNotation": "[steps('f5Parameters').f5VnetCidrNotation]",
-            "f5SubnetCidrNotation": "[steps('f5Parameters').f5SubnetCidrNotation]",
+            "f5SubnetMask": "[steps('f5Parameters').f5SubnetMask]",
             "location": "[location()]"
         }
     }
