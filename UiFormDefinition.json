@@ -3236,18 +3236,36 @@
                             "visible": true
                         },
                         {
-                            "name": "f5CidrNotation",
+                            "name": "f5VnetCidrNotation",
                             "type": "Microsoft.Common.TextBox",
                             "label": "Virtual network address space prefix",
-                            "placeholder": "16",
-                            "defaultValue": "16",
-                            "toolTip": "Enter the value for the CIDR notation (ex. 16 for /16, 29 for /29) that will be applied to the subnets created within the virtual network. The smallest supported value is /29, and the largest is /2.",
+                            "placeholder": "22",
+                            "defaultValue": "22",
+                            "toolTip": "Enter the value for the CIDR notation (ex. 16 for /16, 29 for /29) that will be applied to the F5 virtual network. The smallest supported value is /29, and the largest is /2. It must be big enought to support two subnets of equal size.",
                             "constraints": {
                                 "required": true,
                                 "validations": [
                                     {
                                         "regex": "^([2-9]|[12][0-9])$",
                                         "message": "Invalid CIDR notation. The value must be a one or two-digit number from 2 to 29."
+                                    }
+                                ]
+                            },
+                            "visible": true
+                        },
+                        {
+                            "name": "f5SubnetCidrNotation",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Subnet network address space prefix",
+                            "placeholder": "24",
+                            "defaultValue": "24",
+                            "toolTip": "Enter the value for the CIDR notation (ex. 24 for /24, 29 for /29) that will be applied to the two subnets created within the F5 virtual network. The subnets must be a size that is small enough to support two subnets of equal size within the virtual network address space defined above.",
+                            "constraints": {
+                                "required": true,
+                                "validations": [
+                                    {
+                                        "regex": "^([3-9]|[12][0-9])$",
+                                        "message": "Invalid CIDR notation. The value must be a one or two-digit number from 3 to 29."
                                     }
                                 ]
                             },

@@ -40,8 +40,15 @@
                 "description": "Enter the start of the CIDR block used when creating the vnet and subnets.  You MUST type just the first two octets of the /16 virtual network that will be created, for example '10.0', '10.100', 192.168'."
             }
         },
-        "cidrNotation": {
-            "defaultValue": "16",
+        "vnetCidrNotation": {
+            "defaultValue": "22",
+            "type": "string",
+            "metadata": {
+                "description": "Enter the the value for the CIDR notation (ex. 16 for /16, 24 for /24) that will be applied to the subnets created within the virtual network."
+            }
+        },
+        "subnetCidrNotation": {
+            "defaultValue": "24",
             "type": "string",
             "metadata": {
                 "description": "Enter the the value for the CIDR notation (ex. 16 for /16, 24 for /24) that will be applied to the subnets created within the virtual network."
@@ -122,8 +129,11 @@
                     "vnetAddressPrefix": {
                         "value": "[parameters('vnetAddressPrefix')]"
                     },
-                    "cidrNotation": {
-                        "value": "[parameters('cidrNotation')]"
+                    "vnetCidrNotation": {
+                        "value": "[parameters('vnetCidrNotation')]"
+                    },
+                    "subnetCidrNotation": {
+                        "value": "[parameters('subnetCidrNotation')]"
                     },
                     "tagValues": {
                         "value": "[parameters('tagValues')]"
@@ -155,7 +165,10 @@
                         "vnetAddressPrefix": {
                             "type": "string"
                         },
-                        "cidrNotation": {
+                        "vnetCidrNotation": {
+                            "type": "string"
+                        },
+                        "subnetCidrNotation": {
                             "type": "string"
                         },
                         "tagValues": {
@@ -175,7 +188,7 @@
                                 "input": {
                                     "name": "[concat('subnet-0', copyIndex('constructSubnetArray', 1))]",
                                     "properties": {
-                                        "addressPrefix": "[concat(parameters('vnetAddressPrefix'), '.', copyIndex('constructSubnetArray'),'.0/24')]",
+                                        "addressPrefix": "[concat(parameters('vnetAddressPrefix'), '.', copyIndex('constructSubnetArray'),'.0/', parameters('subnetCidrNotation'))]",
                                         "routeTable": {
                                             "id": "[resourceId('Microsoft.Network/routeTables', concat('route-table-subnet-0', copyIndex('constructSubnetArray', 1)))]"
                                         },
@@ -339,7 +352,7 @@
                             "properties": {
                                 "addressSpace": {
                                     "addressPrefixes": [
-                                        "[concat(parameters('vnetAddressPrefix'), '.0.0/', parameters('cidrNotation'))]"
+                                        "[concat(parameters('vnetAddressPrefix'), '.0.0/', parameters('vnetCidrNotation'))]"
                                     ]
                                 },
                                 "subnets": "[variables('constructSubnetArray')]"

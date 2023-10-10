@@ -1017,8 +1017,15 @@
             "type": "string",
             "defaultValue": "10.0"
         },
-        "f5CidrNotation": {
-            "defaultValue": "16",
+        "f5VnetCidrNotation": {
+            "defaultValue": "22",
+            "type": "string",
+            "metadata": {
+                "description": "Enter the the value for the CIDR notation (ex. 16 for /16, 24 for /24) that will be applied to the subnets created within the virtual network."
+            }
+        },
+        "f5SubnetCidrNotation": {
+            "defaultValue": "24",
             "type": "string",
             "metadata": {
                 "description": "Enter the the value for the CIDR notation (ex. 16 for /16, 24 for /24) that will be applied to the subnets created within the virtual network."
@@ -1744,8 +1751,11 @@
                     "vnetAddressPrefix": {
                         "value": "[parameters('f5AddressPrefix')]"
                     },
-                    "cidrNotation": {
-                        "value": "[parameters('f5CidrNotation')]"
+                    "vnetCidrNotation": {
+                        "value": "[parameters('f5VnetCidrNotation')]"
+                    },
+                    "subnetCidrNotation": {
+                        "value": "[parameters('f5SubnetCidrNotation')]"
                     },
                     "nsg0": {
                         "value": "[variables('mgmtSecurityGroup')]"
