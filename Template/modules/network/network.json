@@ -419,19 +419,19 @@
                         },
                         "f5Subnet": {
                             "type": "string",
-                            "input": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('f5SubnetName'))]"
+                            "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('f5SubnetName'))]"
                         },
                         "demoAppSubnet": {
                             "type": "string",
-                            "input": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('demoAppSubnetName'))]"
+                            "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('demoAppSubnetName'))]"
                         },
                         "f5RouteTable": {
                             "type": "string",
-                            "input": "[resourceId('Microsoft.Network/routeTables', parameters('f5SubnetName'))]"
+                            "value": "[resourceId('Microsoft.Network/routeTables', parameters('f5SubnetName'))]"
                         },
                         "demoAppRouteTable": {
                             "type": "string",
-                            "input": "[resourceId('Microsoft.Network/routeTables', variables('demoAppSubnetName'))]"
+                            "value": "[resourceId('Microsoft.Network/routeTables', variables('demoAppSubnetName'))]"
                         },
                         "f5Nsg": {
                             "type": "string",
