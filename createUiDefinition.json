@@ -3189,7 +3189,7 @@
                             "regex": "^[a-zA-Z0-9-]*$",
                             "validationMessage": "The unique string must only contain alphanumeric characters and hyphens."
                         }
-                    },
+                    },                    
                     {
                         "name": "f5AddressPrefix",
                         "type": "Microsoft.Common.TextBox",

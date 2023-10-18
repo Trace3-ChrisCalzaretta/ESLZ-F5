@@ -781,12 +781,6 @@
             },
             "type": "string"
         },
-        "restrictedSrcAddressApp": {
-            "metadata": {
-                "description": "REQUIRED - When creating application security group, this field restricts application access to a specific network or address. Enter an IP address or address range in CIDR notation, or asterisk for all sources."
-            },
-            "type": "string"
-        },
         "bigIpImage": {
             "defaultValue": "f5-networks:f5-big-ip-best:f5-big-best-plus-hourly-25mbps:16.1.303000",
             "metadata": {
@@ -1059,35 +1053,12 @@
         "keyVaultPermissionsSecrets": [],
         "userAssignedIdentityName": "[concat(variables('commonUniqueString'), '-bigip-identity')]",
         "createNatGateway": "[and(equals(parameters('provisionPublicIp'), 'No'), equals(parameters('provisionExternalBigIpLoadBalancer'), 'No'))]",
-        "numSubnets": 2,
         "vnetName": "[concat(variables('commonUniqueString'), '-vnet')]",
+        "f5SubnetName": "[concat(variables('commonUniqueString'), '-f5-big-ip-subnet')]",
+        "natGatewayName": "[concat(variables('commonUniqueString'), '-natgw-f5')]",
         "externalLoadBalancerName": "[if(equals(parameters('provisionExternalBigIpLoadBalancer'), 'Yes'), concat(variables('commonUniqueString'), '-external-lb'), '')]",
         "internalLoadBalancerName": "[if(equals(parameters('provisionInternalBigIpLoadBalancer'), 'Yes'), concat(variables('commonUniqueString'), '-internal-lb'), '')]",
         "loadBalancerRulePorts": [ "80", "443" ],
-        "mgmtSecurityGroup": [
-            {
-                "destinationPortRanges": [ "22", "8443" ],
-                "sourceAddressPrefix": "[parameters('restrictedSrcAddressMgmt')]",
-                "protocol": "Tcp"
-            },
-            {
-                "destinationPortRanges": [ "80", "443" ],
-                "sourceAddressPrefix": "*",
-                "protocol": "Tcp"
-            }
-        ],
-        "appSecurityGroup": [
-            {
-                "destinationPortRanges": [ "80", "443" ],
-                "sourceAddressPrefix": "[parameters('restrictedSrcAddressApp')]",
-                "protocol": "Tcp"
-            },
-            {
-                "destinationPortRanges": [ "80", "443" ],
-                "sourceAddressPrefix": "10.0.0.0/8",
-                "protocol": "Tcp"
-            }
-        ],
         "numberPublicExternalIpAddresses": "[if(equals(parameters('provisionExternalBigIpLoadBalancer'), 'Yes'), 1, 0)]",
         "numberPublicMgmtIpAddresses": 0,
         "appInstanceName": "[variables('commonUniqueString')]",
@@ -1736,17 +1707,23 @@
                     "f5ResourceGroup": {
                         "value": "[variables('f5Rg')]"
                     },
-                    "uniqueString": {
-                        "value": "[variables('commonUniqueString')]"
-                    },
                     "createNatGateway": {
                         "value": "[variables('createNatGateway')]"
                     },
-                    "numSubnets": {
-                        "value": "[variables('numSubnets')]"
-                    },
                     "vnetName": {
                         "value": "[variables('vnetName')]"
+                    },
+                    "f5SubnetName": {
+                        "value": "[variables('f5SubnetName')]"
+                    },
+                    "f5NsgName": {
+                        "value": "[variables('f5SubnetName')]"
+                    },
+                    "restrictedSrcAddressMgmt": {
+                        "value": "[parameters('restrictedSrcAddressMgmt')]"
+                    },
+                    "natGatewayName": {
+                        "value": "[variables('natGatewayName')]"
                     },
                     "vnetAddressPrefix": {
                         "value": "[parameters('f5AddressPrefix')]"
@@ -1756,12 +1733,6 @@
                     },
                     "subnetMask": {
                         "value": "[parameters('f5SubnetMask')]"
-                    },
-                    "nsg0": {
-                        "value": "[variables('mgmtSecurityGroup')]"
-                    },
-                    "nsg1": {
-                        "value": "[variables('appSecurityGroup')]"
                     },
                     "tagValues": {
                         "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Network/virtualNetwork'), parameters('tagsByResource')['Microsoft.Network/virtualNetwork'], json('{}')) ]"

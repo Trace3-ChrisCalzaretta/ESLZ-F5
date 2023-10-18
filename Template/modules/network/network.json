@@ -6,12 +6,6 @@
             "type": "string",
             "defaultValue": "f5rg"
         },
-        "uniqueString": {
-            "metadata": {
-                "description": "REQUIRED - A prefix that will be used to name template resources. Because some resources require globally unique names, we recommend using a unique value."
-            },
-            "type": "string"
-        },
         "createNatGateway": {
             "defaultValue": false,
             "metadata": {
@@ -19,18 +13,11 @@
             },
             "type": "bool"
         },
-        "numSubnets": {
-            "defaultValue": 1,
-            "type": "Int",
-            "metadata": {
-                "description": "Indicate the number of subnets to create."
-            }
-        },
         "vnetName": {
             "defaultValue": "virtualNetwork",
             "type": "string",
             "metadata": {
-                "description": "Supply a name for virtual network."
+                "description": "Supply a name for the virtual network."
             }
         },
         "vnetAddressPrefix": {
@@ -54,6 +41,34 @@
                 "description": "Enter the the value for the CIDR notation (ex. 16 for /16, 24 for /24) that will be applied to the subnets created within the virtual network."
             }
         },
+        "f5SubnetName": {
+            "defaultValue": "f5-big-ip-subnet",
+            "type": "string",
+            "metadata": {
+                "description": "Enter the name of the subnet that will hold the F5 Big IP VE appliances."
+            }
+        },
+        "f5NsgName": {
+            "defaultValue": "f5-big-ip-subnet",
+            "type": "string",
+            "metadata": {
+                "description": "Enter the name of the NSG that will be associated with the F5 Big IP VE subnet."
+            }
+        },
+        "restrictedSrcAddressMgmt": {
+            "defaultValue": "*",
+            "type": "string",
+            "metadata": {
+                "description": "Enter the Subnet address space that will be allowed to access the F5 BIG-IP VE management IP address."
+            }
+        },
+        "natGatewayName": {
+            "defaultValue": "natgw-f5",
+            "type": "string",
+            "metadata": {
+                "description": "Enter the name of the NAT Gateway that will be associated with the F5 Big IP VE subnet."
+            }
+        },
         "tagValues": {
             "defaultValue": {
                 "application": "f5demoapp",
@@ -65,37 +80,6 @@
             "type": "object",
             "metadata": {
                 "description": "Default key/value resource tags will be added to the resources in this deployment, if you would like the values to be unique adjust them as needed for each key."
-            }
-        },
-        "nsg0": {
-            "defaultValue": [
-                {
-                    "destinationPortRanges": [ "22", "8443" ],
-                    "sourceAddressPrefix": "",
-                    "protocol": "Tcp"
-                },
-                {
-                    "destinationPortRanges": [ "80", "443" ],
-                    "sourceAddressPrefix": "",
-                    "protocol": "Tcp"
-                }
-            ],
-            "type": "array",
-            "metadata": {
-                "description": "Valid values include an array containing network security rule property objects, or an empty array. A non-empty array value creates a security group and inbound rules using the destinationPortRanges and sourceAddressPrefix values provided for each object."
-            }
-        },
-        "nsg1": {
-            "defaultValue": [
-                {
-                    "destinationPortRanges": [ "80", "443" ],
-                    "sourceAddressPrefix": "",
-                    "protocol": "Tcp"
-                }
-            ],
-            "type": "array",
-            "metadata": {
-                "description": "Valid values include an array containing network security rule property objects, or an empty array. A non-empty array value creates a security group and inbound rules using the destinationPortRanges and sourceAddressPrefix values provided for each object."
             }
         }
     },
@@ -114,14 +98,8 @@
                     "scope": "inner"
                 },
                 "parameters": {
-                    "uniqueString": {
-                        "value": "[parameters('uniqueString')]"
-                    },
                     "createNatGateway": {
                         "value": "[parameters('createNatGateway')]"
-                    },
-                    "numSubnets": {
-                        "value": "[parameters('numSubnets')]"
                     },
                     "vnetName": {
                         "value": "[parameters('vnetName')]"
@@ -135,14 +113,20 @@
                     "subnetMask": {
                         "value": "[parameters('subnetMask')]"
                     },
+                    "f5SubnetName": {
+                        "value": "[parameters('f5SubnetName')]"
+                    },
+                    "f5NsgName": {
+                        "value": "[parameters('f5NsgName')]"
+                    },
+                    "natGatewayName": {
+                        "value": "[parameters('natGatewayName')]"
+                    },
+                    "restrictedSrcAddressMgmt": {
+                        "value": "[parameters('restrictedSrcAddressMgmt')]"
+                    },
                     "tagValues": {
                         "value": "[parameters('tagValues')]"
-                    },
-                    "nsg0": {
-                        "value": "[parameters('nsg0')]"
-                    },
-                    "nsg1": {
-                        "value": "[parameters('nsg1')]"
                     }
                 },
                 "mode": "Incremental",
@@ -150,14 +134,8 @@
                     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                     "contentVersion": "1.0.0.0",
                     "parameters": {
-                        "uniqueString": {
-                            "type": "string"
-                        },
                         "createNatGateway": {
                             "type": "bool"
-                        },
-                        "numSubnets": {
-                            "type": "int"
                         },
                         "vnetName": {
                             "type": "string"
@@ -171,134 +149,196 @@
                         "subnetMask": {
                             "type": "string"
                         },
+                        "f5SubnetName": {
+                            "type": "string"
+                        },
+                        "f5NsgName": {
+                            "type": "string"
+                        },
+                        "natGatewayName": {
+                            "type": "string"
+                        },
+                        "restrictedSrcAddressMgmt": {
+                            "type": "string"
+                        },
                         "tagValues": {
                             "type": "object"
-                        },
-                        "nsg0": {
-                            "type": "array"
-                        },
-                        "nsg1": {
-                            "type": "array"
                         }
                     },
                     "variables": {
-                        "copy": [
-                            {
-                                "count": "[parameters('numSubnets')]",
-                                "input": {
-                                    "name": "[concat('subnet-0', copyIndex('constructSubnetArray', 1))]",
-                                    "properties": {
-                                        "addressPrefix": "[concat(parameters('vnetAddressPrefix'), '.', copyIndex('constructSubnetArray'),'.0/', parameters('subnetMask'))]",
-                                        "routeTable": {
-                                            "id": "[resourceId('Microsoft.Network/routeTables', concat('route-table-subnet-0', copyIndex('constructSubnetArray', 1)))]"
-                                        },
-                                        "natGateway": "[if(and(equals(copyIndex('constructSubnetArray'), 0), parameters('createNatGateway')), json(concat('{\"id\": \"', resourceId('Microsoft.Network/natGateways', variables('natGatewayName')), '\"}')), json('null'))]",
-                                        "networkSecurityGroup": {
-                                            "id": "[if(equals(copyIndex('constructSubnetArray'), 0), resourceId('Microsoft.Network/networkSecurityGroups', variables('nsg0Name')), resourceId('Microsoft.Network/networkSecurityGroups', variables('nsg1Name')))]"
-                                        }
-                                    }
+                        "demoAppSubnetName": "demoapp-subnet",
+                        "f5SubnetProperties": {
+                            "properties": {
+                                "addressPrefix": "[concat(parameters('vnetAddressPrefix'), '.0.0/', parameters('subnetMask'))]",
+                                "routeTable": {
+                                    "id": "[resourceId('Microsoft.Network/routeTables', parameters('f5SubnetName'))]"
                                 },
-                                "name": "constructSubnetArray"
-                            },
-                            {
-                                "count": "[variables('nsg0Length')]",
-                                "input": {
-                                    "name": "[concat('nsg_01_allow_', copyIndex('constructNsg0Array'))]",
-                                    "properties": {
-                                        "access": "Allow",
-                                        "description": "NSG1 Allow",
-                                        "destinationAddressPrefix": "*",
-                                        "destinationPortRanges": "[parameters('nsg0')[copyIndex('constructNsg0Array')].destinationPortRanges]",
-                                        "direction": "Inbound",
-                                        "priority": "[int(concat('10', copyIndex('constructNsg0Array')))]",
-                                        "protocol": "[parameters('nsg0')[copyIndex('constructNsg0Array')].protocol]",
-                                        "sourceAddressPrefix": "[parameters('nsg0')[copyIndex('constructNsg0Array')].sourceAddressPrefix]",
-                                        "sourcePortRange": "*"
-                                    }
-                                },
-                                "name": "constructNsg0Array"
-                            },
-                            {
-                                "count": "[variables('nsg1Length')]",
-                                "input": {
-                                    "name": "[concat('nsg_02_allow_', copyIndex('constructNsg1Array'))]",
-                                    "properties": {
-                                        "access": "Allow",
-                                        "description": "NSG2 Allow",
-                                        "destinationAddressPrefix": "*",
-                                        "destinationPortRanges": "[parameters('nsg1')[copyIndex('constructNsg1Array')].destinationPortRanges]",
-                                        "direction": "Inbound",
-                                        "priority": "[int(concat('10', copyIndex('constructNsg1Array')))]",
-                                        "protocol": "[parameters('nsg1')[copyIndex('constructNsg1Array')].protocol]",
-                                        "sourceAddressPrefix": "[parameters('nsg1')[copyIndex('constructNsg1Array')].sourceAddressPrefix]",
-                                        "sourcePortRange": "*"
-                                    }
-                                },
-                                "name": "constructNsg1Array"
-                            }
-                        ],
-                        "uniqueString": "[toLower(parameters('uniqueString'))]",
-                        "natGatewayName": "[concat(parameters('vnetName'), '-vgw')]",
-                        "natGatewayPublicIpName": "[concat(parameters('vnetName'), '-vgw-pip-01')]",
-                        "emptyArray": [],
-                        "nsg0Array": "[variables('constructNsg0Array')]",
-                        "nsg0Id": "[if(greater(variables('nsg0Length'), 0), createArray(resourceId('Microsoft.Network/networkSecurityGroups', variables('nsg0Name'))), variables('emptyArray'))]",
-                        "nsg0Length": "[length(parameters('nsg0'))]",
-                        "nsg0Name": "[concat(variables('uniqueString'), '-nsg-01')]",
-                        "nsg1Array": "[variables('constructNsg1Array')]",
-                        "nsg1Id": "[if(greater(variables('nsg1Length'), 0), createArray(resourceId('Microsoft.Network/networkSecurityGroups', variables('nsg1Name'))), variables('emptyArray'))]",
-                        "nsg1Length": "[length(parameters('nsg1'))]",
-                        "nsg1Name": "[concat(variables('uniqueString'), '-nsg-02')]",
-                        "outboundNsgRule": [
-                            {
-                                "name": "allow_loadBalancer_traffic",
-                                "properties": {
-                                    "access": "Allow",
-                                    "description": "Outbound traffic through load balancer",
-                                    "destinationAddressPrefix": "AzureLoadBalancer",
-                                    "destinationPortRange": "*",
-                                    "direction": "Outbound",
-                                    "priority": 200,
-                                    "protocol": "Tcp",
-                                    "sourceAddressPrefix": "*",
-                                    "sourcePortRange": "*"
+                                "natGateway": "[if(parameters('createNatGateway'), json(concat('{\"id\": \"', resourceId('Microsoft.Network/natGateways', parameters('natGatewayName')), '\"}')), json('null'))]",
+                                "networkSecurityGroup": {
+                                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('f5NsgName'))]"
                                 }
                             }
-                        ]
+                        },
+                        "demoAppSubnetProperties": {
+                            "properties": {
+                                "addressPrefix": "[concat(parameters('vnetAddressPrefix'), '.1.0/', parameters('subnetMask'))]",
+                                "routeTable": {
+                                    "id": "[resourceId('Microsoft.Network/routeTables', variables('demoAppSubnetName'))]"
+                                },
+                                "natGateway": "[if(parameters('createNatGateway'), json(concat('{\"id\": \"', resourceId('Microsoft.Network/natGateways', parameters('natGatewayName')), '\"}')), json('null'))]",
+                                "networkSecurityGroup": {
+                                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('demoAppSubnetName'))]"
+                                }
+                            }
+                        },
+                        "natGatewayName": "[concat(parameters('vnetName'), '-vgw')]",
+                        "natGatewayPublicIpName": "[concat(parameters('vnetName'), '-vgw-pip-01')]"
                     },
                     "resources": [
                         {
                             "type": "Microsoft.Network/networkSecurityGroups",
                             "apiVersion": "2020-06-01",
-                            "name": "[variables('nsg0Name')]",
+                            "name": "[parameters('f5NsgName')]",
                             "location": "[resourceGroup().location]",
-                            "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
+                            "dependsOn": [],
                             "properties": {
-                                "securityRules": "[variables('nsg0Array')]"
-                            },
-                            "condition": "[not(empty(parameters('nsg0')))]"
+                                "securityRules": [
+                                    {
+                                        "name": "F5-MGMT",
+                                        "properties": {
+                                            "description": "DO NOT DELETE - Allows Management of F5 appliances",
+                                            "protocol": "Tcp",
+                                            "sourcePortRange": "*",
+                                            "access": "Allow",
+                                            "priority": 300,
+                                            "direction": "Inbound",
+                                            "sourcePortRanges": [],
+                                            "destinationPortRanges": [
+                                                "22",
+                                                "8443"
+                                            ],
+                                            "sourceAddressPrefixes": "[parameters('restrictedSrcAddressMgmt')]",
+                                            "destinationAddressPrefixes": []
+                                        }
+                                    },
+                                    {
+                                        "name": "Demo-App-HTTP",
+                                        "properties": {
+                                            "description": "Allow inbound web traffic to app",
+                                            "protocol": "Icmp",
+                                            "sourcePortRange": "*",
+                                            "destinationPortRange": "*",
+                                            "destinationAddressPrefix": "*",
+                                            "access": "Allow",
+                                            "priority": 400,
+                                            "direction": "Inbound",
+                                            "sourcePortRanges": [],
+                                            "destinationPortRanges": [
+                                                "80",
+                                                "443"
+                                            ],
+                                            "sourceAddressPrefix": "*",
+                                            "sourceAddressPrefixes": [],
+                                            "destinationAddressPrefixes": []
+                                        }
+                                    },
+                                    {
+                                        "name": "Deny-All",
+                                        "properties": {
+                                            "description": "DO NOT DELETE - Denies all traffic unless explicitly allowed",
+                                            "protocol": "*",
+                                            "sourcePortRange": "*",
+                                            "destinationPortRange": "*",
+                                            "sourceAddressPrefix": "*",
+                                            "destinationAddressPrefix": "*",
+                                            "access": "Deny",
+                                            "priority": 4096,
+                                            "direction": "Inbound",
+                                            "sourcePortRanges": [],
+                                            "destinationPortRanges": [],
+                                            "sourceAddressPrefixes": [],
+                                            "destinationAddressPrefixes": []
+                                        }
+                                    }
+                                ]
+                            }
                         },
                         {
                             "type": "Microsoft.Network/networkSecurityGroups",
                             "apiVersion": "2020-06-01",
-                            "name": "[variables('nsg1Name')]",
+                            "name": "[variables('demoAppSubnetName')]",
                             "location": "[resourceGroup().location]",
-                            "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
+                            "dependsOn": [],
                             "properties": {
-                                "securityRules": "[union(variables('nsg1Array'), variables('outboundNsgRule'))]"
-                            },
-                            "condition": "[not(empty(parameters('nsg1')))]"
+                                "securityRules": [
+                                    {
+                                        "name": "HTTP-Inbound",
+                                        "properties": {
+                                            "description": "Inbound Web Traffic",
+                                            "protocol": "Tcp",
+                                            "sourcePortRange": "*",
+                                            "access": "Allow",
+                                            "priority": 300,
+                                            "direction": "Inbound",
+                                            "sourcePortRanges": [],
+                                            "destinationPortRanges": [
+                                                "80",
+                                                "443"
+                                            ],
+                                            "sourceAddressPrefixes": "[variables('f5SubnetProperties').properties.addressPrefix]",
+                                            "destinationAddressPrefixes": []
+                                        }
+                                    },
+                                    {
+                                        "name": "Deny-All",
+                                        "properties": {
+                                            "description": "DO NOT DELETE - Denies all traffic unless explicitly allowed",
+                                            "protocol": "*",
+                                            "sourcePortRange": "*",
+                                            "destinationPortRange": "*",
+                                            "sourceAddressPrefix": "*",
+                                            "destinationAddressPrefix": "*",
+                                            "access": "Deny",
+                                            "priority": 4096,
+                                            "direction": "Inbound",
+                                            "sourcePortRanges": [],
+                                            "destinationPortRanges": [],
+                                            "sourceAddressPrefixes": [],
+                                            "destinationAddressPrefixes": []
+                                        }
+                                    },
+                                    {
+                                        "name": "allow_loadBalancer_traffic",
+                                        "properties": {
+                                            "access": "Allow",
+                                            "description": "Outbound traffic through load balancer",
+                                            "destinationAddressPrefix": "AzureLoadBalancer",
+                                            "destinationPortRange": "*",
+                                            "direction": "Outbound",
+                                            "priority": 200,
+                                            "protocol": "Tcp",
+                                            "sourceAddressPrefix": "*",
+                                            "sourcePortRange": "*"
+                                        }
+                                    }
+                                ]
+                            }
                         },
                         {
                             "type": "Microsoft.Network/routeTables",
                             "apiVersion": "2020-06-01",
-                            "copy": {
-                                "name": "routeTableLoop",
-                                "count": "[parameters('numSubnets')]"
-                            },
-                            "name": "[concat('route-table-subnet-0', copyIndex(1))]",
+                            "name": "[parameters('f5SubnetName')]",
                             "location": "[resourceGroup().location]",
-                            "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]"
+                            "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
+                            "properties": {}
+                        },
+                        {
+                            "type": "Microsoft.Network/routeTables",
+                            "apiVersion": "2020-06-01",
+                            "name": "[variables('demoAppSubnetName')]",
+                            "location": "[resourceGroup().location]",
+                            "tags": "[if(empty(parameters('tagValues')), json('null'), parameters('tagValues'))]",
+                            "properties": {}
                         },
                         {
                             "apiVersion": "2020-06-01",
@@ -343,8 +383,8 @@
                             "dependsOn": [
                                 "routeTableLoop",
                                 "[resourceId('Microsoft.Network/natGateways', variables('natGatewayName'))]",
-                                "[variables('nsg0Name')]",
-                                "[variables('nsg1Name')]"
+                                "[parameters('f5NsgName')]",
+                                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('demoAppSubnetName'))]"
                             ],
                             "name": "[parameters('vnetName')]",
                             "location": "[resourceGroup().location]",
@@ -355,44 +395,51 @@
                                         "[concat(parameters('vnetAddressPrefix'), '.0.0/', parameters('vnetCidrNotation'))]"
                                     ]
                                 },
-                                "subnets": "[variables('constructSubnetArray')]"
+                                "subnets": [
+                                    {
+                                        "name": "[parameters('f5SubnetName')]",
+                                        "properties": "[variables('f5SubnetProperties')]"
+                                    },
+                                    {
+                                        "name": "[variables('demoAppSubnetName')]",
+                                        "properties": "[variables('demoAppSubnetProperties')]"
+                                    }
+                                ]
                             }
                         }
                     ],
                     "outputs": {
-                        "routeTables": {
-                            "condition": "[greaterOrEquals(parameters('numSubnets'), 1)]",
-                            "copy": {
-                                "count": "[parameters('numSubnets')]",
-                                "input": "[resourceId('Microsoft.Network/routeTables', concat('route-table-subnet-0', copyIndex(1)))]"
-                            },
-                            "type": "Array"
-                        },
                         "natGateway": {
                             "type": "string",
                             "value": "[resourceId('Microsoft.Network/natGateways', variables('natGatewayName'))]"
-                        },
-                        "subnets": {
-                            "condition": "[greaterOrEquals(parameters('numSubnets'), 1)]",
-                            "copy": {
-                                "count": "[parameters('numSubnets')]",
-                                "input": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), concat('subnet-0', copyIndex(1)))]"
-                            },
-                            "type": "Array"
                         },
                         "virtualNetwork": {
                             "type": "string",
                             "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
                         },
-                        "nsg0Id": {
-                            "condition": "[not(empty(parameters('nsg0')))]",
+                        "f5Subnet": {
                             "type": "string",
-                            "value": "[variables('nsg0Id')[0]]"
+                            "input": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('f5SubnetName'))]"
                         },
-                        "nsg1Id": {
-                            "condition": "[not(empty(parameters('nsg1')))]",
+                        "demoAppSubnet": {
                             "type": "string",
-                            "value": "[variables('nsg1Id')[0]]"
+                            "input": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('demoAppSubnetName'))]"
+                        },
+                        "f5RouteTable": {
+                            "type": "string",
+                            "input": "[resourceId('Microsoft.Network/routeTables', parameters('f5SubnetName'))]"
+                        },
+                        "demoAppRouteTable": {
+                            "type": "string",
+                            "input": "[resourceId('Microsoft.Network/routeTables', variables('demoAppSubnetName'))]"
+                        },
+                        "f5Nsg": {
+                            "type": "string",
+                            "value": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('f5NsgName'))]"
+                        },
+                        "demoAppNsg": {
+                            "type": "string",
+                            "value": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('demoAppSubnetName'))]"
                         }
                     }
                 }
