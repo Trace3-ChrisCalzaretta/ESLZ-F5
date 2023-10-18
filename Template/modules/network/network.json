@@ -450,10 +450,6 @@
         "deployment": {
             "type": "string",
             "value": "[concat(deployment().name, ' has successfully deployed.')]"
-        },
-        "subnets": {
-            "type": "array",
-            "value": "[reference('networkTemplate-network').outputs.subnets.value]"
         }
     }
 }
