@@ -3143,18 +3143,6 @@
                         }
                     },
                     {
-                        "name": "restrictedSrcAddressApp",
-                        "type": "Microsoft.Common.TextBox",
-                        "toolTip": "Define the restricted source address for the application. This adds an additional layer of security by limiting access.",
-                        "label": "Restrictedsrcaddressapp",
-                        "defaultValue": "",
-                        "constraints": {
-                            "required": false,
-                            "regex": "^((\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})/\\d{1,2})?$",
-                            "validationMessage": "The restricted source address for the app must be a valid IP address or CIDR notation."
-                        }
-                    },
-                    {
                         "name": "restrictedSrcAddressMgmt",
                         "type": "Microsoft.Common.TextBox",
                         "toolTip": "Define the restricted source address for management access. This ensures that only authorized IPs can access management interfaces.",
@@ -3403,7 +3391,6 @@
             "provisionExternalBigIpLoadBalancer": "[steps('f5Parameters').provisionExternalBigIpLoadBalancer]",
             "provisionInternalBigIpLoadBalancer": "[steps('f5Parameters').provisionInternalBigIpLoadBalancer]",
             "provisionPublicIp": "[steps('f5Parameters').provisionPublicIp]",
-            "restrictedSrcAddressApp": "[steps('f5Parameters').restrictedSrcAddressApp]",
             "restrictedSrcAddressMgmt": "[steps('f5Parameters').restrictedSrcAddressMgmt]",
             "sshKey": "[steps('f5Parameters').sshKey]",
             "tagsByResource": "[steps('tags').tagsByResource]",
