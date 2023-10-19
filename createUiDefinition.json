@@ -3143,10 +3143,10 @@
                         }
                     },
                     {
-                        "name": "restrictedSrcAddressMgmt",
+                        "name": "allowedSourceIpToMgmt",
                         "type": "Microsoft.Common.TextBox",
                         "toolTip": "Define the restricted source address for management access. This ensures that only authorized IPs can access management interfaces.",
-                        "label": "Restrictedsrcaddressmgmt",
+                        "label": "allowedSourceIpToMgmt",
                         "defaultValue": "",
                         "constraints": {
                             "required": false,
@@ -3391,7 +3391,7 @@
             "provisionExternalBigIpLoadBalancer": "[steps('f5Parameters').provisionExternalBigIpLoadBalancer]",
             "provisionInternalBigIpLoadBalancer": "[steps('f5Parameters').provisionInternalBigIpLoadBalancer]",
             "provisionPublicIp": "[steps('f5Parameters').provisionPublicIp]",
-            "restrictedSrcAddressMgmt": "[steps('f5Parameters').restrictedSrcAddressMgmt]",
+            "allowedSourceIpToMgmt": "[steps('f5Parameters').allowedSourceIpToMgmt]",
             "sshKey": "[steps('f5Parameters').sshKey]",
             "tagsByResource": "[steps('tags').tagsByResource]",
             "uniqueString": "[steps('f5Parameters').uniqueString]",

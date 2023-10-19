@@ -48,11 +48,15 @@
                 "description": "Enter the name of the subnet that will hold the F5 Big IP VE appliances."
             }
         },
-        "restrictedSrcAddressMgmt": {
-            "defaultValue": "*",
-            "type": "string",
+        "allowedSourceIpToMgmt": {
+            "defaultValue": [
+                "10.0.0.0/8",
+                "172.16.0.0/12",
+                "192.168.0.0/16"
+            ],
+            "type": "array",
             "metadata": {
-                "description": "Enter the Subnet address space that will be allowed to access the F5 BIG-IP VE management IP address."
+                "description": "Source IP Addresses Or CIDRs That Are Allowed Inbound To The Mgmt Subnet"
             }
         },
         "natGatewayName": {
@@ -113,7 +117,7 @@
                         "value": "[parameters('natGatewayName')]"
                     },
                     "restrictedSrcAddressMgmt": {
-                        "value": "[parameters('restrictedSrcAddressMgmt')]"
+                        "value": "[parameters('allowedSourceIpToMgmt')]"
                     },
                     "tagValues": {
                         "value": "[parameters('tagValues')]"
@@ -145,7 +149,7 @@
                         "natGatewayName": {
                             "type": "string"
                         },
-                        "restrictedSrcAddressMgmt": {
+                        "allowedSourceIpToMgmt": {
                             "type": "string"
                         },
                         "tagValues": {
@@ -180,7 +184,7 @@
                                                 "22",
                                                 "8443"
                                             ],
-                                            "sourceAddressPrefixes": "[parameters('restrictedSrcAddressMgmt')]",
+                                            "sourceAddressPrefixes": "[parameters('allowedSourceIpToMgmt')]",
                                             "destinationAddressPrefixes": []
                                         }
                                     },

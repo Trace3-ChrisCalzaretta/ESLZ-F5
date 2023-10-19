@@ -775,11 +775,16 @@
             },
             "type": "string"
         },
-        "restrictedSrcAddressMgmt": {
+        "allowedSourceIpToMgmt": {
+            "defaultValue": [
+                "10.0.0.0/8",
+                "172.16.0.0/12",
+                "192.168.0.0/16"
+            ],
+            "type": "array",
             "metadata": {
-                "description": "REQUIRED - When creating management security group, this field restricts management access to a specific network or address. Enter an IP address or address range in CIDR notation, or asterisk for all sources."
-            },
-            "type": "string"
+                "description": "Source IP Addresses Or CIDRs That Are Allowed Inbound To The Mgmt Subnet"
+            }
         },
         "bigIpImage": {
             "defaultValue": "f5-networks:f5-big-ip-best:f5-big-best-plus-hourly-25mbps:16.1.303000",
@@ -1716,8 +1721,8 @@
                     "f5SubnetName": {
                         "value": "[variables('f5SubnetName')]"
                     },
-                    "restrictedSrcAddressMgmt": {
-                        "value": "[parameters('restrictedSrcAddressMgmt')]"
+                    "allowedSourceIpToMgmt": {
+                        "value": "[parameters('allowedSourceIpToMgmt')]"
                     },
                     "natGatewayName": {
                         "value": "[variables('natGatewayName')]"
