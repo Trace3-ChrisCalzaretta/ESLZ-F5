@@ -782,6 +782,13 @@
                 "description": "Source IP Addresses Or CIDRs That Are Allowed Inbound On Ports 3389 and 22 to the spoke separated by commas."
             }
         },
+        "allowedSourceIpToApp": {
+            "defaultValue": "10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16",
+            "type": "String",
+            "metadata": {
+                "description": "Source IP Addresses Or CIDRs That Are Allowed Inbound On Ports 3389 and 22 to the spoke separated by commas."
+            }
+        },
         "bigIpImage": {
             "defaultValue": "f5-networks:f5-big-ip-best:f5-big-best-plus-hourly-25mbps:16.1.303000",
             "metadata": {
@@ -1719,6 +1726,9 @@
                     },
                     "allowedSourceIpToMgmt": {
                         "value": "[parameters('allowedSourceIpToMgmt')]"
+                    },
+                    "allowedSourceIpToApp": {
+                        "value": "[parameters('allowedSourceIpToApp')]"
                     },
                     "natGatewayName": {
                         "value": "[variables('natGatewayName')]"

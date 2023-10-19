@@ -55,6 +55,13 @@
                 "description": "Source IP Addresses Or CIDRs That Are Allowed Inbound On Ports 3389 and 22 to the spoke separated by commas."
             }
         },
+        "allowedSourceIpToApp": {
+            "defaultValue": "10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16",
+            "type": "String",
+            "metadata": {
+                "description": "Source IP Addresses Or CIDRs That Are Allowed Inbound On Ports 3389 and 22 to the spoke separated by commas."
+            }
+        },
         "natGatewayName": {
             "defaultValue": "natgw-f5",
             "type": "string",
@@ -115,6 +122,9 @@
                     "allowedSourceIpToMgmt": {
                         "value": "[parameters('allowedSourceIpToMgmt')]"
                     },
+                    "allowedSourceIpToApp": {
+                        "value": "[parameters('allowedSourceIpToApp')]"
+                    },
                     "tagValues": {
                         "value": "[parameters('tagValues')]"
                     }
@@ -148,6 +158,10 @@
                         "allowedSourceIpToMgmt": {
                             "type": "string"
                         },
+
+                        "allowedSourceIpToApp": {
+                            "type": "string"
+                        },
                         "tagValues": {
                             "type": "object"
                         }
@@ -167,6 +181,24 @@
                             "properties": {
                                 "securityRules": [
                                     {
+                                        "name": "F5-MGMT",
+                                        "properties": {
+                                            "description": "DO NOT DELETE - Allows Management of F5 appliances",
+                                            "protocol": "Tcp",
+                                            "sourcePortRange": "*",
+                                            "access": "Allow",
+                                            "priority": 300,
+                                            "direction": "Inbound",
+                                            "sourcePortRanges": [],
+                                            "destinationPortRanges": [
+                                                "22",
+                                                "8443"
+                                            ],
+                                            "sourceAddressPrefixes": "[split(parameters('allowedSourceIpToMgmt'),',')]",
+                                            "destinationAddressPrefixes": []
+                                        }
+                                    },
+                                    {
                                         "name": "Demo-App-HTTP",
                                         "properties": {
                                             "description": "Allow inbound web traffic to app",
@@ -182,8 +214,7 @@
                                                 "80",
                                                 "443"
                                             ],
-                                            "sourceAddressPrefix": "*",
-                                            "sourceAddressPrefixes": [],
+                                            "sourceAddressPrefixes": "[split(parameters('allowedSourceIpToMgmt'),',')]",
                                             "destinationAddressPrefixes": []
                                         }
                                     },
