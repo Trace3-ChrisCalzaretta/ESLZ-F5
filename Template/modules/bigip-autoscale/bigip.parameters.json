@@ -24,7 +24,7 @@
       "value": []
     },
     "customEmail": {
-      "value": []
+      "value": ""
     },
     "image": {
       "value": "f5-networks:f5-big-ip-advanced-waf:f5-big-awf-plus-hourly-25mbps:16.0.101000"

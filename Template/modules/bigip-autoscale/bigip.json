@@ -57,11 +57,11 @@
       "type": "array"
     },
     "customEmail": {
-      "defaultValue": [],
+      "defaultValue": "myemail@email.com,myemail2@email.com",
       "metadata": {
-        "description": "Enter string array of email addresses to be notified when scale up or scale down occurs. Example: ['myemail@email.com','meyemail2@email.com']."
+        "description": "Enter email addresses separated by commas to be notified when scale up or scale down occurs. Example: myemail@email.com,myemail2@email.com."
       },
-      "type": "array"
+      "type": "string"
     },
     "image": {
       "defaultValue": "f5-networks:f5-big-ip-advanced-waf:f5-big-awf-plus-hourly-25mbps:16.0.101000",
@@ -484,7 +484,7 @@
               "type": "array"
             },
             "customEmail": {
-              "type": "array"
+              "type": "string"
             },
             "image": {
               "type": "string"
@@ -874,7 +874,7 @@
                 "notifications": [
                   {
                     "email": {
-                      "customEmails": "[parameters('customEmail')]",
+                      "customEmails": "[split(parameters('customEmail'),',')]",
                       "sendToSubscriptionAdministrator": false,
                       "sendToSubscriptionCoAdministrators": false
                     },

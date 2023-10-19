@@ -776,14 +776,10 @@
             "type": "string"
         },
         "allowedSourceIpToMgmt": {
-            "defaultValue": [
-                "10.0.0.0/8",
-                "172.16.0.0/12",
-                "192.168.0.0/16"
-            ],
-            "type": "array",
+            "defaultValue": "10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16",
+            "type": "String",
             "metadata": {
-                "description": "Source IP Addresses Or CIDRs That Are Allowed Inbound To The Mgmt Subnet"
+                "description": "Source IP Addresses Or CIDRs That Are Allowed Inbound On Ports 3389 and 22 to the spoke separated by commas."
             }
         },
         "bigIpImage": {
@@ -1031,11 +1027,11 @@
             }
         },
         "customEmail": {
-            "defaultValue": [],
+            "defaultValue": "myemail@email.com,myemail2@email.com",
+            "type": "string",
             "metadata": {
-                "description": "Enter string array of email addresses to be notified when scale up or scale down occurs. Example: ['myemail@email.com','meyemail2@email.com']."
-            },
-            "type": "array"
+                "description": "Enter email addresses separated by commas to be notified when scale up or scale down occurs. Example: myemail@email.com,myemail2@email.com."
+            }
         },
         "tagsByResource": {
             "type": "object",

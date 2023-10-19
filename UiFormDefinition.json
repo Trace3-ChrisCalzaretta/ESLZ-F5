@@ -2886,15 +2886,22 @@
                         {
                             "name": "customEmail",
                             "type": "Microsoft.Common.TextBox",
-                            "toolTip": "Enter string array of email addresses to be notified when scale up or scale down occurs.",
+                            "toolTip": "Enter email addresses separated by commas to be notified when scale up or scale down occurs.",
                             "label": "Email Addresses",
-                            "defaultValue": "['myemail@email.com','myemail2@email.com']",
+                            "defaultValue": "myemail@email.com,myemail2@email.com",
+                            "placeholder": "myemail@email.com,myemail2@email.com",
                             "constraints": {
                                 "required": true,
-                                "regex": "^\\[\\s*'([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})'(,\\s*'([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})')*\\s*\\]$",
-                                "validationMessage": "Please enter a valid array of email addresses. Example: ['myemail@email.com','myemail2@email.com']."
-                            }
-                        },
+                                "validations": [
+                                    {
+                                        "regex": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}(,[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})*$",
+                                        "message": "Please enter a valid list of email addresses separated by commas. Example: myemail@email.com,myemail2@email.com."
+                                    }
+                                ]
+                            },
+                            "visible": true
+                        }
+                        
                         {
                             "name": "allowUsageAnalytics",
                             "type": "Microsoft.Common.OptionsGroup",
@@ -3172,14 +3179,20 @@
                         {
                             "name": "allowedSourceIpToMgmt",
                             "type": "Microsoft.Common.TextBox",
-                            "toolTip": "Define the restricted source address for management access. This ensures that only authorized IPs can access management interfaces.",
-                            "label": "allowedSourceIpToMgmt",
-                            "defaultValue": "['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16']",
+                            "label": "Networks permitted to manage resources",
+                            "defaultValue": "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16",
+                            "toolTip": "Enter network addresses separated by commas that are permitted to manage resources in this deployment.",
+                            "placeholder": "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16",
                             "constraints": {
                                 "required": true,
-                                "regex": "^\\[\\s*'((\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})/\\d{1,2})'(,\\s*'((\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})/\\d{1,2})')*\\s*\\]$",
-                                "validationMessage": "Please enter a valid array of IP addresses in CIDR notation. Example: ['10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16']."
-                            }
+                                "validations": [
+                                    {
+                                        "regex": "^[0-9.,/\n]{7,60}$",
+                                        "message": "Only 7-60 numeric characters, periods, commas, and forward slashes are allowed."
+                                    }
+                                ]
+                            },
+                            "visible": true
                         },
                         {
                             "name": "sshKey",
