@@ -154,30 +154,6 @@
                     },
                     "variables": {
                         "demoAppSubnetName": "demoapp-subnet",
-                        "f5SubnetProperties": {
-                            "properties": {
-                                "addressPrefix": "[concat(parameters('vnetAddressPrefix'), '.0.0/', parameters('subnetMask'))]",
-                                "routeTable": {
-                                    "id": "[resourceId('Microsoft.Network/routeTables', parameters('f5SubnetName'))]"
-                                },
-                                "natGateway": "[if(parameters('createNatGateway'), json(concat('{\"id\": \"', resourceId('Microsoft.Network/natGateways', parameters('natGatewayName')), '\"}')), json('null'))]",
-                                "networkSecurityGroup": {
-                                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('f5SubnetName'))]"
-                                }
-                            }
-                        },
-                        "demoAppSubnetProperties": {
-                            "properties": {
-                                "addressPrefix": "[concat(parameters('vnetAddressPrefix'), '.1.0/', parameters('subnetMask'))]",
-                                "routeTable": {
-                                    "id": "[resourceId('Microsoft.Network/routeTables', variables('demoAppSubnetName'))]"
-                                },
-                                "natGateway": "[if(parameters('createNatGateway'), json(concat('{\"id\": \"', resourceId('Microsoft.Network/natGateways', parameters('natGatewayName')), '\"}')), json('null'))]",
-                                "networkSecurityGroup": {
-                                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('demoAppSubnetName'))]"
-                                }
-                            }
-                        },
                         "natGatewayName": "[concat(parameters('vnetName'), '-vgw')]",
                         "natGatewayPublicIpName": "[concat(parameters('vnetName'), '-vgw-pip-01')]"
                     },
@@ -272,7 +248,7 @@
                                                 "80",
                                                 "443"
                                             ],
-                                            "sourceAddressPrefixes": "[variables('f5SubnetProperties').properties.addressPrefix]",
+                                            "sourceAddressPrefixes": "[concat(parameters('vnetAddressPrefix'), '.0.0/', parameters('subnetMask'))]",
                                             "destinationAddressPrefixes": []
                                         }
                                     },
@@ -370,7 +346,9 @@
                             "dependsOn": [
                                 "[resourceId('Microsoft.Network/natGateways', variables('natGatewayName'))]",
                                 "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('f5SubnetName'))]",
-                                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('demoAppSubnetName'))]"
+                                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('demoAppSubnetName'))]",
+                                "[resourceId('Microsoft.Network/routeTables', parameters('f5SubnetName'))]",
+                                "[resourceId('Microsoft.Network/routeTables', variables('demoAppSubnetName'))]"
                             ],
                             "name": "[parameters('vnetName')]",
                             "location": "[resourceGroup().location]",
@@ -384,11 +362,29 @@
                                 "subnets": [
                                     {
                                         "name": "[parameters('f5SubnetName')]",
-                                        "properties": "[variables('f5SubnetProperties')]"
+                                        "properties": {
+                                            "addressPrefix": "[concat(parameters('vnetAddressPrefix'), '.0.0/', parameters('subnetMask'))]",
+                                            "routeTable": {
+                                                "id": "[resourceId('Microsoft.Network/routeTables', parameters('f5SubnetName'))]"
+                                            },
+                                            "natGateway": "[if(parameters('createNatGateway'), json(concat('{\"id\": \"', resourceId('Microsoft.Network/natGateways', parameters('natGatewayName')), '\"}')), json('null'))]",
+                                            "networkSecurityGroup": {
+                                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('f5SubnetName'))]"
+                                            }
+                                        }
                                     },
                                     {
                                         "name": "[variables('demoAppSubnetName')]",
-                                        "properties": "[variables('demoAppSubnetProperties')]"
+                                        "properties": {
+                                            "addressPrefix": "[concat(parameters('vnetAddressPrefix'), '.1.0/', parameters('subnetMask'))]",
+                                            "routeTable": {
+                                                "id": "[resourceId('Microsoft.Network/routeTables', variables('demoAppSubnetName'))]"
+                                            },
+                                            "natGateway": "[if(parameters('createNatGateway'), json(concat('{\"id\": \"', resourceId('Microsoft.Network/natGateways', parameters('natGatewayName')), '\"}')), json('null'))]",
+                                            "networkSecurityGroup": {
+                                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('demoAppSubnetName'))]"
+                                            }
+                                        }
                                     }
                                 ]
                             }
