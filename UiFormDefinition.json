@@ -2900,8 +2900,7 @@
                                 ]
                             },
                             "visible": true
-                        }
-                        
+                        },                        
                         {
                             "name": "allowUsageAnalytics",
                             "type": "Microsoft.Common.OptionsGroup",
