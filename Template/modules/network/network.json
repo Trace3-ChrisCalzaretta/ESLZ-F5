@@ -116,7 +116,7 @@
                     "natGatewayName": {
                         "value": "[parameters('natGatewayName')]"
                     },
-                    "restrictedSrcAddressMgmt": {
+                    "allowedSourceIpToMgmt": {
                         "value": "[parameters('allowedSourceIpToMgmt')]"
                     },
                     "tagValues": {
@@ -150,7 +150,7 @@
                             "type": "string"
                         },
                         "allowedSourceIpToMgmt": {
-                            "type": "string"
+                            "type": "array"
                         },
                         "tagValues": {
                             "type": "object"
