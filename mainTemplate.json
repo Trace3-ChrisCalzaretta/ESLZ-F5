@@ -1716,9 +1716,6 @@
                     "f5SubnetName": {
                         "value": "[variables('f5SubnetName')]"
                     },
-                    "f5NsgName": {
-                        "value": "[variables('f5SubnetName')]"
-                    },
                     "restrictedSrcAddressMgmt": {
                         "value": "[parameters('restrictedSrcAddressMgmt')]"
                     },

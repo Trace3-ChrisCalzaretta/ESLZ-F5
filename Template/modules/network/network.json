@@ -48,13 +48,6 @@
                 "description": "Enter the name of the subnet that will hold the F5 Big IP VE appliances."
             }
         },
-        "f5NsgName": {
-            "defaultValue": "f5-big-ip-subnet",
-            "type": "string",
-            "metadata": {
-                "description": "Enter the name of the NSG that will be associated with the F5 Big IP VE subnet."
-            }
-        },
         "restrictedSrcAddressMgmt": {
             "defaultValue": "*",
             "type": "string",
@@ -116,9 +109,6 @@
                     "f5SubnetName": {
                         "value": "[parameters('f5SubnetName')]"
                     },
-                    "f5NsgName": {
-                        "value": "[parameters('f5NsgName')]"
-                    },
                     "natGatewayName": {
                         "value": "[parameters('natGatewayName')]"
                     },
@@ -152,9 +142,6 @@
                         "f5SubnetName": {
                             "type": "string"
                         },
-                        "f5NsgName": {
-                            "type": "string"
-                        },
                         "natGatewayName": {
                             "type": "string"
                         },
@@ -175,7 +162,7 @@
                                 },
                                 "natGateway": "[if(parameters('createNatGateway'), json(concat('{\"id\": \"', resourceId('Microsoft.Network/natGateways', parameters('natGatewayName')), '\"}')), json('null'))]",
                                 "networkSecurityGroup": {
-                                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('f5NsgName'))]"
+                                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('f5SubnetName'))]"
                                 }
                             }
                         },
@@ -198,7 +185,7 @@
                         {
                             "type": "Microsoft.Network/networkSecurityGroups",
                             "apiVersion": "2020-06-01",
-                            "name": "[parameters('f5NsgName')]",
+                            "name": "[parameters('f5SubnetName')]",
                             "location": "[resourceGroup().location]",
                             "dependsOn": [],
                             "properties": {
@@ -382,7 +369,7 @@
                             "apiVersion": "2020-06-01",
                             "dependsOn": [
                                 "[resourceId('Microsoft.Network/natGateways', variables('natGatewayName'))]",
-                                "[parameters('f5NsgName')]",
+                                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('f5SubnetName'))]",
                                 "[resourceId('Microsoft.Network/networkSecurityGroups', variables('demoAppSubnetName'))]"
                             ],
                             "name": "[parameters('vnetName')]",
@@ -434,7 +421,7 @@
                         },
                         "f5Nsg": {
                             "type": "string",
-                            "value": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('f5NsgName'))]"
+                            "value": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('f5SubnetName'))]"
                         },
                         "demoAppNsg": {
                             "type": "string",
