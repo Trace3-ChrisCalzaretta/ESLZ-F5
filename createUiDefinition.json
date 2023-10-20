@@ -3167,6 +3167,24 @@
                         "visible": true
                     },
                     {
+                        "name": "allowedSourceIpToApp",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Networks permitted to access web resources",
+                        "defaultValue": "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16",
+                        "toolTip": "Enter network addresses separated by commas that are permitted to manage resources in this deployment.",
+                        "placeholder": "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16",
+                        "constraints": {
+                            "required": true,
+                            "validations": [
+                                {
+                                    "regex": "^[0-9.,/\n]{7,60}$",
+                                    "message": "Only 7-60 numeric characters, periods, commas, and forward slashes are allowed."
+                                }
+                            ]
+                        },
+                        "visible": true
+                    },
+                    {
                         "name": "sshKey",
                         "type": "Microsoft.Common.TextBox",
                         "toolTip": "Provide the SSH key for secure access. This key is used for authentication and ensures secure communication.",
@@ -3404,6 +3422,7 @@
             "provisionInternalBigIpLoadBalancer": "[steps('f5Parameters').provisionInternalBigIpLoadBalancer]",
             "provisionPublicIp": "[steps('f5Parameters').provisionPublicIp]",
             "allowedSourceIpToMgmt": "[steps('f5Parameters').allowedSourceIpToMgmt]",
+            "allowedSourceIpToApp": "[steps('f5Parameters').allowedSourceIpToApp]",
             "sshKey": "[steps('f5Parameters').sshKey]",
             "tagsByResource": "[steps('tags').tagsByResource]",
             "uniqueString": "[steps('f5Parameters').uniqueString]",
