@@ -186,17 +186,15 @@
                                             "description": "DO NOT DELETE - Allows Management of F5 appliances",
                                             "protocol": "Tcp",
                                             "sourcePortRange": "*",
+                                            "sourceAddressPrefixes": "[split(parameters('allowedSourceIpToMgmt'),',')]",
                                             "access": "Allow",
                                             "priority": 300,
                                             "direction": "Inbound",
-                                            "sourcePortRanges": [],
+                                            "destinationAddressPrefix": "*",
                                             "destinationPortRanges": [
                                                 "22",
                                                 "8443"
-                                            ],
-                                            "destinationAddressPrefix": "*",
-                                            "sourceAddressPrefixes": "[split(parameters('allowedSourceIpToMgmt'),',')]",
-                                            "destinationAddressPrefixes": []
+                                            ]
                                         }
                                     },
                                     {
@@ -214,8 +212,7 @@
                                                 "80",
                                                 "443"
                                             ],
-                                            "sourceAddressPrefixes": "[split(parameters('allowedSourceIpToMgmt'),',')]",
-                                            "destinationAddressPrefixes": []
+                                            "sourceAddressPrefixes": "[split(parameters('allowedSourceIpToMgmt'),',')]"
                                         }
                                     },
                                     {
