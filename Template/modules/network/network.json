@@ -190,10 +190,12 @@
                                             "priority": 300,
                                             "direction": "Inbound",
                                             "sourcePortRanges": [],
+                                            "destinationPortRange": "*",
                                             "destinationPortRanges": [
                                                 "22",
                                                 "8443"
                                             ],
+                                            "destinationAddressPrefix": "*",
                                             "sourceAddressPrefixes": "[split(parameters('allowedSourceIpToMgmt'),',')]",
                                             "destinationAddressPrefixes": []
                                         }
