@@ -55,13 +55,6 @@
                 "description": "Source IP Addresses Or CIDRs That Are Allowed Inbound On Ports 3389 and 22 to the spoke separated by commas."
             }
         },
-        "allowedSourceIpToApp": {
-            "defaultValue": "10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16",
-            "type": "String",
-            "metadata": {
-                "description": "Source IP Addresses Or CIDRs That Are Allowed Inbound On Ports 3389 and 22 to the spoke separated by commas."
-            }
-        },
         "natGatewayName": {
             "defaultValue": "natgw-f5",
             "type": "string",
@@ -122,9 +115,6 @@
                     "allowedSourceIpToMgmt": {
                         "value": "[parameters('allowedSourceIpToMgmt')]"
                     },
-                    "allowedSourceIpToApp": {
-                        "value": "[parameters('allowedSourceIpToApp')]"
-                    },
                     "tagValues": {
                         "value": "[parameters('tagValues')]"
                     }
@@ -156,10 +146,6 @@
                             "type": "string"
                         },
                         "allowedSourceIpToMgmt": {
-                            "type": "string"
-                        },
-
-                        "allowedSourceIpToApp": {
                             "type": "string"
                         },
                         "tagValues": {
