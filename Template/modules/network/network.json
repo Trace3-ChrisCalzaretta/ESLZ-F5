@@ -190,7 +190,6 @@
                                             "priority": 300,
                                             "direction": "Inbound",
                                             "sourcePortRanges": [],
-                                            "destinationPortRange": "*",
                                             "destinationPortRanges": [
                                                 "22",
                                                 "8443"
@@ -206,7 +205,6 @@
                                             "description": "Allow inbound web traffic to app",
                                             "protocol": "Icmp",
                                             "sourcePortRange": "*",
-                                            "destinationPortRange": "*",
                                             "destinationAddressPrefix": "*",
                                             "access": "Allow",
                                             "priority": 400,
