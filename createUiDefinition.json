@@ -2797,6 +2797,15 @@
                 "bladeTitle": "F5 Settings",
                 "elements": [
                     {
+                        "name": "infoSubscription",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": true,
+                        "options": {
+                            "text": "Configure the Azure subscription and target region for your F5 deployment.",
+                            "style": "Info"
+                        }
+                    },
+                    {
                         "name": "f5Sub",
                         "type": "Microsoft.Common.DropDown",
                         "label": "F5 subscription",
@@ -2825,6 +2834,46 @@
                             "required": true
                         },
                         "visible": "[not(equals(steps('connectivity').enableHub, 'No'))]"
+                    },
+                    {
+                        "name": "uniqueString",
+                        "type": "Microsoft.Common.TextBox",
+                        "toolTip": "Provide a unique string that identifies the resources. It must contain only alphanumeric characters and hyphens.",
+                        "label": "Uniquestring",
+                        "defaultValue": "",
+                        "constraints": {
+                            "required": false,
+                            "regex": "^[a-zA-Z0-9-]*$",
+                            "validationMessage": "The unique string must only contain alphanumeric characters and hyphens."
+                        }
+                    },
+                    {
+                        "name": "infoTelemetry",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": true,
+                        "options": {
+                            "text": "Settings related to F5 telemetry.",
+                            "style": "Info"
+                        }
+                    },
+                    {
+                        "name": "allowUsageAnalytics",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "toolTip": "This setting configures whether F5 telemetry data will be sent to F5. Sending data helps F5 improve their products and services.",
+                        "label": "Allow Usage Analytics",
+                        "defaultValue": "Yes (recommended)",
+                        "constraints": {
+                            "allowedValues": [
+                                {
+                                    "label": "Yes (recommended)",
+                                    "value": "Yes"
+                                },
+                                {
+                                    "label": "No",
+                                    "value": "No"
+                                }
+                            ]
+                        }
                     },
                     {
                         "name": "enableF5Telemetry",
@@ -2857,6 +2906,15 @@
                         "visible": "[and(equals(steps('management').enableLogAnalytics,'No'), equals(steps('f5Parameters').enableF5Telemetry,'Yes'))]"
                     },
                     {
+                        "name": "infoEmail",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": true,
+                        "options": {
+                            "text": "Configure email notifications for scale up or scale down events.",
+                            "style": "Info"
+                        }
+                    },
+                    {
                         "name": "customEmail",
                         "type": "Microsoft.Common.TextBox",
                         "toolTip": "Enter email addresses separated by commas to be notified when scale up or scale down occurs.",
@@ -2873,24 +2931,14 @@
                             ]
                         },
                         "visible": true
-                    },
+                    },                        
                     {
-                        "name": "allowUsageAnalytics",
-                        "type": "Microsoft.Common.OptionsGroup",
-                        "toolTip": "This setting configures whether F5 telemetry data will be sent to F5. Sending data helps F5 improve their products and services.",
-                        "label": "Allow Usage Analytics",
-                        "defaultValue": "Yes (recommended)",
-                        "constraints": {
-                            "allowedValues": [
-                                {
-                                    "label": "Yes (recommended)",
-                                    "value": "Yes"
-                                },
-                                {
-                                    "label": "No",
-                                    "value": "No"
-                                }
-                            ]
+                        "name": "infoAppSettings",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": true,
+                        "options": {
+                            "text": "Configure the settings related to the application container and its scaling parameters.",
+                            "style": "Info"
                         }
                     },
                     {
@@ -2922,6 +2970,15 @@
                         "min": 1,
                         "max": 20,
                         "defaultValue": 1
+                    },
+                    {
+                        "name": "infoBigIpSettings",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": true,
+                        "options": {
+                            "text": "Configure the settings related to the BIG-IP Virtual Edition and its scaling parameters.",
+                            "style": "Info"
+                        }
                     },
                     {
                         "name": "bigIpImage",
@@ -3092,6 +3149,15 @@
                         }
                     },
                     {
+                        "name": "infoLoadBalancer",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": true,
+                        "options": {
+                            "text": "Configure settings related to load balancing and availability zones.",
+                            "style": "Info"
+                        }
+                    },
+                    {
                         "name": "provisionExternalBigIpLoadBalancer",
                         "type": "Microsoft.Common.OptionsGroup",
                         "toolTip": "Choose whether to provision an external BIG-IP load balancer. This helps in distributing traffic externally.",
@@ -3149,63 +3215,31 @@
                         }
                     },
                     {
-                        "name": "allowedSourceIpToMgmt",
-                        "type": "Microsoft.Common.TextBox",
-                        "label": "Networks permitted to manage resources",
-                        "defaultValue": "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16",
-                        "toolTip": "Enter network addresses separated by commas that are permitted to manage resources in this deployment.",
-                        "placeholder": "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16",
+                        "name": "useAvailabilityZones",
+                        "type": "Microsoft.Common.OptionsGroup",
+                        "toolTip": "Choose whether to use availability zones for higher availability and fault tolerance. Availability zones are isolated locations within a region.",
+                        "label": "Use Availability Zones",
+                        "defaultValue": "Yes (recommended)",
                         "constraints": {
-                            "required": true,
-                            "validations": [
+                            "allowedValues": [
                                 {
-                                    "regex": "^[0-9.,/\n]{7,60}$",
-                                    "message": "Only 7-60 numeric characters, periods, commas, and forward slashes are allowed."
+                                    "label": "Yes (recommended)",
+                                    "value": "Yes"
+                                },
+                                {
+                                    "label": "No",
+                                    "value": "No"
                                 }
                             ]
-                        },
-                        "visible": true
-                    },
-                    {
-                        "name": "allowedSourceIpToApp",
-                        "type": "Microsoft.Common.TextBox",
-                        "label": "Networks permitted to access web resources",
-                        "defaultValue": "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16",
-                        "toolTip": "Enter network addresses separated by commas that are permitted to manage resources in this deployment.",
-                        "placeholder": "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16",
-                        "constraints": {
-                            "required": true,
-                            "validations": [
-                                {
-                                    "regex": "^[0-9.,/\n]{7,60}$",
-                                    "message": "Only 7-60 numeric characters, periods, commas, and forward slashes are allowed."
-                                }
-                            ]
-                        },
-                        "visible": true
-                    },
-                    {
-                        "name": "sshKey",
-                        "type": "Microsoft.Common.TextBox",
-                        "toolTip": "Provide the SSH key for secure access. This key is used for authentication and ensures secure communication.",
-                        "label": "Sshkey",
-                        "defaultValue": "",
-                        "constraints": {
-                            "required": false,
-                            "regex": "^[a-zA-Z0-9-+=/:@\\s]*$",
-                            "validationMessage": "The SSH key must be a valid SSH key."
                         }
                     },
                     {
-                        "name": "uniqueString",
-                        "type": "Microsoft.Common.TextBox",
-                        "toolTip": "Provide a unique string that identifies the resources. It must contain only alphanumeric characters and hyphens.",
-                        "label": "Uniquestring",
-                        "defaultValue": "",
-                        "constraints": {
-                            "required": false,
-                            "regex": "^[a-zA-Z0-9-]*$",
-                            "validationMessage": "The unique string must only contain alphanumeric characters and hyphens."
+                        "name": "infoNetworkSettings",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": true,
+                        "options": {
+                            "text": "Configure the network settings including address spaces and CIDR notations.",
+                            "style": "Info"
                         }
                     },
                     {
@@ -3263,22 +3297,60 @@
                         "visible": true
                     },
                     {
-                        "name": "useAvailabilityZones",
-                        "type": "Microsoft.Common.OptionsGroup",
-                        "toolTip": "Choose whether to use availability zones for higher availability and fault tolerance. Availability zones are isolated locations within a region.",
-                        "label": "Use Availability Zones",
-                        "defaultValue": "Yes (recommended)",
+                        "name": "infoSecuritySettings",
+                        "type": "Microsoft.Common.InfoBox",
+                        "visible": true,
+                        "options": {
+                            "text": "Configure security and access control settings.",
+                            "style": "Info"
+                        }
+                    },
+                    {
+                        "name": "allowedSourceIpToMgmt",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Networks permitted to manage resources",
+                        "defaultValue": "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16",
+                        "toolTip": "Enter network addresses separated by commas that are permitted to manage resources in this deployment.",
+                        "placeholder": "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16",
                         "constraints": {
-                            "allowedValues": [
+                            "required": true,
+                            "validations": [
                                 {
-                                    "label": "Yes (recommended)",
-                                    "value": "Yes"
-                                },
-                                {
-                                    "label": "No",
-                                    "value": "No"
+                                    "regex": "^[0-9.,/\n]{7,60}$",
+                                    "message": "Only 7-60 numeric characters, periods, commas, and forward slashes are allowed."
                                 }
                             ]
+                        },
+                        "visible": true
+                    },
+                    {
+                        "name": "allowedSourceIpToApp",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Networks permitted to access web resources",
+                        "defaultValue": "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16",
+                        "toolTip": "Enter network addresses separated by commas that are permitted to manage resources in this deployment.",
+                        "placeholder": "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16",
+                        "constraints": {
+                            "required": true,
+                            "validations": [
+                                {
+                                    "regex": "^[0-9.,/\n]{7,60}$",
+                                    "message": "Only 7-60 numeric characters, periods, commas, and forward slashes are allowed."
+                                }
+                            ]
+                        },
+                        "visible": true
+                    },  
+                    {
+                        "name": "sshKey",
+                        "type": "Microsoft.Common.TextBox",
+                        "toolTip": "Provide the SSH key for secure access. This key is used for authentication and ensures secure communication.",
+                        "label": "Sshkey",
+                        "defaultValue": "",
+                        "constraints": {
+                            "required": false,
+                            "regex": "^[a-zA-Z0-9-+=/:@\\s]*$",
+                            "validationMessage": "The SSH key must be a valid SSH key."
                         }
                     }
                 ]
