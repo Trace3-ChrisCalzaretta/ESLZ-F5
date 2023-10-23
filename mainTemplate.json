@@ -1777,7 +1777,7 @@
                         "value": "[if(equals(parameters('provisionInternalBigIpLoadBalancer'), 'Yes'), variables('internalLoadBalancerName'), 'None')]"
                     },
                     "internalSubnetId": {
-                        "value": "[reference('networkTemplate').outputs.subnets.value[1]]"
+                        "value": "[reference('networkTemplate').outputs.demoAppSubnet.value]"
                     },
                     "loadBalancerRulePorts": {
                         "value": "[variables('loadBalancerRulePorts')]"
@@ -1837,7 +1837,7 @@
                         "value": "[parameters('sshKey')]"
                     },
                     "subnetId": {
-                        "value": "[reference('networkTemplate').outputs.subnets.value[1]]"
+                        "value": "[reference('networkTemplate').outputs.demoAppSubnet.value]"
                     },
                     "tagValues": {
                         "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], json('{}')) ]"

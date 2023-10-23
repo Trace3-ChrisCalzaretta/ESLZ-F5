@@ -432,6 +432,14 @@
         "deployment": {
             "type": "string",
             "value": "[concat(deployment().name, ' has successfully deployed.')]"
+        },
+        "f5Subnet": {
+            "type": "string",
+            "value": "[reference(variables('resourceDeploymentName')).outputs.f5Subnet.value]"
+        },
+        "demoAppSubnet": {
+            "type": "string",
+            "value": "[reference(variables('resourceDeploymentName')).outputs.demoAppSubnet.value]"
         }
     }
 }
