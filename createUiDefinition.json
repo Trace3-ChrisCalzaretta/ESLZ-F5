@@ -3150,73 +3150,39 @@
                     },
                     {
                         "name": "allowedSourceIpToMgmt",
-                        "type": "Microsoft.Common.EditableGrid",
-                        "ariaLabel": "Enter one network address per row that is permitted to manage resources in this deployment.",
-                        "label": "Networks permitted to access web resources",
+                        "type": "Microsoft.Common.TextBox",
+                        "label": "Networks permitted to manage resources",
+                        "defaultValue": "10.0.0.0/8",
+                        "toolTip": "Enter network addresses separated by commas that are permitted to manage resources in this deployment.",
+                        "placeholder": "10.0.0.0/8",
                         "constraints": {
-                            "width": "Full",
-                            "rows": {
-                                "count": {
-                                    "min": 1,
-                                    "max": 10
-                                }
-                            },
-                            "columns": [
+                            "required": true,
+                            "validations": [
                                 {
-                                    "id": "colNetwork",
-                                    "header": "Network Address",
-                                    "width": "1fr",
-                                    "element": {
-                                        "type": "Microsoft.Common.TextBox",
-                                        "placeholder": "Enter a single IP address",
-                                        "constraints": {
-                                            "required": true,
-                                            "validations": [
-                                                {
-                                                    "regex": "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}(?:\\/[0-9]{1,2})?$",
-                                                    "message": "Enter a valid IP address in CIDR format (e.g., 192.168.0.1/24). One IP per row."
-                                                }
-                                            ]
-                                        }
-                                    }
+                                    "regex": "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}(?:\\/[0-9]{1,2})?$",
+                                    "message": "Only 7-60 numeric characters, periods, commas, and forward slashes are allowed."
                                 }
                             ]
-                        }
-                    }, 
+                        },
+                        "visible": true
+                    },
                     {
                         "name": "allowedSourceIpToApp",
-                        "type": "Microsoft.Common.EditableGrid",
-                        "ariaLabel": "Enter one network address per row that is permitted to manage resources in this deployment.",
+                        "type": "Microsoft.Common.TextBox",
                         "label": "Networks permitted to access web resources",
+                        "defaultValue": "10.0.0.0/8",
+                        "toolTip": "Enter network addresses separated by commas that are permitted to manage resources in this deployment.",
+                        "placeholder": "10.0.0.0/8",
                         "constraints": {
-                            "width": "Full",
-                            "rows": {
-                                "count": {
-                                    "min": 1,
-                                    "max": 10
-                                }
-                            },
-                            "columns": [
+                            "required": true,
+                            "validations": [
                                 {
-                                    "id": "colNetwork",
-                                    "header": "Network Address",
-                                    "width": "1fr",
-                                    "element": {
-                                        "type": "Microsoft.Common.TextBox",
-                                        "placeholder": "Enter a single IP address",
-                                        "constraints": {
-                                            "required": true,
-                                            "validations": [
-                                                {
-                                                    "regex": "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}(?:\\/[0-9]{1,2})?$",
-                                                    "message": "Enter a valid IP address in CIDR format (e.g., 192.168.0.1/24). One IP per row."
-                                                }
-                                            ]
-                                        }
-                                    }
+                                    "regex": "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}(?:\\/[0-9]{1,2})?$",
+                                    "message": "Only 7-60 numeric characters, periods, commas, and forward slashes are allowed."
                                 }
                             ]
-                        }
+                        },
+                        "visible": true
                     },     
                     {
                         "name": "sshKey",

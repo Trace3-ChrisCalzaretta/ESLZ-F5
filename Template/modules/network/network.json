@@ -49,25 +49,17 @@
             }
         },
         "allowedSourceIpToMgmt": {
-            "defaultValue": [
-                "10.0.0.0/8",
-                "172.16.0.0/12",
-                "192.168.0.0/16"
-            ],
-            "type": "array",
+            "defaultValue": "10.0.0.0/8",
+            "type": "string",
             "metadata": {
-                "description": "Source IP Addresses Or CIDRs That Are Allowed Inbound To The Mgmt Subnet"
+                "description": "Source Network Address That Is Allowed Inbound To The Mgmt Subnet"
             }
         },
         "allowedSourceIpToApp": {
-            "defaultValue": [
-                "10.0.0.0/8",
-                "172.16.0.0/12",
-                "192.168.0.0/16"
-            ],
-            "type": "array",
+            "defaultValue": "10.0.0.0/8",
+            "type": "string",
             "metadata": {
-                "description": "Source IP Addresses Or CIDRs That Are Allowed Inbound To The Mgmt Subnet"
+                "description": "Source Network Address That Is Allowed Inbound To The App Subnet"
             }
         },
         "natGatewayName": {
@@ -164,11 +156,11 @@
                             "type": "string"
                         },
                         "allowedSourceIpToMgmt": {
-                            "type": "array"
+                            "type": "string"
                         },
 
                         "allowedSourceIpToApp": {
-                            "type": "array"
+                            "type": "string"
                         },
                         "tagValues": {
                             "type": "object"
@@ -194,7 +186,7 @@
                                             "description": "DO NOT DELETE - Allows Management of F5 appliances",
                                             "protocol": "Tcp",
                                             "sourcePortRange": "*",
-                                            "sourceAddressPrefixes": "[parameters('allowedSourceIpToMgmt')]",
+                                            "sourceAddressPrefix": "[parameters('allowedSourceIpToMgmt')]",
                                             "access": "Allow",
                                             "priority": 300,
                                             "direction": "Inbound",
@@ -220,7 +212,7 @@
                                                 "80",
                                                 "443"
                                             ],
-                                            "sourceAddressPrefixes": "[parameters('allowedSourceIpToApp')]"
+                                            "sourceAddressPrefix": "[parameters('allowedSourceIpToApp')]"
                                         }
                                     },
                                     {

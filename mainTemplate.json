@@ -776,25 +776,17 @@
             "type": "string"
         },
         "allowedSourceIpToMgmt": {
-            "defaultValue": [
-                "10.0.0.0/8",
-                "172.16.0.0/12",
-                "192.168.0.0/16"
-            ],
-            "type": "array",
+            "defaultValue": "10.0.0.0/8",
+            "type": "string",
             "metadata": {
-                "description": "Source IP Addresses Or CIDRs That Are Allowed Inbound To The Mgmt Subnet"
+                "description": "Source Network Address That Is Allowed Inbound To The Mgmt Subnet"
             }
         },
         "allowedSourceIpToApp": {
-            "defaultValue": [
-                "10.0.0.0/8",
-                "172.16.0.0/12",
-                "192.168.0.0/16"
-            ],
-            "type": "array",
+            "defaultValue": "10.0.0.0/8",
+            "type": "string",
             "metadata": {
-                "description": "Source IP Addresses Or CIDRs That Are Allowed Inbound To The Mgmt Subnet"
+                "description": "Source Network Address That Is Allowed Inbound To The App Subnet"
             }
         },
         "bigIpImage": {
