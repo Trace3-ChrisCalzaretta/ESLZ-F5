@@ -2860,7 +2860,7 @@
                                 "allowedValues": "[map(steps('basics').getLocations.value,(item) => parse(concat('{\"label\":\"',item.displayName,'\",\"value\":\"',item.name,'\"}')))]",
                                 "required": true
                             },
-                            "visible": "[not(equals(steps('connectivity').enableHub, 'No'))]"
+                            "visible": true
                         },
                         {
                             "name": "uniqueString",
