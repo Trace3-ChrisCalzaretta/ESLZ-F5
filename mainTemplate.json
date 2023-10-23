@@ -1961,7 +1961,7 @@
                         "value": "[parameters('sshKey')]"
                     },
                     "subnetId": {
-                        "value": "[reference('networkTemplate').outputs.subnets.value[0]]"
+                        "value": "[reference('networkTemplate').outputs.f5Subnet.value]"
                     },
                     "tagValues": {
                         "value": "[ if(contains(parameters('tagsByResource'), 'Microsoft.Compute/virtualMachines'), parameters('tagsByResource')['Microsoft.Compute/virtualMachines'], json('{}')) ]"
