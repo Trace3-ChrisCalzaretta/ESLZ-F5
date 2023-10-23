@@ -49,15 +49,15 @@
             }
         },
         "allowedSourceIpToMgmt": {
-            "defaultValue": "10.0.0.0/8",
-            "type": "string",
+            "defaultValue": "10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16",
+            "type": "String",
             "metadata": {
-                "description": "Source Network Address That Is Allowed Inbound To The Mgmt Subnet"
+                "description": "Source IP Addresses Or CIDRs That Are Allowed Inbound On Ports 3389 and 22 to the spoke separated by commas."
             }
         },
         "allowedSourceIpToApp": {
-            "defaultValue": "10.0.0.0/8",
-            "type": "string",
+            "defaultValue": "10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16",
+            "type": "String",
             "metadata": {
                 "description": "Source Network Address That Is Allowed Inbound To The App Subnet"
             }
@@ -186,7 +186,7 @@
                                             "description": "DO NOT DELETE - Allows Management of F5 appliances",
                                             "protocol": "Tcp",
                                             "sourcePortRange": "*",
-                                            "sourceAddressPrefix": "[parameters('allowedSourceIpToMgmt')]",
+                                            "sourceAddressPrefixes": "[split(parameters('allowedSourceIpToMgmt'),',')]",
                                             "access": "Allow",
                                             "priority": 300,
                                             "direction": "Inbound",
@@ -211,7 +211,7 @@
                                                 "80",
                                                 "443"
                                             ],
-                                            "sourceAddressPrefix": "[parameters('allowedSourceIpToApp')]"
+                                            "sourceAddressPrefixes": "[split(parameters('allowedSourceIpToApp'),',')]"
                                         }
                                     },
                                     {
@@ -248,6 +248,7 @@
                                             "access": "Allow",
                                             "priority": 300,
                                             "direction": "Inbound",
+                                            "destinationAddressPrefix": "*",
                                             "destinationPortRanges": [
                                                 "80",
                                                 "443"
