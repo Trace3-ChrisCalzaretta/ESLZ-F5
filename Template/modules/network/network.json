@@ -401,11 +401,11 @@
                         },
                         "f5Subnet": {
                             "type": "string",
-                            "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('f5SubnetName'))]"
+                            "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('f5SubnetName'))]"
                         },
                         "demoAppSubnet": {
                             "type": "string",
-                            "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('demoAppSubnetName'))]"
+                            "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), variables('demoAppSubnetName'))]"
                         },
                         "f5RouteTable": {
                             "type": "string",
